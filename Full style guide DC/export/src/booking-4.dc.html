@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; background: #fbf4eb; }
+    a { color: #8d671d; }
+    a:hover { color: #785300; }
+    @keyframes lg-spin { to { transform: rotate(360deg); } }
+    .lg-layout { display: grid; grid-template-columns: 300px 1fr; gap: 24px; }
+    @media (max-width: 780px) {
+      .lg-layout { grid-template-columns: 1fr !important; }
+      .lg-container { padding: 20px 16px 60px !important; }
+      .lg-summary-full { display: none !important; }
+      .lg-summary-compact { display: flex !important; }
+    }
+    @media (min-width: 781px) {
+      .lg-summary-compact { display: none !important; }
+    }
+  </style>
+</helmet>
+
+<div style="font-family:'Manrope',sans-serif;background:#fbf4eb;color:#291c15;min-height:100vh;padding-bottom:40px">
+
+  <div style="max-width:900px;margin:0 auto;padding:12px 24px;display:flex;gap:8px;justify-content:center;flex-wrap:wrap">
+    <button onClick="{{setStateNormal}}" style="{{devBtnNormal}}">Обычное</button>
+    <button onClick="{{setStateLoginError}}" style="{{devBtnLoginError}}">Вход: ошибка</button>
+    <button onClick="{{setStateSignupTaken}}" style="{{devBtnSignupTaken}}">E-mail занят</button>
+    <button onClick="{{setStateLoading}}" style="{{devBtnLoading}}">Загрузка</button>
+    <button onClick="{{setStateExpired}}" style="{{devBtnExpired}}">Время истекло</button>
+  </div>
+
+  <div class="lg-container" style="max-width:900px;margin:0 auto;padding:20px 24px 60px">
+
+    <!-- STEPPER -->
+    <div style="display:flex;align-items:center;margin-bottom:20px">
+      <div style="display:flex;align-items:center;flex:1"><div style="display:flex;flex-direction:column;align-items:center;gap:8px"><div style="width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;background:#482a1d;color:#fdf8f1">✓</div><div style="font-size:11px;font-weight:600;color:#291c15">Услуги</div></div><div style="flex:1;height:2px;background:#482a1d;margin:0 6px;transform:translateY(-13px)"></div></div>
+      <div style="display:flex;align-items:center;flex:1"><div style="display:flex;flex-direction:column;align-items:center;gap:8px"><div style="width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;background:#482a1d;color:#fdf8f1">✓</div><div style="font-size:11px;font-weight:600;color:#291c15">Мастер</div></div><div style="flex:1;height:2px;background:#482a1d;margin:0 6px;transform:translateY(-13px)"></div></div>
+      <div style="display:flex;align-items:center;flex:1"><div style="display:flex;flex-direction:column;align-items:center;gap:8px"><div style="width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;background:#482a1d;color:#fdf8f1">✓</div><div style="font-size:11px;font-weight:600;color:#291c15">Время</div></div><div style="flex:1;height:2px;background:#482a1d;margin:0 6px;transform:translateY(-13px)"></div></div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:8px"><div style="width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;background:#8d671d;color:#fdf8f1;box-shadow:0 0 0 4px #f5e2c4">4</div><div style="font-size:11px;font-weight:600;color:#291c15">Вход</div></div>
+    </div>
+
+    <!-- HOLD BANNER -->
+    <sc-if value="{{isExpired}}" hint-placeholder-val="{{false}}">
+      <div style="background:#fde7cf;border:1px solid #ad7b3d;border-radius:16px;padding:14px 18px;margin-bottom:24px;display:flex;align-items:center;gap:10px">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#582f02" stroke-width="1.75" stroke-linecap="round" style="flex-shrink:0"><circle cx="12" cy="12" r="9"/><line x1="12" y1="12" x2="12" y2="7"/><line x1="12" y1="12" x2="16" y2="14"/></svg>
+        <div style="font-size:14px;font-weight:700;color:#582f02">Время удержания истекло</div>
+      </div>
+    </sc-if>
+    <sc-if value="{{isNotExpired}}" hint-placeholder-val="{{true}}">
+      <div style="{{holdBannerStyle}}">
+        <div style="display:flex;align-items:center;gap:10px">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="{{holdIconColor}}" stroke-width="1.75" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><line x1="12" y1="12" x2="12" y2="7"/><line x1="12" y1="12" x2="16" y2="14"/></svg>
+          <div style="font-size:14px;font-weight:700;color:{{holdTextColor}}">Держим 14:00 за вами</div>
+        </div>
+        <div style="font-size:18px;font-weight:700;font-variant-numeric:tabular-nums;color:{{holdTextColor}}">{{timerLabel}}</div>
+      </div>
+    </sc-if>
+
+    <!-- EXPIRED SCREEN -->
+    <sc-if value="{{isExpired}}" hint-placeholder-val="{{false}}">
+      <div style="background:#fef9f3;border:1px solid #d6ccc4;border-radius:24px;padding:40px 28px;text-align:center;display:flex;flex-direction:column;align-items:center">
+        <div style="width:72px;height:72px;border-radius:42% 58% 61% 39% / 45% 40% 60% 55%;background:#fde7cf;margin-bottom:20px"></div>
+        <div style="font-family:'Playfair Display',serif;font-size:22px;font-weight:600;color:#291c15;margin-bottom:8px">Время брони истекло</div>
+        <div style="font-size:13px;color:#796c65;margin-bottom:24px;max-width:340px">Кто-то другой мог занять это время. Проверим и вернём его, если оно всё ещё свободно</div>
+        <div style="display:flex;flex-direction:column;gap:10px;width:100%;max-width:280px">
+          <button style="padding:13px 24px;border-radius:999px;border:none;background:#482a1d;color:#fdf8f1;font-family:Manrope,sans-serif;font-size:14px;font-weight:700;cursor:pointer;min-height:44px">Вернуть 14:00</button>
+          <button style="padding:13px 24px;border-radius:999px;border:1.5px solid #a4958c;background:transparent;color:#291c15;font-family:Manrope,sans-serif;font-size:14px;font-weight:700;cursor:pointer;min-height:44px">Выбрать другое время</button>
+        </div>
+      </div>
+    </sc-if>
+
+    <!-- MAIN CONTENT -->
+    <sc-if value="{{isNotExpired}}" hint-placeholder-val="{{true}}">
+      <div class="lg-layout">
+
+        <!-- SUMMARY: full (desktop) -->
+        <div class="lg-summary-full" style="background:#fef9f3;border:1px solid #d6ccc4;border-radius:20px;padding:20px;align-self:flex-start">
+          <div style="font-size:12px;text-transform:uppercase;letter-spacing:0.06em;color:#796c65;font-weight:700;margin-bottom:14px">Ваша запись</div>
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
+            <div style="width:44px;height:44px;border-radius:50%;background:#f4e4dd;color:#482a1d;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;flex-shrink:0">АС</div>
+            <div><div style="font-size:14px;font-weight:700;color:#291c15">Анна Соколова</div><div style="font-size:12px;color:#796c65">Стрижка + окрашивание</div></div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px;font-size:13px;color:#594941;border-top:1px solid #d6ccc4;padding-top:14px">
+            <div style="display:flex;justify-content:space-between"><span>Дата</span><span style="font-weight:700;color:#291c15;font-variant-numeric:tabular-nums">18 августа</span></div>
+            <div style="display:flex;justify-content:space-between"><span>Время</span><span style="font-weight:700;color:#291c15;font-variant-numeric:tabular-nums">14:00</span></div>
+            <div style="display:flex;justify-content:space-between"><span>Длительность</span><span style="font-weight:700;color:#291c15;font-variant-numeric:tabular-nums">3 ч</span></div>
+          </div>
+          <div style="display:flex;justify-content:space-between;border-top:1px solid #d6ccc4;margin-top:14px;padding-top:14px;font-size:15px;font-weight:700;color:#291c15"><span>Сумма</span><span style="font-variant-numeric:tabular-nums">10 300 ₽</span></div>
+          <div style="font-size:11px;color:#796c65;margin-top:8px">Справочно, оплата в салоне</div>
+        </div>
+
+        <!-- SUMMARY: compact (mobile) -->
+        <div class="lg-summary-compact" style="background:#fef9f3;border:1px solid #d6ccc4;border-radius:16px;padding:14px 16px;display:flex;justify-content:space-between;align-items:center;font-size:13px">
+          <div><span style="font-weight:700;color:#291c15">Анна</span> · стрижка + окрашивание</div>
+          <div style="font-weight:700;color:#291c15;font-variant-numeric:tabular-nums">18 авг, 14:00</div>
+        </div>
+
+        <!-- FORM -->
+        <div style="background:#fef9f3;border:1px solid #d6ccc4;border-radius:20px;padding:24px">
+
+          <div style="display:flex;gap:4px;background:#f2eae0;border-radius:999px;padding:4px;margin-bottom:20px;width:fit-content">
+            <button onClick="{{setTabLogin}}" style="{{tabLoginStyle}}">Войти</button>
+            <button onClick="{{setTabSignup}}" style="{{tabSignupStyle}}">Создать аккаунт</button>
+          </div>
+
+          <!-- LOGIN TAB -->
+          <sc-if value="{{showLogin}}" hint-placeholder-val="{{true}}">
+            <sc-if value="{{isLoginError}}" hint-placeholder-val="{{false}}">
+              <div style="background:#ffddd9;color:#5f1a19;border-radius:12px;padding:12px 16px;font-size:13px;font-weight:600;margin-bottom:16px">Неверный e-mail или пароль</div>
+            </sc-if>
+            <div style="margin-bottom:14px">
+              <label style="display:block;font-size:13px;font-weight:600;color:#291c15;margin-bottom:6px">E-mail</label>
+              <input placeholder="you@mail.ru" style="width:100%;padding:12px 16px;border-radius:14px;border:1.5px solid {{loginFieldBorder}};background:#fef9f3;color:#291c15;font-family:Manrope,sans-serif;font-size:14px;outline:none"/>
+            </div>
+            <div style="margin-bottom:8px;position:relative">
+              <label style="display:block;font-size:13px;font-weight:600;color:#291c15;margin-bottom:6px">Пароль</label>
+              <input type="{{loginPassType}}" placeholder="••••••••" style="width:100%;padding:12px 44px 12px 16px;border-radius:14px;border:1.5px solid {{loginFieldBorder}};background:#fef9f3;color:#291c15;font-family:Manrope,sans-serif;font-size:14px;outline:none"/>
+              <button onClick="{{toggleLoginPass}}" style="position:absolute;right:10px;top:38px;background:none;border:none;color:#796c65;cursor:pointer;padding:6px">{{loginPassIcon}}</button>
+            </div>
+            <div style="text-align:right;margin-bottom:20px"><a href="#" style="font-size:12px;font-weight:600;text-decoration:none">Забыли пароль?</a></div>
+            <button onClick="{{setStateLoading}}" disabled="{{isLoading}}" style="{{primaryBtnStyle}}">
+              <sc-if value="{{isLoading}}" hint-placeholder-val="{{false}}"><span style="width:14px;height:14px;border-radius:50%;border:2px solid #fdf8f1;border-top-color:transparent;animation:lg-spin 0.7s linear infinite;display:inline-block;margin-right:8px"></span></sc-if>
+              Войти
+            </button>
+          </sc-if>
+
+          <!-- SIGNUP TAB -->
+          <sc-if value="{{showSignup}}" hint-placeholder-val="{{false}}">
+            <sc-if value="{{isSignupTaken}}" hint-placeholder-val="{{false}}">
+              <div style="background:#ffddd9;color:#5f1a19;border-radius:12px;padding:12px 16px;font-size:13px;font-weight:600;margin-bottom:16px">Такой e-mail уже зарегистрирован. <a href="#" onClick="{{setTabLogin}}" style="font-weight:700">Войти</a></div>
+            </sc-if>
+            <div style="margin-bottom:14px">
+              <label style="display:block;font-size:13px;font-weight:600;color:#291c15;margin-bottom:6px">Имя</label>
+              <input placeholder="Как к вам обращаться" style="width:100%;padding:12px 16px;border-radius:14px;border:1.5px solid #d6ccc4;background:#fef9f3;color:#291c15;font-family:Manrope,sans-serif;font-size:14px;outline:none"/>
+            </div>
+            <div style="margin-bottom:14px">
+              <label style="display:block;font-size:13px;font-weight:600;color:#291c15;margin-bottom:6px">E-mail</label>
+              <input placeholder="you@mail.ru" style="width:100%;padding:12px 16px;border-radius:14px;border:1.5px solid {{signupFieldBorder}};background:#fef9f3;color:#291c15;font-family:Manrope,sans-serif;font-size:14px;outline:none"/>
+            </div>
+            <div style="margin-bottom:14px">
+              <label style="display:block;font-size:13px;font-weight:600;color:#291c15;margin-bottom:6px">Телефон</label>
+              <input placeholder="+7 999 000-00-00" style="width:100%;padding:12px 16px;border-radius:14px;border:1.5px solid #d6ccc4;background:#fef9f3;color:#291c15;font-family:Manrope,sans-serif;font-size:14px;outline:none"/>
+            </div>
+            <div style="margin-bottom:8px;position:relative">
+              <label style="display:block;font-size:13px;font-weight:600;color:#291c15;margin-bottom:6px">Пароль</label>
+              <input type="password" value="••••••••" style="width:100%;padding:12px 16px;border-radius:14px;border:1.5px solid #d6ccc4;background:#fef9f3;color:#291c15;font-family:Manrope,sans-serif;font-size:14px;outline:none"/>
+            </div>
+            <div style="display:flex;gap:4px;margin-bottom:16px">
+              <span style="height:4px;flex:1;border-radius:2px;background:#ad7b3d"></span>
+              <span style="height:4px;flex:1;border-radius:2px;background:#ad7b3d"></span>
+              <span style="height:4px;flex:1;border-radius:2px;background:#d6ccc4"></span>
+            </div>
+            <label onClick="{{toggleAgree}}" style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;margin-bottom:20px">
+              <span style="{{agreeBoxStyle}}">{{agreeMark}}</span>
+              <span style="font-size:12px;color:#594941;line-height:1.5">Согласен с условиями публичной оферты</span>
+            </label>
+            <button onClick="{{setStateLoading}}" disabled="{{signupBtnDisabled}}" style="{{signupBtnStyle}}">
+              <sc-if value="{{isLoading}}" hint-placeholder-val="{{false}}"><span style="width:14px;height:14px;border-radius:50%;border:2px solid #fdf8f1;border-top-color:transparent;animation:lg-spin 0.7s linear infinite;display:inline-block;margin-right:8px"></span></sc-if>
+              Создать и продолжить
+            </button>
+          </sc-if>
+
+          <div style="font-size:12px;color:#796c65;text-align:center;margin-top:18px;line-height:1.5">После входа вернём вас к подтверждению записи — выбранное время сохранится</div>
+        </div>
+      </div>
+    </sc-if>
+
+  </div>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = {
+    demoState: 'normal',
+    tab: 'login',
+    loginPassVisible: false,
+    agree: false,
+    remaining: 582,
+  };
+
+  componentDidMount() {
+    this._timer = setInterval(() => {
+      this.setState(s => {
+        if (s.demoState !== 'normal' && s.demoState !== 'loading') return null;
+        if (s.remaining <= 0) return { demoState: 'expired' };
+        return { remaining: s.remaining - 1 };
+      });
+    }, 1000);
+  }
+  componentWillUnmount() { clearInterval(this._timer); }
+
+  setStateNormal = () => this.setState({ demoState: 'normal' });
+  setStateLoginError = () => this.setState({ demoState: 'loginError', tab: 'login' });
+  setStateSignupTaken = () => this.setState({ demoState: 'signupTaken', tab: 'signup' });
+  setStateLoading = () => this.setState({ demoState: 'loading' });
+  setStateExpired = () => this.setState({ demoState: 'expired' });
+  setTabLogin = () => this.setState({ tab: 'login' });
+  setTabSignup = () => this.setState({ tab: 'signup' });
+  toggleLoginPass = () => this.setState(s => ({ loginPassVisible: !s.loginPassVisible }));
+  toggleAgree = () => this.setState(s => ({ agree: !s.agree }));
+
+  renderVals() {
+    const s = this.state;
+    const isExpired = s.demoState === 'expired';
+    const isNotExpired = !isExpired;
+    const isLoading = s.demoState === 'loading';
+    const isLoginError = s.demoState === 'loginError';
+    const isSignupTaken = s.demoState === 'signupTaken';
+
+    const mm = Math.floor(Math.max(0, s.remaining) / 60);
+    const ss = Math.max(0, s.remaining) % 60;
+    const timerLabel = String(mm).padStart(2, '0') + ':' + String(ss).padStart(2, '0');
+    const warning = s.remaining <= 120;
+
+    const holdBannerStyle = "display:flex;justify-content:space-between;align-items:center;border-radius:16px;padding:14px 18px;margin-bottom:24px;" +
+      (warning ? "background:#fde7cf;border:1px solid #ad7b3d;" : "background:#fef9f3;border:1px solid #d6ccc4;");
+    const holdTextColor = warning ? '#582f02' : '#291c15';
+    const holdIconColor = warning ? '#582f02' : '#291c15';
+
+    const tabBase = "padding:9px 18px;border-radius:999px;border:none;font-family:Manrope,sans-serif;font-size:13px;font-weight:700;cursor:pointer;";
+    const tabActive = tabBase + "background:#fef9f3;color:#291c15;";
+    const tabInactive = tabBase + "background:transparent;color:#796c65;";
+    const tabLoginStyle = s.tab === 'login' ? tabActive : tabInactive;
+    const tabSignupStyle = s.tab === 'signup' ? tabActive : tabInactive;
+
+    const primaryBtnBase = "width:100%;padding:13px;border-radius:999px;border:none;font-family:Manrope,sans-serif;font-size:14px;font-weight:700;min-height:44px;display:flex;align-items:center;justify-content:center;";
+    const primaryBtnStyle = primaryBtnBase + (isLoading ? "background:#482a1d;color:#fdf8f1;cursor:not-allowed;opacity:0.85;" : "background:#482a1d;color:#fdf8f1;cursor:pointer;");
+
+    const agreeBoxStyle = "width:20px;height:20px;border-radius:6px;border:2px solid " + (s.agree ? '#482a1d' : '#a4958c') + ";background:" + (s.agree ? '#482a1d' : 'transparent') + ";display:flex;align-items:center;justify-content:center;color:#fdf8f1;font-size:12px;flex-shrink:0;margin-top:1px";
+    const agreeMark = s.agree ? '✓' : '';
+    const signupBtnDisabled = !s.agree || isLoading;
+    const signupBtnStyle = primaryBtnBase + (signupBtnDisabled ? "background:#e4dcd3;color:#a59c98;cursor:not-allowed;" : "background:#482a1d;color:#fdf8f1;cursor:pointer;");
+
+    const devBtnBase = "padding:8px 14px;border-radius:999px;border:1px solid #d6ccc4;background:#fef9f3;color:#796c65;font-family:Manrope,sans-serif;font-size:12px;font-weight:700;cursor:pointer;";
+    const devBtnActive = "padding:8px 14px;border-radius:999px;border:1px solid #482a1d;background:#482a1d;color:#fdf8f1;font-family:Manrope,sans-serif;font-size:12px;font-weight:700;cursor:pointer;";
+
+    return {
+      isExpired, isNotExpired, isLoading, isLoginError, isSignupTaken,
+      timerLabel, holdBannerStyle, holdTextColor, holdIconColor,
+      setStateNormal: this.setStateNormal, setStateLoginError: this.setStateLoginError,
+      setStateSignupTaken: this.setStateSignupTaken, setStateLoading: this.setStateLoading, setStateExpired: this.setStateExpired,
+      devBtnNormal: s.demoState === 'normal' ? devBtnActive : devBtnBase,
+      devBtnLoginError: isLoginError ? devBtnActive : devBtnBase,
+      devBtnSignupTaken: isSignupTaken ? devBtnActive : devBtnBase,
+      devBtnLoading: isLoading ? devBtnActive : devBtnBase,
+      devBtnExpired: isExpired ? devBtnActive : devBtnBase,
+      setTabLogin: this.setTabLogin, setTabSignup: this.setTabSignup,
+      tabLoginStyle, tabSignupStyle,
+      showLogin: s.tab === 'login', showSignup: s.tab === 'signup',
+      loginFieldBorder: isLoginError ? '#9c433f' : '#d6ccc4',
+      signupFieldBorder: isSignupTaken ? '#9c433f' : '#d6ccc4',
+      loginPassType: s.loginPassVisible ? 'text' : 'password',
+      loginPassIcon: s.loginPassVisible ? '🙈' : '👁',
+      toggleLoginPass: this.toggleLoginPass,
+      primaryBtnStyle,
+      agreeBoxStyle, agreeMark, toggleAgree: this.toggleAgree,
+      signupBtnDisabled, signupBtnStyle,
+    };
+  }
+}
+</script>
+</body>
+</html>

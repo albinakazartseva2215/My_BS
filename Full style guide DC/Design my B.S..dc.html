@@ -1,0 +1,1284 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; }
+    ::selection { background: #8d671d; color: #fdf8f1; }
+    .ds-scroll::-webkit-scrollbar { width: 8px; }
+    .ds-scroll::-webkit-scrollbar-thumb { background: var(--color-border-strong); border-radius: 8px; }
+    @keyframes ds-shimmer { 0% { background-position: -200px 0; } 100% { background-position: 200px 0; } }
+    @keyframes ds-spin { to { transform: rotate(360deg); } }
+  </style>
+</helmet>
+
+<div style="{{rootStyle}}">
+
+  <aside class="ds-scroll" style="grid-column:1;position:sticky;top:0;height:100vh;overflow-y:auto;border-right:1px solid var(--color-border);padding:28px 20px;display:flex;flex-direction:column;gap:24px;background:var(--color-surface)">
+    <div>
+      <div style="font-family:'Playfair Display',serif;font-size:22px;font-weight:600;color:var(--color-text-primary);letter-spacing:0.01em">Salon UI</div>
+      <div style="font-size:12px;color:var(--color-text-muted);margin-top:2px">Дизайн-система · v1.0</div>
+    </div>
+
+    <button onClick="{{toggleTheme}}" style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 14px;border-radius:999px;border:1px solid var(--color-border-strong);background:var(--color-surface-raised);color:var(--color-text-primary);font-family:'Manrope',sans-serif;font-size:13px;font-weight:600;cursor:pointer">
+      <span>{{themeLabel}} тема</span>
+      <span style="width:36px;height:20px;border-radius:999px;background:{{switchTrackBg}};position:relative;transition:background .2s ease">
+        <span style="position:absolute;top:2px;left:{{themeDotLeft}};width:16px;height:16px;border-radius:50%;background:#fff;transition:left .2s ease"></span>
+      </span>
+    </button>
+
+    <nav style="display:flex;flex-direction:column;gap:2px;font-size:13px">
+      <div style="font-size:11px;text-transform:uppercase;letter-spacing:0.08em;color:var(--color-text-muted);margin:10px 0 4px">Основы</div>
+      <a href="#overview" style="{{navLink}}">Обзор</a>
+      <a href="#color" style="{{navLink}}">Цвет</a>
+      <a href="#type" style="{{navLink}}">Типографика</a>
+      <a href="#grid" style="{{navLink}}">Сетка и форма</a>
+      <a href="#icons" style="{{navLink}}">Иконки</a>
+      <div style="font-size:11px;text-transform:uppercase;letter-spacing:0.08em;color:var(--color-text-muted);margin:10px 0 4px">База</div>
+      <a href="#buttons" style="{{navLink}}">Кнопки</a>
+      <a href="#inputs" style="{{navLink}}">Поля ввода</a>
+      <a href="#selects" style="{{navLink}}">Выбор (чекбокс/свитч)</a>
+      <a href="#badges" style="{{navLink}}">Бейджи и чипы</a>
+      <a href="#avatars" style="{{navLink}}">Аватар</a>
+      <a href="#nav-comp" style="{{navLink}}">Табы, крошки, пагинация</a>
+      <a href="#overlays" style="{{navLink}}">Тултип и поповер</a>
+      <div style="font-size:11px;text-transform:uppercase;letter-spacing:0.08em;color:var(--color-text-muted);margin:10px 0 4px">Домен</div>
+      <a href="#master-card" style="{{navLink}}">Карточка мастера</a>
+      <a href="#service-card" style="{{navLink}}">Карточка услуги</a>
+      <a href="#slots" style="{{navLink}}">Сетка слотов</a>
+      <a href="#calendar" style="{{navLink}}">Календарь</a>
+      <a href="#stepper" style="{{navLink}}">Степпер брони</a>
+      <a href="#booking-card" style="{{navLink}}">Карточка записи</a>
+      <a href="#table" style="{{navLink}}">Таблица записей</a>
+      <a href="#shell" style="{{navLink}}">Сайдбар и шапка</a>
+      <div style="font-size:11px;text-transform:uppercase;letter-spacing:0.08em;color:var(--color-text-muted);margin:10px 0 4px">Обратная связь</div>
+      <a href="#modals" style="{{navLink}}">Модальные окна</a>
+      <a href="#toasts" style="{{navLink}}">Тосты</a>
+      <a href="#alerts" style="{{navLink}}">Инлайн-алерт</a>
+      <a href="#conflict" style="{{navLink}}">Конфликт слота</a>
+      <a href="#empty" style="{{navLink}}">Пустые состояния</a>
+      <a href="#skeletons" style="{{navLink}}">Скелетоны</a>
+      <a href="#errors" style="{{navLink}}">404 / 500</a>
+      <div style="font-size:11px;text-transform:uppercase;letter-spacing:0.08em;color:var(--color-text-muted);margin:10px 0 4px">Документация</div>
+      <a href="#guidelines" style="{{navLink}}">Правила</a>
+      <a href="#css-export" style="{{navLink}}">CSS-переменные</a>
+    </nav>
+  </aside>
+
+  <main style="grid-column:2;padding:56px 64px 120px;max-width:1180px">
+
+    <section id="overview" style="margin-bottom:96px">
+      <div style="font-size:12px;letter-spacing:0.08em;text-transform:uppercase;color:var(--color-accent);font-weight:700;margin-bottom:12px">Дизайн-система · Онлайн-запись в салон</div>
+      <h1 style="font-family:'Playfair Display',serif;font-size:56px;line-height:1.08;font-weight:600;letter-spacing:0.005em;color:var(--color-text-primary);margin:0 0 20px">Тёплый, премиальный,<br/>читаемый в работе</h1>
+      <p style="font-size:18px;line-height:1.6;color:var(--color-text-secondary);max-width:680px;margin:0 0 32px">Одна визуальная система для двух ролей: эмоциональная витрина для клиента и плотная, функциональная панель для администратора. Ниже — токены и компоненты, из которых собираются оба продукта.</p>
+      <div style="display:flex;gap:16px;flex-wrap:wrap">
+        <div style="flex:1;min-width:220px;background:var(--color-surface);border:1px solid var(--color-border);border-radius:20px;padding:20px;box-shadow:var(--shadow-sm)">
+          <div style="font-size:13px;font-weight:700;color:var(--color-text-primary);margin-bottom:6px">Клиент</div>
+          <div style="font-size:13px;color:var(--color-text-muted);line-height:1.5">Витрина, календарь, бронирование, личный кабинет — эмоциональнее, больше воздуха и декора.</div>
+        </div>
+        <div style="flex:1;min-width:220px;background:var(--color-surface);border:1px solid var(--color-border);border-radius:20px;padding:20px;box-shadow:var(--shadow-sm)">
+          <div style="font-size:13px;font-weight:700;color:var(--color-text-primary);margin-bottom:6px">Администратор</div>
+          <div style="font-size:13px;color:var(--color-text-muted);line-height:1.5">Та же палитра и шрифты, но плотнее: больше данных на экран, меньше декора, таблицы вместо карточек.</div>
+        </div>
+        <div style="flex:1;min-width:220px;background:var(--color-primary);border-radius:20px;padding:20px;box-shadow:var(--shadow-sm)">
+          <div style="font-size:13px;font-weight:700;color:var(--color-text-on-accent);margin-bottom:6px">Ядро продукта</div>
+          <div style="font-size:13px;color:var(--color-text-on-accent);opacity:0.85;line-height:1.5">Сетка слотов времени — самый частый экран. Пять состояний должны различаться с одного взгляда.</div>
+        </div>
+      </div>
+    </section>
+
+    <section id="color" style="margin-bottom:96px">
+      <div style="{{sectionKicker}}">01 · Токены</div>
+      <h2 style="{{h2}}">Цвет</h2>
+      <p style="{{sectionLead}}">Семантические имена, не сырые оттенки. Каждый токен задан парой light/dark. Переключите тему вверху слева — все примеры на странице живые.</p>
+
+      <div style="{{groupTitle}}">Фоны</div>
+      <div style="{{swatchRow}}">
+        <div style="{{swatchCard}}"><div style="height:64px;border-radius:12px;background:var(--color-background);border:1px solid var(--color-border)"></div><div style="{{swatchName}}">background</div><div style="{{swatchHex}}">{{bgHexLabel}}</div><div style="{{swatchUse}}">Фон страницы целиком</div></div>
+        <div style="{{swatchCard}}"><div style="height:64px;border-radius:12px;background:var(--color-surface);border:1px solid var(--color-border)"></div><div style="{{swatchName}}">surface</div><div style="{{swatchHex}}">{{surfaceHexLabel}}</div><div style="{{swatchUse}}">Карточки, поля, панели</div></div>
+        <div style="{{swatchCard}}"><div style="height:64px;border-radius:12px;background:var(--color-surface-raised);border:1px solid var(--color-border);box-shadow:var(--shadow-sm)"></div><div style="{{swatchName}}">surface-raised</div><div style="{{swatchHex}}">{{surfaceRaisedHexLabel}}</div><div style="{{swatchUse}}">Всплывающие элементы, тултипы</div></div>
+        <div style="{{swatchCard}}"><div style="height:64px;border-radius:12px;background:var(--color-surface-sunken);border:1px solid var(--color-border)"></div><div style="{{swatchName}}">surface-sunken</div><div style="{{swatchHex}}">{{surfaceSunkenHexLabel}}</div><div style="{{swatchUse}}">Занятые слоты, инпуты disabled</div></div>
+        <div style="{{swatchCard}}"><div style="height:64px;border-radius:12px;background:var(--color-overlay)"></div><div style="{{swatchName}}">overlay</div><div style="{{swatchHex}}">rgba основного текста</div><div style="{{swatchUse}}">Подложка модалок</div></div>
+      </div>
+
+      <div style="{{groupTitle}}">Текст</div>
+      <div style="{{swatchRow}}">
+        <div style="{{swatchCard}}"><div style="height:64px;border-radius:12px;background:var(--color-surface);border:1px solid var(--color-border);display:flex;align-items:center;justify-content:center;color:var(--color-text-primary);font-weight:700;font-size:22px">Аа</div><div style="{{swatchName}}">text-primary</div><div style="{{swatchHex}}">{{contrastPrimary}}</div><div style="{{swatchUse}}">Заголовки, ключевой текст</div></div>
+        <div style="{{swatchCard}}"><div style="height:64px;border-radius:12px;background:var(--color-surface);border:1px solid var(--color-border);display:flex;align-items:center;justify-content:center;color:var(--color-text-secondary);font-weight:600;font-size:22px">Аа</div><div style="{{swatchName}}">text-secondary</div><div style="{{swatchHex}}">{{contrastSecondary}}</div><div style="{{swatchUse}}">Подписи, описания</div></div>
+        <div style="{{swatchCard}}"><div style="height:64px;border-radius:12px;background:var(--color-surface);border:1px solid var(--color-border);display:flex;align-items:center;justify-content:center;color:var(--color-text-muted);font-weight:600;font-size:22px">Аа</div><div style="{{swatchName}}">text-muted</div><div style="{{swatchHex}}">{{contrastMuted}}</div><div style="{{swatchUse}}">Второстепенные метаданные</div></div>
+        <div style="{{swatchCard}}"><div style="height:64px;border-radius:12px;background:var(--color-primary);display:flex;align-items:center;justify-content:center;color:var(--color-text-on-accent);font-weight:600;font-size:22px">Аа</div><div style="{{swatchName}}">text-on-accent</div><div style="{{swatchHex}}">на primary</div><div style="{{swatchUse}}">Текст на тёмных заливках</div></div>
+        <div style="{{swatchCard}}"><div style="height:64px;border-radius:12px;background:var(--color-surface);border:1px solid var(--color-border);display:flex;align-items:center;justify-content:center;color:var(--color-text-disabled);font-weight:600;font-size:22px">Аа</div><div style="{{swatchName}}">text-disabled</div><div style="{{swatchHex}}">—</div><div style="{{swatchUse}}">Недоступные элементы</div></div>
+      </div>
+
+      <div style="{{groupTitle}}">Бренд</div>
+      <div style="{{swatchRow}}">
+        <div style="{{swatchCard}}"><div style="height:64px;border-radius:12px;background:var(--color-primary)"></div><div style="{{swatchName}}">primary</div><div style="{{swatchHex}}">кофейно-коричневый</div><div style="{{swatchUse}}">Главные действия</div></div>
+        <div style="{{swatchCard}}"><div style="height:64px;border-radius:12px;background:var(--color-primary-hover)"></div><div style="{{swatchName}}">primary-hover</div><div style="{{swatchHex}}">темнее на hover</div><div style="{{swatchUse}}">Наведение курсора</div></div>
+        <div style="{{swatchCard}}"><div style="height:64px;border-radius:12px;background:var(--color-primary-active)"></div><div style="{{swatchName}}">primary-active</div><div style="{{swatchHex}}">нажатие</div><div style="{{swatchUse}}">Состояние active</div></div>
+        <div style="{{swatchCard}}"><div style="height:64px;border-radius:12px;background:var(--color-primary-subtle);border:1px solid var(--color-border)"></div><div style="{{swatchName}}">primary-subtle</div><div style="{{swatchHex}}">фон-подложка</div><div style="{{swatchUse}}">«Моя запись», акцентные блоки</div></div>
+        <div style="{{swatchCard}}"><div style="height:64px;border-radius:12px;background:var(--color-accent)"></div><div style="{{swatchName}}">accent</div><div style="{{swatchHex}}">приглушённое золото</div><div style="{{swatchUse}}">Выбранный слот, акценты</div></div>
+        <div style="{{swatchCard}}"><div style="height:64px;border-radius:12px;background:var(--color-accent-hover)"></div><div style="{{swatchName}}">accent-hover</div><div style="{{swatchHex}}">темнее на hover</div><div style="{{swatchUse}}">Наведение на акцент</div></div>
+        <div style="{{swatchCard}}"><div style="height:64px;border-radius:12px;background:var(--color-accent-subtle);border:1px solid var(--color-border)"></div><div style="{{swatchName}}">accent-subtle</div><div style="{{swatchHex}}">фон-подложка</div><div style="{{swatchUse}}">Промо-плашки, метки «топ»</div></div>
+      </div>
+
+      <div style="{{groupTitle}}">Границы</div>
+      <div style="{{swatchRow}}">
+        <div style="{{swatchCard}}"><div style="height:64px;border-radius:12px;background:var(--color-surface);border:2px solid var(--color-border)"></div><div style="{{swatchName}}">border</div><div style="{{swatchUse}}">Разделители, обычные рамки</div></div>
+        <div style="{{swatchCard}}"><div style="height:64px;border-radius:12px;background:var(--color-surface);border:2px solid var(--color-border-strong)"></div><div style="{{swatchName}}">border-strong</div><div style="{{swatchUse}}">Обводки инпутов, свободные слоты</div></div>
+        <div style="{{swatchCard}}"><div style="height:64px;border-radius:12px;background:var(--color-surface);border:2px solid var(--color-border-focus);box-shadow:0 0 0 4px var(--color-accent-subtle)"></div><div style="{{swatchName}}">border-focus</div><div style="{{swatchUse}}">Видимый фокус-ринг, 2px + смещение</div></div>
+      </div>
+
+      <div style="{{groupTitle}}">Статусы <span style="font-weight:400;color:var(--color-text-muted);text-transform:none;letter-spacing:0">— приглушены под тёплую палитру</span></div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px">
+        <div style="{{statusCard}}">
+          <div style="height:40px;border-radius:10px;background:var(--color-success)"></div>
+          <div style="height:40px;border-radius:10px;background:var(--color-success-subtle);display:flex;align-items:center;justify-content:center;color:var(--color-success-text);font-size:13px;font-weight:600">Успешно</div>
+          <div style="{{swatchName}}">success</div>
+          <div style="{{swatchHex}}">AA {{ratioSuccess}}</div>
+        </div>
+        <div style="{{statusCard}}">
+          <div style="height:40px;border-radius:10px;background:var(--color-warning)"></div>
+          <div style="height:40px;border-radius:10px;background:var(--color-warning-subtle);display:flex;align-items:center;justify-content:center;color:var(--color-warning-text);font-size:13px;font-weight:600">Ожидание</div>
+          <div style="{{swatchName}}">warning</div>
+          <div style="{{swatchHex}}">AA {{ratioWarning}}</div>
+        </div>
+        <div style="{{statusCard}}">
+          <div style="height:40px;border-radius:10px;background:var(--color-danger)"></div>
+          <div style="height:40px;border-radius:10px;background:var(--color-danger-subtle);display:flex;align-items:center;justify-content:center;color:var(--color-danger-text);font-size:13px;font-weight:600">Отменена</div>
+          <div style="{{swatchName}}">danger</div>
+          <div style="{{swatchHex}}">AA {{ratioDanger}}</div>
+        </div>
+        <div style="{{statusCard}}">
+          <div style="height:40px;border-radius:10px;background:var(--color-info)"></div>
+          <div style="height:40px;border-radius:10px;background:var(--color-info-subtle);display:flex;align-items:center;justify-content:center;color:var(--color-info-text);font-size:13px;font-weight:600">Информация</div>
+          <div style="{{swatchName}}">info</div>
+          <div style="{{swatchHex}}">AA {{ratioInfo}}</div>
+        </div>
+      </div>
+
+      <div style="{{groupTitle}}">Слоты записи <span style="font-weight:400;color:var(--color-text-muted);text-transform:none;letter-spacing:0">— ядро продукта, различаются цветом + заливкой + иконкой</span></div>
+      <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:16px">
+        <div style="{{statusCard}}">
+          <div style="height:56px;border-radius:12px;background:var(--color-slot-free-bg);border:1.5px solid var(--color-slot-free-border);display:flex;align-items:center;justify-content:center;color:var(--color-slot-free-text);font-size:14px;font-weight:600;font-variant-numeric:tabular-nums">10:30</div>
+          <div style="{{swatchName}}">slot-free</div>
+          <div style="{{swatchUse}}">Обводка, без заливки</div>
+        </div>
+        <div style="{{statusCard}}">
+          <div style="height:56px;border-radius:12px;background:var(--color-slot-selected-bg);border:1.5px solid var(--color-slot-selected-border);display:flex;align-items:center;justify-content:center;gap:6px;color:var(--color-slot-selected-text);font-size:14px;font-weight:700;font-variant-numeric:tabular-nums">✓ 11:00</div>
+          <div style="{{swatchName}}">slot-selected</div>
+          <div style="{{swatchUse}}">Заливка золотом + галочка</div>
+        </div>
+        <div style="{{statusCard}}">
+          <div style="height:56px;border-radius:12px;background:repeating-linear-gradient(135deg,var(--color-slot-busy-bg),var(--color-slot-busy-bg) 6px,var(--color-slot-busy-border) 6px,var(--color-slot-busy-border) 7px);border:1.5px solid var(--color-slot-busy-border);display:flex;align-items:center;justify-content:center;color:var(--color-slot-busy-text);font-size:14px;font-weight:600;font-variant-numeric:tabular-nums">11:30</div>
+          <div style="{{swatchName}}">slot-busy</div>
+          <div style="{{swatchUse}}">Диагональная штриховка</div>
+        </div>
+        <div style="{{statusCard}}">
+          <div style="height:56px;border-radius:12px;background:var(--color-slot-past-bg);border:1px dashed var(--color-slot-past-border);display:flex;align-items:center;justify-content:center;color:var(--color-slot-past-text);font-size:14px;font-weight:600;font-variant-numeric:tabular-nums;opacity:0.7">09:00</div>
+          <div style="{{swatchName}}">slot-past</div>
+          <div style="{{swatchUse}}">Пунктир, приглушено</div>
+        </div>
+        <div style="{{statusCard}}">
+          <div style="height:56px;border-radius:12px;background:var(--color-slot-mine-bg);border:1.5px solid var(--color-slot-mine-border);display:flex;align-items:center;justify-content:center;gap:6px;color:var(--color-slot-mine-text);font-size:14px;font-weight:700;font-variant-numeric:tabular-nums">★ 12:00</div>
+          <div style="{{swatchName}}">slot-mine</div>
+          <div style="{{swatchUse}}">Заливка primary + звезда</div>
+        </div>
+      </div>
+    </section>
+
+    <section id="type" style="margin-bottom:96px">
+      <div style="{{sectionKicker}}">02 · Токены</div>
+      <h2 style="{{h2}}">Типографика</h2>
+      <p style="{{sectionLead}}">Playfair Display — для крупных заголовков витрины, широкий трекинг, спокойный ритм. Manrope — интерфейсный гротеск для UI и данных, поддерживает кириллицу и табличные цифры.</p>
+
+      <div style="display:flex;gap:40px;margin-bottom:40px">
+        <div style="flex:1;background:var(--color-surface);border:1px solid var(--color-border);border-radius:20px;padding:32px">
+          <div style="font-size:11px;text-transform:uppercase;letter-spacing:0.08em;color:var(--color-text-muted);margin-bottom:12px">Дисплей / заголовки</div>
+          <div style="font-family:'Playfair Display',serif;font-size:44px;color:var(--color-text-primary);letter-spacing:0.01em">Playfair Display</div>
+          <div style="font-family:'Playfair Display',serif;font-size:20px;color:var(--color-text-secondary);margin-top:6px">АБВГДЕЁЖЗ · abcdefg</div>
+        </div>
+        <div style="flex:1;background:var(--color-surface);border:1px solid var(--color-border);border-radius:20px;padding:32px">
+          <div style="font-size:11px;text-transform:uppercase;letter-spacing:0.08em;color:var(--color-text-muted);margin-bottom:12px">Интерфейс / данные</div>
+          <div style="font-family:'Manrope',sans-serif;font-size:44px;font-weight:700;color:var(--color-text-primary)">Manrope</div>
+          <div style="font-family:'Manrope',sans-serif;font-size:20px;color:var(--color-text-secondary);margin-top:6px">АБВГДЕЁЖЗ · abcdefg</div>
+        </div>
+      </div>
+
+      <div style="{{groupTitle}}">Шкала</div>
+      <div style="display:flex;flex-direction:column;border:1px solid var(--color-border);border-radius:20px;overflow:hidden;background:var(--color-surface)">
+        <div style="display:grid;grid-template-columns:1.6fr 0.7fr 0.9fr 2fr;padding:12px 24px;font-size:11px;text-transform:uppercase;letter-spacing:0.06em;color:var(--color-text-muted);border-bottom:1px solid var(--color-border)">
+          <div>Пример</div><div>Токен</div><div>Размер / высота</div><div>Назначение</div>
+        </div>
+        <div style="display:grid;grid-template-columns:1.6fr 0.7fr 0.9fr 2fr;align-items:center;padding:16px 24px;border-bottom:1px solid var(--color-border)">
+          <div style="font-family:'Playfair Display',serif;font-size:40px;color:var(--color-text-primary)">Добро пожаловать</div><div style="font-size:13px;font-weight:600;color:var(--color-text-primary)">display</div><div style="font-size:12px;color:var(--color-text-muted)">64/72 → 40/48</div><div style="font-size:13px;color:var(--color-text-secondary)">Хиро витрины, экран приветствия</div>
+        </div>
+        <div style="display:grid;grid-template-columns:1.6fr 0.7fr 0.9fr 2fr;align-items:center;padding:16px 24px;border-bottom:1px solid var(--color-border)">
+          <div style="font-family:'Playfair Display',serif;font-size:32px;font-weight:600;color:var(--color-text-primary)">Выберите мастера</div><div style="font-size:13px;font-weight:600;color:var(--color-text-primary)">h1</div><div style="font-size:12px;color:var(--color-text-muted)">48/56 → 32/40</div><div style="font-size:13px;color:var(--color-text-secondary)">Заголовок страницы</div>
+        </div>
+        <div style="display:grid;grid-template-columns:1.6fr 0.7fr 0.9fr 2fr;align-items:center;padding:16px 24px;border-bottom:1px solid var(--color-border)">
+          <div style="font-family:'Playfair Display',serif;font-size:26px;font-weight:600;color:var(--color-text-primary)">Наши услуги</div><div style="font-size:13px;font-weight:600;color:var(--color-text-primary)">h2</div><div style="font-size:12px;color:var(--color-text-muted)">36/44 → 28/36</div><div style="font-size:13px;color:var(--color-text-secondary)">Заголовок секции</div>
+        </div>
+        <div style="display:grid;grid-template-columns:1.6fr 0.7fr 0.9fr 2fr;align-items:center;padding:16px 24px;border-bottom:1px solid var(--color-border)">
+          <div style="font-family:'Manrope',sans-serif;font-size:20px;font-weight:700;color:var(--color-text-primary)">Список записей</div><div style="font-size:13px;font-weight:600;color:var(--color-text-primary)">h3</div><div style="font-size:12px;color:var(--color-text-muted)">24/32</div><div style="font-size:13px;color:var(--color-text-secondary)">Подзаголовок в UI, гротеск</div>
+        </div>
+        <div style="display:grid;grid-template-columns:1.6fr 0.7fr 0.9fr 2fr;align-items:center;padding:16px 24px;border-bottom:1px solid var(--color-border)">
+          <div style="font-family:'Manrope',sans-serif;font-size:18px;color:var(--color-text-primary)">Свободное время сегодня</div><div style="font-size:13px;font-weight:600;color:var(--color-text-primary)">body-lg</div><div style="font-size:12px;color:var(--color-text-muted)">18/28</div><div style="font-size:13px;color:var(--color-text-secondary)">Вводный текст, описания мастера</div>
+        </div>
+        <div style="display:grid;grid-template-columns:1.6fr 0.7fr 0.9fr 2fr;align-items:center;padding:16px 24px;border-bottom:1px solid var(--color-border)">
+          <div style="font-family:'Manrope',sans-serif;font-size:16px;color:var(--color-text-primary)">Основной текст интерфейса</div><div style="font-size:13px;font-weight:600;color:var(--color-text-primary)">body</div><div style="font-size:12px;color:var(--color-text-muted)">16/24</div><div style="font-size:13px;color:var(--color-text-secondary)">Базовый размер по умолчанию</div>
+        </div>
+        <div style="display:grid;grid-template-columns:1.6fr 0.7fr 0.9fr 2fr;align-items:center;padding:16px 24px;border-bottom:1px solid var(--color-border)">
+          <div style="font-family:'Manrope',sans-serif;font-size:14px;color:var(--color-text-secondary)">Вторичный текст, метаданные</div><div style="font-size:13px;font-weight:600;color:var(--color-text-primary)">body-sm</div><div style="font-size:12px;color:var(--color-text-muted)">14/20</div><div style="font-size:13px;color:var(--color-text-secondary)">Подписи полей, вспомогательный текст</div>
+        </div>
+        <div style="display:grid;grid-template-columns:1.6fr 0.7fr 0.9fr 2fr;align-items:center;padding:16px 24px;border-bottom:1px solid var(--color-border)">
+          <div style="font-family:'Manrope',sans-serif;font-size:12px;color:var(--color-text-muted)">Обновлено 2 минуты назад</div><div style="font-size:13px;font-weight:600;color:var(--color-text-primary)">caption</div><div style="font-size:12px;color:var(--color-text-muted)">12/16</div><div style="font-size:13px;color:var(--color-text-secondary)">Таймстемпы, счётчики символов</div>
+        </div>
+        <div style="display:grid;grid-template-columns:1.6fr 0.7fr 0.9fr 2fr;align-items:center;padding:16px 24px;border-bottom:1px solid var(--color-border)">
+          <div style="font-family:'Manrope',sans-serif;font-size:12px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--color-text-muted)">Статус записи</div><div style="font-size:13px;font-weight:600;color:var(--color-text-primary)">overline</div><div style="font-size:12px;color:var(--color-text-muted)">12/16</div><div style="font-size:13px;color:var(--color-text-secondary)">Надглавия, ярлыки групп</div>
+        </div>
+        <div style="display:grid;grid-template-columns:1.6fr 0.7fr 0.9fr 2fr;align-items:center;padding:16px 24px">
+          <div style="font-family:'Manrope',sans-serif;font-size:15px;font-weight:700;letter-spacing:0.01em;color:var(--color-text-primary)">Записаться</div><div style="font-size:13px;font-weight:600;color:var(--color-text-primary)">button</div><div style="font-size:12px;color:var(--color-text-muted)">15/20</div><div style="font-size:13px;color:var(--color-text-secondary)">Текст на кнопках</div>
+        </div>
+      </div>
+
+      <div style="{{groupTitle}}">Табличные цифры</div>
+      <div style="display:flex;gap:16px">
+        <div style="{{demoBox}}">
+          <div style="font-size:12px;color:var(--color-text-muted);margin-bottom:8px">Без tabular-nums</div>
+          <div style="font-family:'Manrope',sans-serif;font-size:22px;color:var(--color-text-primary);display:flex;flex-direction:column;gap:4px"><span>11:30 — 2 400 ₽</span><span>9:05 — 18 000 ₽</span></div>
+        </div>
+        <div style="{{demoBox}}">
+          <div style="font-size:12px;color:var(--color-text-muted);margin-bottom:8px">С font-variant-numeric: tabular-nums</div>
+          <div style="font-family:'Manrope',sans-serif;font-size:22px;color:var(--color-text-primary);font-variant-numeric:tabular-nums;display:flex;flex-direction:column;gap:4px"><span>11:30 — 2 400 ₽</span><span>09:05 — 18 000 ₽</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="grid" style="margin-bottom:96px">
+      <div style="{{sectionKicker}}">03 · Токены</div>
+      <h2 style="{{h2}}">Сетка, отступы, форма</h2>
+
+      <div style="{{groupTitle}}">Спейсинг (шаг 4px)</div>
+      <div style="display:flex;align-items:flex-end;gap:12px;flex-wrap:wrap;background:var(--color-surface);border:1px solid var(--color-border);border-radius:20px;padding:24px">
+        <div style="{{spaceItem}}"><div style="width:2px;height:2px;background:var(--color-accent)"></div><div style="{{spaceLabel}}">2</div></div>
+        <div style="{{spaceItem}}"><div style="width:4px;height:4px;background:var(--color-accent)"></div><div style="{{spaceLabel}}">4</div></div>
+        <div style="{{spaceItem}}"><div style="width:8px;height:8px;background:var(--color-accent)"></div><div style="{{spaceLabel}}">8</div></div>
+        <div style="{{spaceItem}}"><div style="width:12px;height:12px;background:var(--color-accent)"></div><div style="{{spaceLabel}}">12</div></div>
+        <div style="{{spaceItem}}"><div style="width:16px;height:16px;background:var(--color-accent)"></div><div style="{{spaceLabel}}">16</div></div>
+        <div style="{{spaceItem}}"><div style="width:24px;height:24px;background:var(--color-accent)"></div><div style="{{spaceLabel}}">24</div></div>
+        <div style="{{spaceItem}}"><div style="width:32px;height:32px;background:var(--color-accent)"></div><div style="{{spaceLabel}}">32</div></div>
+        <div style="{{spaceItem}}"><div style="width:48px;height:48px;background:var(--color-accent)"></div><div style="{{spaceLabel}}">48</div></div>
+        <div style="{{spaceItem}}"><div style="width:64px;height:64px;background:var(--color-accent)"></div><div style="{{spaceLabel}}">64</div></div>
+        <div style="{{spaceItem}}"><div style="width:96px;height:96px;background:var(--color-accent)"></div><div style="{{spaceLabel}}">96</div></div>
+      </div>
+
+      <div style="{{groupTitle}}">Радиусы</div>
+      <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:16px">
+        <div style="{{statusCard}}"><div style="height:64px;background:var(--color-primary);border-radius:8px"></div><div style="{{swatchName}}">radius-sm · 8px</div><div style="{{swatchUse}}">Чипы, мелкие бейджи</div></div>
+        <div style="{{statusCard}}"><div style="height:64px;background:var(--color-primary);border-radius:14px"></div><div style="{{swatchName}}">radius-md · 14px</div><div style="{{swatchUse}}">Поля ввода, кнопки sm/md</div></div>
+        <div style="{{statusCard}}"><div style="height:64px;background:var(--color-primary);border-radius:20px"></div><div style="{{swatchName}}">radius-lg · 20px</div><div style="{{swatchUse}}">Карточки, модалки</div></div>
+        <div style="{{statusCard}}"><div style="height:64px;background:var(--color-primary);border-radius:28px"></div><div style="{{swatchName}}">radius-xl · 28px</div><div style="{{swatchUse}}">Крупные секции, промо-блоки</div></div>
+        <div style="{{statusCard}}"><div style="height:64px;background:var(--color-primary);border-radius:999px"></div><div style="{{swatchName}}">radius-full</div><div style="{{swatchUse}}">Pill-кнопки, аватары</div></div>
+      </div>
+
+      <div style="{{groupTitle}}">Тени <span style="font-weight:400;color:var(--color-text-muted);text-transform:none;letter-spacing:0">— тёплые, коричневый оттенок</span></div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:24px;padding:8px 0 24px">
+        <div style="text-align:center"><div style="height:72px;background:var(--color-surface);border-radius:16px;box-shadow:var(--shadow-sm);margin-bottom:12px"></div><div style="{{swatchName}}">shadow-sm</div></div>
+        <div style="text-align:center"><div style="height:72px;background:var(--color-surface);border-radius:16px;box-shadow:var(--shadow-md);margin-bottom:12px"></div><div style="{{swatchName}}">shadow-md</div></div>
+        <div style="text-align:center"><div style="height:72px;background:var(--color-surface);border-radius:16px;box-shadow:var(--shadow-lg);margin-bottom:12px"></div><div style="{{swatchName}}">shadow-lg</div></div>
+        <div style="text-align:center"><div style="height:72px;background:var(--color-surface);border-radius:16px;box-shadow:var(--shadow-xl);margin-bottom:12px"></div><div style="{{swatchName}}">shadow-xl (модалки)</div></div>
+      </div>
+
+      <div style="{{groupTitle}}">Брейкпоинты</div>
+      <div style="border:1px solid var(--color-border);border-radius:20px;overflow:hidden">
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;padding:12px 24px;font-size:11px;text-transform:uppercase;letter-spacing:0.06em;color:var(--color-text-muted);background:var(--color-surface);border-bottom:1px solid var(--color-border)">
+          <div>Брейкпоинт</div><div>Контейнер</div><div>Колонки</div><div>Отступ / gap</div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;padding:14px 24px;background:var(--color-surface);border-bottom:1px solid var(--color-border);font-size:13px;color:var(--color-text-secondary)"><div style="font-weight:700;color:var(--color-text-primary)">360 · Mobile</div><div>100%, поля 16px</div><div>4 колонки</div><div>gap 16px</div></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;padding:14px 24px;background:var(--color-surface);border-bottom:1px solid var(--color-border);font-size:13px;color:var(--color-text-secondary)"><div style="font-weight:700;color:var(--color-text-primary)">768 · Tablet</div><div>704px</div><div>8 колонок</div><div>gap 24px</div></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;padding:14px 24px;background:var(--color-surface);border-bottom:1px solid var(--color-border);font-size:13px;color:var(--color-text-secondary)"><div style="font-weight:700;color:var(--color-text-primary)">1024 · Laptop</div><div>960px</div><div>12 колонок</div><div>gap 24px</div></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;padding:14px 24px;background:var(--color-surface);font-size:13px;color:var(--color-text-secondary)"><div style="font-weight:700;color:var(--color-text-primary)">1440 · Desktop</div><div>1280px</div><div>12 колонок</div><div>gap 32px</div></div>
+      </div>
+    </section>
+
+    <section id="icons" style="margin-bottom:96px">
+      <div style="{{sectionKicker}}">04 · Токены</div>
+      <h2 style="{{h2}}">Иконки</h2>
+      <p style="{{sectionLead}}">Линейный набор, толщина 1.75px, скруглённые концы, без заливки.</p>
+      <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:16px">
+
+        <div style="{{iconCell}}"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--color-text-primary)" stroke-width="1.75" stroke-linecap="round"><rect x="3" y="5" width="18" height="16" rx="3"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="8" y1="3" x2="8" y2="7"/><line x1="16" y1="3" x2="16" y2="7"/></svg><span>Календарь</span></div>
+        <div style="{{iconCell}}"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--color-text-primary)" stroke-width="1.75" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><line x1="12" y1="12" x2="12" y2="7"/><line x1="12" y1="12" x2="16" y2="14"/></svg><span>Часы</span></div>
+        <div style="{{iconCell}}"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--color-text-primary)" stroke-width="1.75" stroke-linecap="round"><circle cx="6" cy="6" r="2.5"/><circle cx="6" cy="18" r="2.5"/><line x1="8" y1="8" x2="20" y2="18"/><line x1="8" y1="16" x2="20" y2="6"/></svg><span>Ножницы</span></div>
+        <div style="{{iconCell}}"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--color-text-primary)" stroke-width="1.75" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7" stroke-linejoin="round"/></svg><span>Клиент</span></div>
+        <div style="{{iconCell}}"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--color-text-primary)" stroke-width="1.75" stroke-linejoin="round"><polygon points="12,3 14.7,9 21,9.5 16.2,13.7 17.6,20 12,16.6 6.4,20 7.8,13.7 3,9.5 9.3,9"/></svg><span>Рейтинг</span></div>
+        <div style="{{iconCell}}"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--color-text-primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4,12 10,18 20,6"/></svg><span>Готово</span></div>
+        <div style="{{iconCell}}"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--color-text-primary)" stroke-width="2" stroke-linecap="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg><span>Отмена</span></div>
+        <div style="{{iconCell}}"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--color-text-primary)" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><polyline points="14,6 8,12 14,18"/></svg><span>Назад</span></div>
+        <div style="{{iconCell}}"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--color-text-primary)" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><polyline points="10,6 16,12 10,18"/></svg><span>Вперёд</span></div>
+        <div style="{{iconCell}}"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--color-text-primary)" stroke-width="1.75" stroke-linecap="round"><line x1="4" y1="7" x2="20" y2="7"/><line x1="7" y1="12" x2="17" y2="12"/><line x1="10" y1="17" x2="14" y2="17"/></svg><span>Фильтр</span></div>
+        <div style="{{iconCell}}"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--color-text-primary)" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20l1-4.2L15.8 5 19 8.2 8.2 19z"/><line x1="13" y1="7" x2="17" y2="11"/></svg><span>Редактировать</span></div>
+        <div style="{{iconCell}}"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--color-text-primary)" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M5 7h14"/><path d="M9 7V5h6v2"/><path d="M6 7l1 13h10l1-13"/></svg><span>Удалить</span></div>
+        <div style="{{iconCell}}"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--color-text-primary)" stroke-width="2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg><span>Добавить</span></div>
+        <div style="{{iconCell}}"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--color-text-primary)" stroke-width="1.75" stroke-linecap="round"><circle cx="10" cy="10" r="6"/><line x1="15" y1="15" x2="20" y2="20"/></svg><span>Поиск</span></div>
+        <div style="{{iconCell}}"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--color-text-primary)" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M15 4H6a2 2 0 00-2 2v12a2 2 0 002 2h9"/><polyline points="12,8 17,12 12,16"/><line x1="17" y1="12" x2="7" y2="12"/></svg><span>Выход</span></div>
+        <div style="{{iconCell}}"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--color-text-primary)" stroke-width="1.75" stroke-linecap="round"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/></svg><span>Меню</span></div>
+        <div style="{{iconCell}}"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--color-text-primary)" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M6 10a6 6 0 0112 0c0 5 2 6 2 6H4s2-1 2-6z"/><path d="M10 19a2 2 0 004 0"/></svg><span>Уведомления</span></div>
+        <div style="{{iconCell}}"><svg width="24" height="24" viewBox="0 0 24 24" fill="var(--color-success)" stroke="none"><circle cx="12" cy="12" r="5"/></svg><span>Точка-статус</span></div>
+      </div>
+    </section>
+
+    <section id="buttons" style="margin-bottom:96px">
+      <div style="{{sectionKicker}}">05 · Компоненты</div>
+      <h2 style="{{h2}}">Кнопки</h2>
+      <p style="{{sectionLead}}">Все — pill-формы кроме ghost. Primary — коричневая заливка. Минимальная область нажатия 44×44px на мобиле.</p>
+
+      <div style="{{groupTitle}}">Состояния — primary</div>
+      <div style="display:flex;gap:16px;flex-wrap:wrap;align-items:center;padding:20px;background:var(--color-surface);border:1px solid var(--color-border);border-radius:20px">
+        <button style="{{btnPrimary}}">Записаться</button>
+        <button style="{{btnPrimary}};background:var(--color-primary-hover)">Hover</button>
+        <button style="{{btnPrimary}};background:var(--color-primary-active)">Active</button>
+        <button style="{{btnPrimary}};box-shadow:0 0 0 3px var(--color-accent-subtle),0 0 0 5px var(--color-border-focus)">Focus-visible</button>
+        <button style="{{btnPrimary}};opacity:0.4;cursor:not-allowed">Disabled</button>
+        <button style="{{btnPrimary}};display:flex;align-items:center;gap:10px"><span style="width:14px;height:14px;border-radius:50%;border:2px solid var(--color-text-on-accent);border-top-color:transparent;animation:ds-spin 0.7s linear infinite"></span>Загрузка</button>
+      </div>
+
+      <div style="{{groupTitle}}">Варианты и размеры</div>
+      <div style="display:flex;gap:16px;flex-wrap:wrap;align-items:center;padding:20px;background:var(--color-surface);border:1px solid var(--color-border);border-radius:20px">
+        <button style="{{btnSecondary}}">Secondary</button>
+        <button style="{{btnGhost}}">Ghost</button>
+        <button style="{{btnDanger}}">Отменить запись</button>
+        <button style="{{btnPrimary}};padding:8px 18px;font-size:13px">Small</button>
+        <button style="{{btnPrimary}}">Medium</button>
+        <button style="{{btnPrimary}};padding:16px 32px;font-size:16px">Large</button>
+        <button style="{{btnPrimary}};display:flex;align-items:center;gap:8px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>С иконкой</button>
+        <button style="{{btnSecondary}};width:44px;height:44px;padding:0;display:flex;align-items:center;justify-content:center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"><path d="M15 4H6a2 2 0 00-2 2v12a2 2 0 002 2h9"/><polyline points="12,8 17,12 12,16"/><line x1="17" y1="12" x2="7" y2="12"/></svg></button>
+      </div>
+      <button style="{{btnPrimary}};width:100%;margin-top:16px;text-align:center;display:block">На всю ширину</button>
+    </section>
+
+    <section id="inputs" style="margin-bottom:96px">
+      <div style="{{sectionKicker}}">05 · Компоненты</div>
+      <h2 style="{{h2}}">Поля ввода</h2>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px">
+        <div>
+          <label style="{{fieldLabel}}">Имя</label>
+          <input placeholder="Как к вам обращаться" style="{{fieldBase}}"/>
+          <div style="{{fieldHint}}">Отобразится в записи</div>
+        </div>
+        <div>
+          <label style="{{fieldLabel}}">Телефон — focus</label>
+          <input placeholder="+7 999 000-00-00" style="{{fieldBase}};border-color:var(--color-border-focus);box-shadow:0 0 0 3px var(--color-accent-subtle)"/>
+        </div>
+        <div>
+          <label style="{{fieldLabel}}">Email — ошибка</label>
+          <input value="ivan@" style="{{fieldBase}};border-color:var(--color-danger)"/>
+          <div style="{{fieldHint}};color:var(--color-danger-text)">Проверьте формат почты</div>
+        </div>
+        <div>
+          <label style="{{fieldLabel}}">Промокод — успех</label>
+          <input value="SALON2026" style="{{fieldBase}};border-color:var(--color-success)"/>
+          <div style="{{fieldHint}};color:var(--color-success-text)">Скидка 10% применена</div>
+        </div>
+        <div style="position:relative">
+          <label style="{{fieldLabel}}">Пароль</label>
+          <input type="{{passwordType}}" value="••••••••" style="{{fieldBase}};padding-right:44px"/>
+          <button onClick="{{togglePassword}}" style="position:absolute;right:10px;top:38px;background:none;border:none;color:var(--color-text-muted);cursor:pointer;padding:6px">{{passwordIcon}}</button>
+        </div>
+        <div>
+          <label style="{{fieldLabel}}">Поле — disabled</label>
+          <input value="Недоступно" disabled style="{{fieldBase}};background:var(--color-surface-sunken);color:var(--color-text-disabled);cursor:not-allowed"/>
+        </div>
+        <div>
+          <label style="{{fieldLabel}}">Комментарий</label>
+          <textarea placeholder="Пожелания к визиту" rows="3" style="{{fieldBase}};resize:vertical;font-family:'Manrope',sans-serif"></textarea>
+          <div style="{{fieldHint}};text-align:right">0 / 200</div>
+        </div>
+        <div>
+          <label style="{{fieldLabel}}">Мастер</label>
+          <select style="{{fieldBase}}">
+            <option>Любой мастер</option>
+            <option>Анна Соколова</option>
+            <option>Мария Титова</option>
+          </select>
+        </div>
+        <div style="grid-column:1 / -1">
+          <label style="{{fieldLabel}}">Поиск услуги</label>
+          <div style="position:relative;max-width:360px">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--color-text-muted)" stroke-width="1.75" stroke-linecap="round" style="position:absolute;left:16px;top:50%;transform:translateY(-50%)"><circle cx="10" cy="10" r="6"/><line x1="15" y1="15" x2="20" y2="20"/></svg>
+            <input placeholder="Стрижка, маникюр…" style="{{fieldBase}};padding-left:42px"/>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="selects" style="margin-bottom:96px">
+      <div style="{{sectionKicker}}">05 · Компоненты</div>
+      <h2 style="{{h2}}">Чекбокс, радио, свитч, слайдер</h2>
+      <div style="display:flex;gap:48px;flex-wrap:wrap;padding:24px;background:var(--color-surface);border:1px solid var(--color-border);border-radius:20px">
+        <div>
+          <div style="{{groupTitle}};margin-top:0">Чекбокс</div>
+          <label onClick="{{toggleCheckbox}}" style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:14px;color:var(--color-text-primary)">
+            <span style="{{checkboxBox}}">{{checkboxMark}}</span>
+            Напомнить за час
+          </label>
+        </div>
+        <div>
+          <div style="{{groupTitle}};margin-top:0">Радио</div>
+          <div style="display:flex;flex-direction:column;gap:10px">
+            <label onClick="{{setRadioClassic}}" style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:14px;color:var(--color-text-primary)"><span style="{{radioOuterClassic}}"><span style="{{radioInnerClassic}}"></span></span>Классическая стрижка</label>
+            <label onClick="{{setRadioLength}}" style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:14px;color:var(--color-text-primary)"><span style="{{radioOuterLength}}"><span style="{{radioInnerLength}}"></span></span>Удлинённая стрижка</label>
+          </div>
+        </div>
+        <div>
+          <div style="{{groupTitle}};margin-top:0">Свитч</div>
+          <button onClick="{{toggleSwitch}}" style="display:flex;align-items:center;gap:10px;background:none;border:none;cursor:pointer;padding:0">
+            <span style="{{switchTrack}}"><span style="{{switchDot}}"></span></span>
+            <span style="font-size:14px;color:var(--color-text-primary)">Уведомления в кабинете</span>
+          </button>
+        </div>
+        <div style="min-width:220px">
+          <div style="{{groupTitle}};margin-top:0">Слайдер — радиус поиска</div>
+          <input type="range" min="0" max="100" value="{{sliderVal}}" onChange="{{setSlider}}" style="width:100%;accent-color:var(--color-accent)"/>
+          <div style="font-size:13px;color:var(--color-text-muted);font-variant-numeric:tabular-nums">{{sliderVal}} % заполненности дня</div>
+        </div>
+      </div>
+    </section>
+
+    <section id="badges" style="margin-bottom:96px">
+      <div style="{{sectionKicker}}">05 · Компоненты</div>
+      <h2 style="{{h2}}">Бейджи и чипы</h2>
+      <div style="{{groupTitle}}">Статусы записи</div>
+      <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:24px">
+        <span style="{{badge}};background:var(--color-success-subtle);color:var(--color-success-text)">Подтверждена</span>
+        <span style="{{badge}};background:var(--color-warning-subtle);color:var(--color-warning-text)">Ожидает</span>
+        <span style="{{badge}};background:var(--color-info-subtle);color:var(--color-info-text)">Завершена</span>
+        <span style="{{badge}};background:var(--color-danger-subtle);color:var(--color-danger-text)">Отменена</span>
+      </div>
+      <div style="{{groupTitle}}">Чипы-фильтры (удаляемые)</div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <sc-for list="{{chips}}" as="chip" hint-placeholder-count="3">
+          <sc-if value="{{chip.on}}" hint-placeholder-val="{{true}}">
+            <span style="{{chipStyle}}">{{chip.label}}<button onClick="{{chip.remove}}" style="background:none;border:none;cursor:pointer;color:inherit;padding:0;display:flex;opacity:0.6"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg></button></span>
+          </sc-if>
+        </sc-for>
+      </div>
+    </section>
+
+    <section id="avatars" style="margin-bottom:96px">
+      <div style="{{sectionKicker}}">05 · Компоненты</div>
+      <h2 style="{{h2}}">Аватар</h2>
+      <div style="display:flex;gap:24px;align-items:flex-end;padding:24px;background:var(--color-surface);border:1px solid var(--color-border);border-radius:20px">
+        <div style="text-align:center"><div style="{{avatarBase}};width:28px;height:28px;font-size:11px">АС</div><div style="{{swatchName}};margin-top:8px">xs</div></div>
+        <div style="text-align:center"><div style="{{avatarBase}};width:36px;height:36px;font-size:13px">АС</div><div style="{{swatchName}};margin-top:8px">sm</div></div>
+        <div style="text-align:center"><div style="{{avatarBase}};width:48px;height:48px;font-size:16px">АС</div><div style="{{swatchName}};margin-top:8px">md</div></div>
+        <div style="text-align:center"><div style="{{avatarBase}};width:64px;height:64px;font-size:20px">АС</div><div style="{{swatchName}};margin-top:8px">lg</div></div>
+        <div style="text-align:center;position:relative"><div style="{{avatarBase}};width:88px;height:88px;font-size:26px">АС</div><span style="position:absolute;bottom:6px;right:6px;width:16px;height:16px;border-radius:50%;background:var(--color-success);border:3px solid var(--color-surface)"></span><div style="{{swatchName}};margin-top:8px">xl + онлайн</div></div>
+      </div>
+    </section>
+
+    <section id="nav-comp" style="margin-bottom:96px">
+      <div style="{{sectionKicker}}">05 · Компоненты</div>
+      <h2 style="{{h2}}">Табы, хлебные крошки, пагинация</h2>
+
+      <div style="{{groupTitle}}">Табы</div>
+      <div style="display:flex;gap:4px;background:var(--color-surface-sunken);border-radius:999px;padding:4px;width:fit-content;margin-bottom:32px">
+        <button onClick="{{setTab0}}" style="{{tabBtn}};background:{{tab0Bg}};color:{{tab0Color}}">Предстоящие</button>
+        <button onClick="{{setTab1}}" style="{{tabBtn}};background:{{tab1Bg}};color:{{tab1Color}}">Прошедшие</button>
+        <button onClick="{{setTab2}}" style="{{tabBtn}};background:{{tab2Bg}};color:{{tab2Color}}">Отменённые</button>
+      </div>
+
+      <div style="{{groupTitle}}">Хлебные крошки</div>
+      <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--color-text-muted);margin-bottom:32px">
+        <span>Услуги</span><span>/</span><span>Окрашивание</span><span>/</span><span style="color:var(--color-text-primary);font-weight:600">Балаяж</span>
+      </div>
+
+      <div style="{{groupTitle}}">Пагинация</div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <button style="{{pageBtn}}">‹</button>
+        <button style="{{pageBtn}};background:var(--color-primary);color:var(--color-text-on-accent);border-color:var(--color-primary)">1</button>
+        <button style="{{pageBtn}}">2</button>
+        <button style="{{pageBtn}}">3</button>
+        <span style="color:var(--color-text-muted);padding:0 4px">…</span>
+        <button style="{{pageBtn}}">12</button>
+        <button style="{{pageBtn}}">›</button>
+      </div>
+    </section>
+
+    <section id="overlays" style="margin-bottom:96px">
+      <div style="{{sectionKicker}}">05 · Компоненты</div>
+      <h2 style="{{h2}}">Тултип и поповер</h2>
+      <div style="display:flex;gap:64px;padding:40px 24px">
+        <div style="position:relative;display:inline-block">
+          <button style="{{btnSecondary}}">Наведите курсор</button>
+          <div style="position:absolute;bottom:calc(100% + 10px);left:50%;transform:translateX(-50%);background:var(--color-text-primary);color:var(--color-background);font-size:12px;padding:8px 12px;border-radius:10px;white-space:nowrap;box-shadow:var(--shadow-md)">Стоимость указана без учёта скидки</div>
+        </div>
+        <div style="position:relative;display:inline-block">
+          <button style="{{btnSecondary}}">Открыть поповер</button>
+          <div style="position:absolute;top:calc(100% + 10px);left:0;width:220px;background:var(--color-surface-raised);border:1px solid var(--color-border);border-radius:16px;box-shadow:var(--shadow-lg);padding:16px">
+            <div style="font-size:13px;font-weight:700;color:var(--color-text-primary);margin-bottom:6px">Отменить запись?</div>
+            <div style="font-size:12px;color:var(--color-text-muted);line-height:1.5">Мастер получит уведомление сразу</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="master-card" style="margin-bottom:96px">
+      <div style="{{sectionKicker}}">06 · Домен</div>
+      <h2 style="{{h2}}">Карточка мастера</h2>
+      <div style="display:flex;gap:24px;flex-wrap:wrap">
+        <div style="{{masterCardBase}};width:280px">
+          <div style="{{masterPhoto}}">фото мастера</div>
+          <div style="font-family:'Playfair Display',serif;font-size:20px;font-weight:600;color:var(--color-text-primary);margin-top:16px">Анна Соколова</div>
+          <div style="font-size:13px;color:var(--color-text-muted);margin-bottom:8px">Топ-стилист · Окрашивание</div>
+          <div style="display:flex;align-items:center;gap:4px;margin-bottom:12px"><svg width="14" height="14" viewBox="0 0 24 24" fill="var(--color-accent)" stroke="none"><polygon points="12,3 14.7,9 21,9.5 16.2,13.7 17.6,20 12,16.6 6.4,20 7.8,13.7 3,9.5 9.3,9"/></svg><span style="font-size:13px;font-weight:700;color:var(--color-text-primary);font-variant-numeric:tabular-nums">4.9</span><span style="font-size:12px;color:var(--color-text-muted)">(128 отзывов)</span></div>
+          <div style="font-size:12px;color:var(--color-text-muted);margin-bottom:16px">Ближайшее время: <span style="color:var(--color-text-primary);font-weight:700;font-variant-numeric:tabular-nums">сегодня, 15:30</span></div>
+          <button style="{{btnPrimary}};width:100%">Записаться</button>
+        </div>
+
+        <div style="{{masterCardBase}};width:520px;display:flex;flex-direction:row;gap:20px;align-items:flex-start">
+          <div style="{{masterPhoto}};width:96px;height:96px;flex-shrink:0;font-size:10px">фото</div>
+          <div style="flex:1">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start">
+              <div>
+                <div style="font-family:'Playfair Display',serif;font-size:20px;font-weight:600;color:var(--color-text-primary)">Мария Титова</div>
+                <div style="font-size:13px;color:var(--color-text-muted)">Мастер маникюра</div>
+              </div>
+              <div style="display:flex;align-items:center;gap:4px"><svg width="14" height="14" viewBox="0 0 24 24" fill="var(--color-accent)" stroke="none"><polygon points="12,3 14.7,9 21,9.5 16.2,13.7 17.6,20 12,16.6 6.4,20 7.8,13.7 3,9.5 9.3,9"/></svg><span style="font-size:13px;font-weight:700;color:var(--color-text-primary)">4.8</span></div>
+            </div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;margin:12px 0">
+              <span style="{{tinyChip}}">Маникюр — 2 500 ₽</span>
+              <span style="{{tinyChip}}">Педикюр — 3 200 ₽</span>
+              <span style="{{tinyChip}}">Покрытие гель-лак</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <div style="font-size:12px;color:var(--color-text-muted)">Свободно: <span style="color:var(--color-text-primary);font-weight:700;font-variant-numeric:tabular-nums">завтра, 10:00</span></div>
+              <button style="{{btnPrimary}};padding:10px 24px">Записаться</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="service-card" style="margin-bottom:96px">
+      <div style="{{sectionKicker}}">06 · Домен</div>
+      <h2 style="{{h2}}">Карточка услуги</h2>
+      <div style="display:flex;gap:20px;flex-wrap:wrap">
+        <div style="{{serviceCard}}">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
+            <div style="font-size:16px;font-weight:700;color:var(--color-text-primary)">Женская стрижка</div>
+            <div style="font-size:16px;font-weight:700;color:var(--color-text-primary);font-variant-numeric:tabular-nums">от 2 800 ₽</div>
+          </div>
+          <div style="font-size:13px;color:var(--color-text-muted);margin-bottom:12px">Мытьё, стрижка, укладка</div>
+          <div style="font-size:12px;color:var(--color-text-muted);font-variant-numeric:tabular-nums">45 минут</div>
+        </div>
+        <div style="{{serviceCard}};border-color:var(--color-accent);box-shadow:0 0 0 2px var(--color-accent-subtle)">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
+            <div style="font-size:16px;font-weight:700;color:var(--color-text-primary)">Балаяж</div>
+            <div style="font-size:16px;font-weight:700;color:var(--color-text-primary);font-variant-numeric:tabular-nums">от 7 500 ₽</div>
+          </div>
+          <div style="font-size:13px;color:var(--color-text-muted);margin-bottom:12px">Окрашивание, тонирование</div>
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div style="font-size:12px;color:var(--color-text-muted);font-variant-numeric:tabular-nums">3 часа</div>
+            <span style="font-size:12px;font-weight:700;color:var(--color-accent);display:flex;align-items:center;gap:4px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="4,12 10,18 20,6"/></svg>Выбрана</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="slots" style="margin-bottom:96px">
+      <div style="{{sectionKicker}}">06 · Домен</div>
+      <h2 style="{{h2}}">Сетка слотов времени</h2>
+      <p style="{{sectionLead}}">Самый частый экран продукта. Сгруппировано по частям дня, состояния различаются заливкой, обводкой и иконкой.</p>
+
+      <div style="{{groupTitle}}">Утро</div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:24px">
+        <button style="{{slotFree}}">09:00</button>
+        <button style="{{slotPast}}">09:30</button>
+        <button style="{{slotBusy}}">10:00</button>
+        <button style="{{slotFree}}">10:30</button>
+        <button style="{{slotFree}}">11:00</button>
+      </div>
+      <div style="{{groupTitle}}">День</div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:24px">
+        <button style="{{slotSelected}}">✓ 13:00</button>
+        <button style="{{slotFree}}">13:30</button>
+        <button style="{{slotBusy}}">14:00</button>
+        <button style="{{slotMine}}">★ 14:30</button>
+        <button style="{{slotFree}}">15:00</button>
+        <button style="{{slotFree}}">15:30</button>
+      </div>
+      <div style="{{groupTitle}}">Вечер</div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:32px">
+        <button style="{{slotFree}}">18:00</button>
+        <button style="{{slotBusy}}">18:30</button>
+        <button style="{{slotFree}}">19:00</button>
+      </div>
+
+      <div style="display:flex;gap:24px;flex-wrap:wrap">
+        <div style="flex:1;min-width:280px">
+          <div style="{{groupTitle}}">Слотов нет</div>
+          <div style="background:var(--color-surface);border:1px dashed var(--color-border-strong);border-radius:20px;padding:32px;text-align:center">
+            <div style="font-size:32px;margin-bottom:12px">◐</div>
+            <div style="font-size:14px;font-weight:700;color:var(--color-text-primary);margin-bottom:4px">На этот день свободного времени нет</div>
+            <div style="font-size:13px;color:var(--color-text-muted)">Выберите другую дату в календаре</div>
+          </div>
+        </div>
+        <div style="flex:1;min-width:280px">
+          <div style="{{groupTitle}}">Загрузка (скелетон)</div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;background:var(--color-surface);border:1px solid var(--color-border);border-radius:20px;padding:24px">
+            <div style="{{skeletonPill}}"></div><div style="{{skeletonPill}}"></div><div style="{{skeletonPill}}"></div><div style="{{skeletonPill}}"></div><div style="{{skeletonPill}}"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="calendar" style="margin-bottom:96px">
+      <div style="{{sectionKicker}}">06 · Домен</div>
+      <h2 style="{{h2}}">Календарь выбора даты</h2>
+      <div style="display:flex;gap:24px;flex-wrap:wrap">
+        <div style="{{calendarCard}}">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+            <button style="{{calNavBtn}}">‹</button>
+            <div style="font-family:'Playfair Display',serif;font-size:16px;font-weight:600;color:var(--color-text-primary)">Август 2026</div>
+            <button style="{{calNavBtn}}">›</button>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:6px;font-size:11px;color:var(--color-text-muted);text-align:center;margin-bottom:6px">
+            <div>Пн</div><div>Вт</div><div>Ср</div><div>Чт</div><div>Пт</div><div>Сб</div><div>Вс</div>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:6px">
+            <sc-for list="{{calendarDays}}" as="day" hint-placeholder-count="35">
+              <button onClick="{{day.select}}" style="{{day.style}}">
+                {{day.num}}
+                <sc-if value="{{day.hasSlots}}" hint-placeholder-val="{{false}}"><span style="{{day.dotStyle}}"></span></sc-if>
+              </button>
+            </sc-for>
+          </div>
+          <div style="display:flex;gap:16px;margin-top:16px;font-size:11px;color:var(--color-text-muted)">
+            <span style="display:flex;align-items:center;gap:5px"><span style="width:6px;height:6px;border-radius:50%;background:var(--color-accent);display:inline-block"></span>Есть места</span>
+            <span>Без точки — мест нет</span>
+            <span style="opacity:0.5">Серый — прошедшая</span>
+          </div>
+        </div>
+
+        <div style="flex:1;min-width:280px">
+          <div style="{{groupTitle}}">Мобильная лента дней</div>
+          <div style="display:flex;gap:10px;overflow-x:auto;padding-bottom:8px">
+            <sc-for list="{{ribbonDays}}" as="rd" hint-placeholder-count="7">
+              <div style="{{rd.style}}"><div style="font-size:11px;opacity:0.7">{{rd.dow}}</div><div style="font-size:16px;font-weight:700;font-variant-numeric:tabular-nums">{{rd.num}}</div></div>
+            </sc-for>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="stepper" style="margin-bottom:96px">
+      <div style="{{sectionKicker}}">06 · Домен</div>
+      <h2 style="{{h2}}">Степпер бронирования</h2>
+
+      <div style="{{groupTitle}}">Десктоп</div>
+      <div style="display:flex;align-items:center;margin-bottom:32px">
+        <sc-for list="{{steps}}" as="step" hint-placeholder-count="4">
+          <div style="display:flex;align-items:center;flex:1">
+            <div onClick="{{step.select}}" style="display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer">
+              <div style="{{step.circleStyle}}">{{step.mark}}</div>
+              <div style="{{step.labelStyle}}">{{step.name}}</div>
+            </div>
+            <sc-if value="{{step.hasLine}}" hint-placeholder-val="{{true}}"><div style="{{step.lineStyle}}"></div></sc-if>
+          </div>
+        </sc-for>
+      </div>
+
+      <div style="{{groupTitle}}">Мобильный вид</div>
+      <div style="{{demoBox}};max-width:360px;display:flex;align-items:center;justify-content:space-between">
+        <div style="font-size:13px;color:var(--color-text-muted)">Шаг 3 из 4</div>
+        <div style="font-size:14px;font-weight:700;color:var(--color-text-primary)">Время</div>
+        <div style="display:flex;gap:4px">
+          <span style="width:20px;height:4px;border-radius:2px;background:var(--color-primary)"></span>
+          <span style="width:20px;height:4px;border-radius:2px;background:var(--color-primary)"></span>
+          <span style="width:20px;height:4px;border-radius:2px;background:var(--color-accent)"></span>
+          <span style="width:20px;height:4px;border-radius:2px;background:var(--color-border)"></span>
+        </div>
+      </div>
+    </section>
+
+    <section id="booking-card" style="margin-bottom:96px">
+      <div style="{{sectionKicker}}">06 · Домен</div>
+      <h2 style="{{h2}}">Карточка записи (личный кабинет)</h2>
+      <div style="display:flex;gap:20px;flex-wrap:wrap">
+        <div style="{{bookingCard}}">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px">
+            <div>
+              <div style="font-family:'Playfair Display',serif;font-size:22px;font-weight:600;color:var(--color-text-primary);font-variant-numeric:tabular-nums">Завтра, 14:30</div>
+              <div style="font-size:13px;color:var(--color-text-muted)">Анна Соколова · Окрашивание</div>
+            </div>
+            <span style="{{badge}};background:var(--color-success-subtle);color:var(--color-success-text)">Подтверждена</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding-top:16px;border-top:1px solid var(--color-border)">
+            <div style="font-size:15px;font-weight:700;color:var(--color-text-primary);font-variant-numeric:tabular-nums">7 500 ₽</div>
+            <button style="{{btnSecondary}};padding:9px 20px;font-size:13px">Отменить</button>
+          </div>
+        </div>
+        <div style="{{bookingCard}};opacity:0.7">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px">
+            <div>
+              <div style="font-family:'Playfair Display',serif;font-size:22px;font-weight:600;color:var(--color-text-primary);font-variant-numeric:tabular-nums">3 августа, 11:00</div>
+              <div style="font-size:13px;color:var(--color-text-muted)">Мария Титова · Маникюр</div>
+            </div>
+            <span style="{{badge}};background:var(--color-info-subtle);color:var(--color-info-text)">Завершена</span>
+          </div>
+          <div style="font-size:15px;font-weight:700;color:var(--color-text-primary);padding-top:16px;border-top:1px solid var(--color-border);font-variant-numeric:tabular-nums">2 500 ₽</div>
+        </div>
+        <div style="{{bookingCard}}">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px">
+            <div>
+              <div style="font-family:'Playfair Display',serif;font-size:22px;font-weight:600;color:var(--color-text-muted);font-variant-numeric:tabular-nums;text-decoration:line-through;text-decoration-color:var(--color-border-strong)">30 июля, 16:00</div>
+              <div style="font-size:13px;color:var(--color-text-muted)">Анна Соколова · Стрижка</div>
+            </div>
+            <span style="{{badge}};background:var(--color-danger-subtle);color:var(--color-danger-text)">Отменена</span>
+          </div>
+          <div style="font-size:13px;color:var(--color-text-muted);padding-top:16px;border-top:1px solid var(--color-border)">Отменена клиентом за 2 часа до визита</div>
+        </div>
+      </div>
+    </section>
+
+    <section id="table" style="margin-bottom:96px">
+      <div style="{{sectionKicker}}">06 · Домен</div>
+      <h2 style="{{h2}}">Таблица записей (админка)</h2>
+      <div style="border:1px solid var(--color-border);border-radius:16px;overflow:hidden;margin-bottom:32px">
+        <div style="display:grid;grid-template-columns:0.7fr 1.2fr 1.1fr 1.3fr 0.9fr 0.8fr;padding:12px 20px;font-size:11px;text-transform:uppercase;letter-spacing:0.06em;color:var(--color-text-muted);background:var(--color-surface-sunken)">
+          <div>Время</div><div>Клиент</div><div>Мастер</div><div>Услуга</div><div>Статус</div><div>Действия</div>
+        </div>
+        <div style="display:grid;grid-template-columns:0.7fr 1.2fr 1.1fr 1.3fr 0.9fr 0.8fr;padding:14px 20px;align-items:center;background:var(--color-surface);border-top:1px solid var(--color-border);font-size:13px;color:var(--color-text-primary)">
+          <div style="font-weight:700;font-variant-numeric:tabular-nums">09:00</div><div>Ирина К.</div><div>Анна Соколова</div><div>Стрижка</div><div><span style="{{badge}};background:var(--color-success-subtle);color:var(--color-success-text)">Подтверждена</span></div><div style="display:flex;gap:10px;color:var(--color-text-muted)">✎ ✕</div>
+        </div>
+        <div style="display:grid;grid-template-columns:0.7fr 1.2fr 1.1fr 1.3fr 0.9fr 0.8fr;padding:14px 20px;align-items:center;background:var(--color-surface);border-top:1px solid var(--color-border);font-size:13px;color:var(--color-text-primary)">
+          <div style="font-weight:700;font-variant-numeric:tabular-nums">10:30</div><div>Павел Р.</div><div>Мария Титова</div><div>Маникюр</div><div><span style="{{badge}};background:var(--color-warning-subtle);color:var(--color-warning-text)">Ожидает</span></div><div style="display:flex;gap:10px;color:var(--color-text-muted)">✎ ✕</div>
+        </div>
+        <div style="display:grid;grid-template-columns:0.7fr 1.2fr 1.1fr 1.3fr 0.9fr 0.8fr;padding:14px 20px;align-items:center;background:var(--color-surface);border-top:1px solid var(--color-border);font-size:13px;color:var(--color-text-primary)">
+          <div style="font-weight:700;font-variant-numeric:tabular-nums">14:00</div><div>Ольга Д.</div><div>Анна Соколова</div><div>Балаяж</div><div><span style="{{badge}};background:var(--color-danger-subtle);color:var(--color-danger-text)">Отменена</span></div><div style="display:flex;gap:10px;color:var(--color-text-muted)">✎ ✕</div>
+        </div>
+      </div>
+      <div style="{{groupTitle}}">Мобильный вариант — карточкой</div>
+      <div style="{{demoBox}};max-width:360px;display:flex;flex-direction:column;gap:8px">
+        <div style="display:flex;justify-content:space-between"><span style="font-weight:700;color:var(--color-text-primary);font-variant-numeric:tabular-nums">09:00</span><span style="{{badge}};background:var(--color-success-subtle);color:var(--color-success-text)">Подтверждена</span></div>
+        <div style="font-size:13px;color:var(--color-text-secondary)">Ирина К. · Анна Соколова</div>
+        <div style="font-size:13px;color:var(--color-text-muted)">Стрижка</div>
+      </div>
+    </section>
+
+    <section id="shell" style="margin-bottom:96px">
+      <div style="{{sectionKicker}}">06 · Домен</div>
+      <h2 style="{{h2}}">Сайдбар админки и шапка клиента</h2>
+      <div style="display:flex;gap:24px;flex-wrap:wrap">
+        <div style="width:220px;background:var(--color-surface);border:1px solid var(--color-border);border-radius:20px;padding:20px;display:flex;flex-direction:column;gap:4px">
+          <div style="font-family:'Playfair Display',serif;font-size:16px;font-weight:600;color:var(--color-text-primary);margin-bottom:16px">Салон · Админ</div>
+          <div style="{{sidebarItemActive}}">Записи</div>
+          <div style="{{sidebarItem}}">Мастера</div>
+          <div style="{{sidebarItem}}">Услуги</div>
+          <div style="{{sidebarItem}}">Расписание</div>
+        </div>
+        <div style="flex:1;min-width:360px;background:var(--color-surface);border:1px solid var(--color-border);border-radius:20px;padding:16px 24px;display:flex;justify-content:space-between;align-items:center">
+          <div style="font-family:'Playfair Display',serif;font-size:18px;font-weight:600;color:var(--color-text-primary)">Салон красоты «Тон»</div>
+          <div style="display:flex;align-items:center;gap:20px">
+            <div style="position:relative"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--color-text-primary)" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M6 10a6 6 0 0112 0c0 5 2 6 2 6H4s2-1 2-6z"/><path d="M10 19a2 2 0 004 0"/></svg><span style="position:absolute;top:-4px;right:-6px;background:var(--color-danger);color:#fff;font-size:10px;font-weight:700;border-radius:999px;padding:1px 5px;line-height:1.3">2</span></div>
+            <div style="{{avatarBase}};width:36px;height:36px;font-size:13px">ЕВ</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="modals" style="margin-bottom:96px">
+      <div style="{{sectionKicker}}">07 · Обратная связь</div>
+      <h2 style="{{h2}}">Модальные окна</h2>
+      <div style="display:flex;gap:24px;flex-wrap:wrap">
+        <div style="{{modalCard}}">
+          <div style="font-family:'Playfair Display',serif;font-size:20px;font-weight:600;color:var(--color-text-primary);margin-bottom:12px">Подтвердить запись?</div>
+          <div style="font-size:14px;color:var(--color-text-secondary);line-height:1.5;margin-bottom:24px">Анна Соколова, окрашивание, завтра в 14:30. Мы напомним вам за час.</div>
+          <div style="display:flex;gap:12px;justify-content:flex-end"><button style="{{btnSecondary}}">Отмена</button><button style="{{btnPrimary}}">Подтвердить</button></div>
+        </div>
+        <div style="{{modalCard}}">
+          <div style="font-family:'Playfair Display',serif;font-size:20px;font-weight:600;color:var(--color-text-primary);margin-bottom:12px">Отменить запись</div>
+          <div style="font-size:14px;color:var(--color-text-secondary);line-height:1.5;margin-bottom:24px">Время освободится для других клиентов. Это действие нельзя отменить.</div>
+          <div style="display:flex;gap:12px;justify-content:flex-end"><button style="{{btnSecondary}}">Оставить</button><button style="{{btnDanger}}">Отменить запись</button></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="toasts" style="margin-bottom:96px">
+      <div style="{{sectionKicker}}">07 · Обратная связь</div>
+      <h2 style="{{h2}}">Тост-уведомления</h2>
+      <div style="display:flex;flex-direction:column;gap:12px;max-width:400px">
+        <div style="{{toastBase}};border-left:4px solid var(--color-success)">✓ Запись подтверждена</div>
+        <div style="{{toastBase}};border-left:4px solid var(--color-danger)">Не удалось сохранить, попробуйте ещё раз</div>
+        <div style="{{toastBase}};border-left:4px solid var(--color-info)">Мастер добавил новое время</div>
+      </div>
+    </section>
+
+    <section id="alerts" style="margin-bottom:96px">
+      <div style="{{sectionKicker}}">07 · Обратная связь</div>
+      <h2 style="{{h2}}">Инлайн-алерт</h2>
+      <div style="{{alertBase}};background:var(--color-warning-subtle);color:var(--color-warning-text)">Салон закрыт по воскресеньям — ближайшая запись возможна с понедельника</div>
+    </section>
+
+    <section id="conflict" style="margin-bottom:96px">
+      <div style="{{sectionKicker}}">07 · Обратная связь</div>
+      <h2 style="{{h2}}">Конфликт слота</h2>
+      <p style="{{sectionLead}}">Ключевой сценарий продукта: выразительно, но не пугающе.</p>
+      <div style="max-width:420px;background:var(--color-surface);border:1px solid var(--color-warning);border-radius:20px;padding:24px;box-shadow:var(--shadow-md)">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
+          <div style="width:40px;height:40px;border-radius:50%;background:var(--color-warning-subtle);display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--color-warning-text)" stroke-width="1.75" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><line x1="12" y1="12" x2="12" y2="7"/><line x1="12" y1="12" x2="16" y2="14"/></svg></div>
+          <div style="font-size:16px;font-weight:700;color:var(--color-text-primary)">Это время только что заняли</div>
+        </div>
+        <div style="font-size:13px;color:var(--color-text-secondary);line-height:1.5;margin-bottom:20px">Кто-то опередил вас на несколько секунд. Пожалуйста, выберите другое время — мастер свободен ещё сегодня.</div>
+        <button style="{{btnPrimary}};width:100%">Показать свободное время</button>
+      </div>
+    </section>
+
+    <section id="empty" style="margin-bottom:96px">
+      <div style="{{sectionKicker}}">07 · Обратная связь</div>
+      <h2 style="{{h2}}">Пустые состояния</h2>
+      <div style="display:flex;gap:20px;flex-wrap:wrap">
+        <div style="{{emptyCard}}"><div style="{{emptyBlob}}"></div><div style="font-size:14px;font-weight:700;color:var(--color-text-primary);margin:16px 0 4px">У вас пока нет записей</div><div style="font-size:13px;color:var(--color-text-muted);margin-bottom:16px">Выберите мастера и удобное время</div><button style="{{btnPrimary}}">Записаться</button></div>
+        <div style="{{emptyCard}}"><div style="{{emptyBlob}}"></div><div style="font-size:14px;font-weight:700;color:var(--color-text-primary);margin:16px 0 4px">У мастера нет свободных слотов</div><div style="font-size:13px;color:var(--color-text-muted);margin-bottom:16px">Попробуйте выбрать другую дату</div><button style="{{btnSecondary}}">Другая дата</button></div>
+        <div style="{{emptyCard}}"><div style="{{emptyBlob}}"></div><div style="font-size:14px;font-weight:700;color:var(--color-text-primary);margin:16px 0 4px">Ничего не найдено</div><div style="font-size:13px;color:var(--color-text-muted);margin-bottom:16px">Измените запрос или сбросьте фильтры</div><button style="{{btnSecondary}}">Сбросить фильтры</button></div>
+      </div>
+    </section>
+
+    <section id="skeletons" style="margin-bottom:96px">
+      <div style="{{sectionKicker}}">07 · Обратная связь</div>
+      <h2 style="{{h2}}">Скелетоны загрузки</h2>
+      <div style="display:flex;gap:24px;flex-wrap:wrap">
+        <div style="{{demoBox}};width:220px">
+          <div style="{{skeletonCircle}};margin:0 auto 12px"></div>
+          <div style="{{skeletonLine}};width:70%;margin:0 auto 8px"></div>
+          <div style="{{skeletonLine}};width:50%;margin:0 auto"></div>
+        </div>
+        <div style="{{demoBox}};width:260px;display:flex;gap:8px;flex-wrap:wrap;align-content:flex-start">
+          <div style="{{skeletonPill}}"></div><div style="{{skeletonPill}}"></div><div style="{{skeletonPill}}"></div><div style="{{skeletonPill}}"></div>
+        </div>
+        <div style="{{demoBox}};width:280px">
+          <div style="{{skeletonLine}};width:100%;margin-bottom:10px"></div>
+          <div style="{{skeletonLine}};width:100%;margin-bottom:10px"></div>
+          <div style="{{skeletonLine}};width:60%"></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="errors" style="margin-bottom:96px">
+      <div style="{{sectionKicker}}">07 · Обратная связь</div>
+      <h2 style="{{h2}}">Экраны ошибок</h2>
+      <div style="display:flex;gap:20px;flex-wrap:wrap">
+        <div style="{{emptyCard}}"><div style="font-family:'Playfair Display',serif;font-size:48px;font-weight:600;color:var(--color-accent)">404</div><div style="font-size:14px;font-weight:700;color:var(--color-text-primary);margin:8px 0 4px">Страница не найдена</div><div style="font-size:13px;color:var(--color-text-muted);margin-bottom:16px">Возможно, ссылка устарела</div><button style="{{btnPrimary}}">На главную</button></div>
+        <div style="{{emptyCard}}"><div style="font-family:'Playfair Display',serif;font-size:48px;font-weight:600;color:var(--color-danger)">500</div><div style="font-size:14px;font-weight:700;color:var(--color-text-primary);margin:8px 0 4px">Что-то пошло не так</div><div style="font-size:13px;color:var(--color-text-muted);margin-bottom:16px">Мы уже знаем о проблеме и чиним её</div><button style="{{btnSecondary}}">Обновить страницу</button></div>
+      </div>
+    </section>
+
+    <section id="guidelines" style="margin-bottom:96px">
+      <div style="{{sectionKicker}}">08 · Документация</div>
+      <h2 style="{{h2}}">Правила</h2>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px">
+        <div style="{{ruleCard}}"><div style="{{ruleTitle}}">Когда какая кнопка</div><div style="{{ruleText}}">Primary — одно главное действие на экране («Записаться», «Подтвердить»). Secondary — второстепенное действие рядом с primary. Ghost — третичные действия внутри карточек и таблиц. Danger — только для необратимых действий.</div></div>
+        <div style="{{ruleCard}}"><div style="{{ruleTitle}}">Статусы записи</div><div style="{{ruleText}}">Подтверждена (зелёный) — оплата на месте не влияет на статус. Ожидает (жёлтый) — требует подтверждения администратора. Завершена (синий) — визит состоялся. Отменена (красный) — конечное состояние.</div></div>
+        <div style="{{ruleCard}}"><div style="{{ruleTitle}}">Дата и время</div><div style="{{ruleText}}">Формат 24 часа, ДД месяц или «сегодня» / «завтра» вместо даты в пределах двух дней. Часовой пояс — локальный пояс салона, без указания UTC в интерфейсе.</div></div>
+        <div style="{{ruleCard}}"><div style="{{ruleTitle}}">Тон сообщений</div><div style="{{ruleText}}">Спокойно, на «вы», без восклицательных знаков. В ошибках — без вины пользователя: «Не удалось сохранить», а не «Вы ввели неверные данные».</div></div>
+        <div style="{{ruleCard}}"><div style="{{ruleTitle}}">Область нажатия</div><div style="{{ruleText}}">Минимум 44×44px на мобильных экранах для любого интерактивного элемента, включая иконки-кнопки и чипы.</div></div>
+        <div style="{{ruleCard}}"><div style="{{ruleTitle}}">Anti-patterns</div><div style="{{ruleText}}">1) Декор (волны, завитки) внутри календаря или таблицы — только в шапках и пустых состояниях. 2) Чистый белый фон или чёрный текст — всё тёплое. 3) Два разных statusа с одинаковым цветом и без иконки — потеря доступности.</div></div>
+      </div>
+    </section>
+
+    <section id="css-export" style="margin-bottom:40px">
+      <div style="{{sectionKicker}}">09 · Выгрузка</div>
+      <h2 style="{{h2}}">CSS-переменные</h2>
+      <p style="{{sectionLead}}">Готово к копированию в проект.</p>
+      <div style="position:relative">
+        <button onClick="{{copyCSS}}" style="position:absolute;top:16px;right:16px;{{btnSecondary}};padding:8px 16px;font-size:12px;background:var(--color-surface-raised)">{{copyLabel}}</button>
+        <pre id="ds-css-export" style="background:var(--color-text-primary);color:var(--color-background);border-radius:20px;padding:64px 32px 32px;font-size:12px;line-height:1.7;overflow-x:auto;font-family:'Manrope',monospace;white-space:pre">:root {
+  --color-background: #fbf4eb;
+  --color-surface: #fef9f3;
+  --color-surface-raised: #fffffb;
+  --color-surface-sunken: #f2eae0;
+  --color-overlay: rgba(41,28,21,0.5);
+  --color-text-primary: #291c15;
+  --color-text-secondary: #594941;
+  --color-text-muted: #796c65;
+  --color-text-on-accent: #fdf8f1;
+  --color-text-disabled: #a59c98;
+  --color-primary: #482a1d;
+  --color-primary-hover: #361c11;
+  --color-primary-active: #271208;
+  --color-primary-subtle: #f4e4dd;
+  --color-accent: #8d671d;
+  --color-accent-hover: #785300;
+  --color-accent-subtle: #f5e2c4;
+  --color-border: #d6ccc4;
+  --color-border-strong: #a4958c;
+  --color-border-focus: #8d671d;
+  --color-success: #426f4c;
+  --color-success-subtle: #dbeede;
+  --color-success-text: #133c1f;
+  --color-warning: #ad7b3d;
+  --color-warning-subtle: #fde7cf;
+  --color-warning-text: #582f02;
+  --color-danger: #9c433f;
+  --color-danger-subtle: #ffddd9;
+  --color-danger-text: #5f1a19;
+  --color-info: #516d81;
+  --color-info-subtle: #dceaf4;
+  --color-info-text: #1b394c;
+  --color-slot-free-bg: #fef9f3;
+  --color-slot-free-border: #a4958c;
+  --color-slot-free-text: #291c15;
+  --color-slot-selected-bg: #8d671d;
+  --color-slot-selected-border: #8d671d;
+  --color-slot-selected-text: #fdf8f1;
+  --color-slot-busy-bg: #f2eae0;
+  --color-slot-busy-border: #d6ccc4;
+  --color-slot-busy-text: #a59c98;
+  --color-slot-past-bg: #f2eae0;
+  --color-slot-past-border: #e4dcd3;
+  --color-slot-past-text: #c2b8b1;
+  --color-slot-mine-bg: #f4e4dd;
+  --color-slot-mine-border: #482a1d;
+  --color-slot-mine-text: #482a1d;
+  --shadow-sm: 0 1px 2px rgba(72,42,29,0.08);
+  --shadow-md: 0 4px 12px rgba(72,42,29,0.10), 0 1px 2px rgba(72,42,29,0.06);
+  --shadow-lg: 0 12px 24px rgba(72,42,29,0.14), 0 2px 6px rgba(72,42,29,0.08);
+  --shadow-xl: 0 24px 48px rgba(41,28,21,0.28), 0 4px 12px rgba(41,28,21,0.12);
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-xl: 28px;
+  --radius-full: 999px;
+  --font-display: 'Playfair Display', serif;
+  --font-body: 'Manrope', sans-serif;
+}
+
+[data-theme="dark"] {
+  --color-background: #1a120d;
+  --color-surface: #241b16;
+  --color-surface-raised: #2e241e;
+  --color-surface-sunken: #100906;
+  --color-overlay: rgba(0,0,0,0.6);
+  --color-text-primary: #f3ede6;
+  --color-text-secondary: #c1b9b0;
+  --color-text-muted: #92877d;
+  --color-text-on-accent: #1f130b;
+  --color-text-disabled: #5f564f;
+  --color-primary: #c39b81;
+  --color-primary-hover: #d6ae93;
+  --color-primary-active: #a7846c;
+  --color-primary-subtle: #3a2a20;
+  --color-accent: #d3aa64;
+  --color-accent-hover: #e6bd77;
+  --color-accent-subtle: #3b2b0d;
+  --color-border: #40352e;
+  --color-border-strong: #64554b;
+  --color-border-focus: #d9b06b;
+  --color-success: #75b683;
+  --color-success-subtle: #152d1a;
+  --color-success-text: #ace0b6;
+  --color-warning: #ddae6c;
+  --color-warning-subtle: #382409;
+  --color-warning-text: #facf9e;
+  --color-danger: #eb8373;
+  --color-danger-subtle: #401d1b;
+  --color-danger-text: #ffb7b0;
+  --color-info: #8cb0ca;
+  --color-info-subtle: #192834;
+  --color-info-text: #b4d2e9;
+  --color-slot-free-bg: #241b16;
+  --color-slot-free-border: #64554b;
+  --color-slot-free-text: #f3ede6;
+  --color-slot-selected-bg: #d3aa64;
+  --color-slot-selected-border: #d3aa64;
+  --color-slot-selected-text: #1f130b;
+  --color-slot-busy-bg: #100906;
+  --color-slot-busy-border: #40352e;
+  --color-slot-busy-text: #5f564f;
+  --color-slot-past-bg: #100906;
+  --color-slot-past-border: #40352e;
+  --color-slot-past-text: #5f564f;
+  --color-slot-mine-bg: #3a2a20;
+  --color-slot-mine-border: #c39b81;
+  --color-slot-mine-text: #c39b81;
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.3);
+  --shadow-md: 0 4px 14px rgba(0,0,0,0.4);
+  --shadow-lg: 0 14px 28px rgba(0,0,0,0.5);
+  --shadow-xl: 0 28px 56px rgba(0,0,0,0.6);
+}</pre>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = {
+    theme: 'light',
+    checkboxOn: true,
+    radioVal: 'classic',
+    switchOn: true,
+    sliderVal: 65,
+    passwordVisible: false,
+    activeTab: 0,
+    activeStep: 2,
+    selectedDay: 14,
+    chips: [
+      { id: 1, label: 'Стрижка', on: true },
+      { id: 2, label: 'Окрашивание', on: true },
+      { id: 3, label: 'Маникюр', on: true },
+    ],
+    copied: false,
+  };
+
+  toggleTheme = () => this.setState(s => ({ theme: s.theme === 'light' ? 'dark' : 'light' }));
+  toggleCheckbox = () => this.setState(s => ({ checkboxOn: !s.checkboxOn }));
+  toggleSwitch = () => this.setState(s => ({ switchOn: !s.switchOn }));
+  togglePassword = () => this.setState(s => ({ passwordVisible: !s.passwordVisible }));
+  setRadioClassic = () => this.setState({ radioVal: 'classic' });
+  setRadioLength = () => this.setState({ radioVal: 'length' });
+  setSlider = (e) => this.setState({ sliderVal: Number(e.target.value) });
+  setTab0 = () => this.setState({ activeTab: 0 });
+  setTab1 = () => this.setState({ activeTab: 1 });
+  setTab2 = () => this.setState({ activeTab: 2 });
+  setStep = (i) => this.setState({ activeStep: i });
+  selectDay = (d) => this.setState({ selectedDay: d });
+  removeChip = (id) => this.setState(s => ({ chips: s.chips.map(c => c.id === id ? { ...c, on: false } : c) }));
+
+  copyCSS = () => {
+    const el = document.getElementById('ds-css-export');
+    if (el && navigator.clipboard) navigator.clipboard.writeText(el.innerText).catch(() => {});
+    this.setState({ copied: true });
+    setTimeout(() => this.setState({ copied: false }), 2000);
+  };
+
+  renderVals() {
+    const isDark = this.state.theme === 'dark';
+    const T = isDark ? {
+      background: '#1a120d', surface: '#241b16', surfaceRaised: '#2e241e', surfaceSunken: '#100906',
+      overlay: 'rgba(0,0,0,0.6)', textPrimary: '#f3ede6', textSecondary: '#c1b9b0', textMuted: '#92877d',
+      textOnAccent: '#1f130b', textDisabled: '#5f564f', primary: '#c39b81', primaryHover: '#d6ae93',
+      primaryActive: '#a7846c', primarySubtle: '#3a2a20', accent: '#d3aa64', accentHover: '#e6bd77',
+      accentSubtle: '#3b2b0d', border: '#40352e', borderStrong: '#64554b', borderFocus: '#d9b06b',
+      success: '#75b683', successSubtle: '#152d1a', successText: '#ace0b6',
+      warning: '#ddae6c', warningSubtle: '#382409', warningText: '#facf9e',
+      danger: '#eb8373', dangerSubtle: '#401d1b', dangerText: '#ffb7b0',
+      info: '#8cb0ca', infoSubtle: '#192834', infoText: '#b4d2e9',
+      slotFreeBg: '#241b16', slotFreeBorder: '#64554b', slotFreeText: '#f3ede6',
+      slotSelectedBg: '#d3aa64', slotSelectedBorder: '#d3aa64', slotSelectedText: '#1f130b',
+      slotBusyBg: '#100906', slotBusyBorder: '#40352e', slotBusyText: '#5f564f',
+      slotPastBg: '#100906', slotPastBorder: '#40352e', slotPastText: '#5f564f',
+      slotMineBg: '#3a2a20', slotMineBorder: '#c39b81', slotMineText: '#c39b81',
+      shadowSm: '0 1px 2px rgba(0,0,0,0.3)', shadowMd: '0 4px 14px rgba(0,0,0,0.4)',
+      shadowLg: '0 14px 28px rgba(0,0,0,0.5)', shadowXl: '0 28px 56px rgba(0,0,0,0.6)',
+    } : {
+      background: '#fbf4eb', surface: '#fef9f3', surfaceRaised: '#fffffb', surfaceSunken: '#f2eae0',
+      overlay: 'rgba(41,28,21,0.5)', textPrimary: '#291c15', textSecondary: '#594941', textMuted: '#796c65',
+      textOnAccent: '#fdf8f1', textDisabled: '#a59c98', primary: '#482a1d', primaryHover: '#361c11',
+      primaryActive: '#271208', primarySubtle: '#f4e4dd', accent: '#8d671d', accentHover: '#785300',
+      accentSubtle: '#f5e2c4', border: '#d6ccc4', borderStrong: '#a4958c', borderFocus: '#8d671d',
+      success: '#426f4c', successSubtle: '#dbeede', successText: '#133c1f',
+      warning: '#ad7b3d', warningSubtle: '#fde7cf', warningText: '#582f02',
+      danger: '#9c433f', dangerSubtle: '#ffddd9', dangerText: '#5f1a19',
+      info: '#516d81', infoSubtle: '#dceaf4', infoText: '#1b394c',
+      slotFreeBg: '#fef9f3', slotFreeBorder: '#a4958c', slotFreeText: '#291c15',
+      slotSelectedBg: '#8d671d', slotSelectedBorder: '#8d671d', slotSelectedText: '#fdf8f1',
+      slotBusyBg: '#f2eae0', slotBusyBorder: '#d6ccc4', slotBusyText: '#a59c98',
+      slotPastBg: '#f2eae0', slotPastBorder: '#e4dcd3', slotPastText: '#c2b8b1',
+      slotMineBg: '#f4e4dd', slotMineBorder: '#482a1d', slotMineText: '#482a1d',
+      shadowSm: '0 1px 2px rgba(72,42,29,0.08)', shadowMd: '0 4px 12px rgba(72,42,29,0.10), 0 1px 2px rgba(72,42,29,0.06)',
+      shadowLg: '0 12px 24px rgba(72,42,29,0.14), 0 2px 6px rgba(72,42,29,0.08)', shadowXl: '0 24px 48px rgba(41,28,21,0.28), 0 4px 12px rgba(41,28,21,0.12)',
+    };
+
+    const rootStyle = {
+      '--color-background': T.background, '--color-surface': T.surface, '--color-surface-raised': T.surfaceRaised,
+      '--color-surface-sunken': T.surfaceSunken, '--color-overlay': T.overlay,
+      '--color-text-primary': T.textPrimary, '--color-text-secondary': T.textSecondary, '--color-text-muted': T.textMuted,
+      '--color-text-on-accent': T.textOnAccent, '--color-text-disabled': T.textDisabled,
+      '--color-primary': T.primary, '--color-primary-hover': T.primaryHover, '--color-primary-active': T.primaryActive, '--color-primary-subtle': T.primarySubtle,
+      '--color-accent': T.accent, '--color-accent-hover': T.accentHover, '--color-accent-subtle': T.accentSubtle,
+      '--color-border': T.border, '--color-border-strong': T.borderStrong, '--color-border-focus': T.borderFocus,
+      '--color-success': T.success, '--color-success-subtle': T.successSubtle, '--color-success-text': T.successText,
+      '--color-warning': T.warning, '--color-warning-subtle': T.warningSubtle, '--color-warning-text': T.warningText,
+      '--color-danger': T.danger, '--color-danger-subtle': T.dangerSubtle, '--color-danger-text': T.dangerText,
+      '--color-info': T.info, '--color-info-subtle': T.infoSubtle, '--color-info-text': T.infoText,
+      '--color-slot-free-bg': T.slotFreeBg, '--color-slot-free-border': T.slotFreeBorder, '--color-slot-free-text': T.slotFreeText,
+      '--color-slot-selected-bg': T.slotSelectedBg, '--color-slot-selected-border': T.slotSelectedBorder, '--color-slot-selected-text': T.slotSelectedText,
+      '--color-slot-busy-bg': T.slotBusyBg, '--color-slot-busy-border': T.slotBusyBorder, '--color-slot-busy-text': T.slotBusyText,
+      '--color-slot-past-bg': T.slotPastBg, '--color-slot-past-border': T.slotPastBorder, '--color-slot-past-text': T.slotPastText,
+      '--color-slot-mine-bg': T.slotMineBg, '--color-slot-mine-border': T.slotMineBorder, '--color-slot-mine-text': T.slotMineText,
+      '--shadow-sm': T.shadowSm, '--shadow-md': T.shadowMd, '--shadow-lg': T.shadowLg, '--shadow-xl': T.shadowXl,
+      background: T.background, minHeight: '100vh', display: 'grid', gridTemplateColumns: '260px 1fr',
+      fontFamily: "'Manrope',sans-serif", transition: 'background 0.25s ease',
+    };
+
+    const navLink = 'padding:8px 10px;border-radius:8px;color:var(--color-text-secondary);text-decoration:none;font-size:13px';
+    const sectionKicker = 'font-size:12px;letter-spacing:0.08em;text-transform:uppercase;color:var(--color-accent);font-weight:700;margin-bottom:10px';
+    const h2 = "font-family:'Playfair Display',serif;font-size:36px;font-weight:600;color:var(--color-text-primary);margin:0 0 12px;letter-spacing:0.005em";
+    const sectionLead = 'font-size:15px;color:var(--color-text-secondary);line-height:1.6;max-width:640px;margin:0 0 32px';
+    const groupTitle = 'font-size:12px;text-transform:uppercase;letter-spacing:0.06em;color:var(--color-text-muted);font-weight:700;margin:32px 0 12px';
+    const swatchRow = 'display:grid;grid-template-columns:repeat(5,1fr);gap:16px;margin-bottom:8px';
+    const swatchCard = 'display:flex;flex-direction:column;gap:6px';
+    const swatchName = "font-family:'Manrope',sans-serif;font-size:13px;font-weight:700;color:var(--color-text-primary)";
+    const swatchHex = 'font-size:11px;color:var(--color-text-muted);font-variant-numeric:tabular-nums';
+    const swatchUse = 'font-size:11px;color:var(--color-text-muted);line-height:1.4';
+    const statusCard = 'display:flex;flex-direction:column;gap:6px;background:var(--color-surface);border:1px solid var(--color-border);border-radius:16px;padding:14px';
+    const demoBox = 'flex:1;background:var(--color-surface);border:1px solid var(--color-border);border-radius:16px;padding:20px';
+    const spaceItem = 'display:flex;flex-direction:column;align-items:center;gap:6px';
+    const spaceLabel = 'font-size:11px;color:var(--color-text-muted);font-variant-numeric:tabular-nums';
+    const iconCell = 'display:flex;flex-direction:column;align-items:center;gap:10px;background:var(--color-surface);border:1px solid var(--color-border);border-radius:14px;padding:20px 12px;font-size:11px;color:var(--color-text-muted)';
+
+    const btnPrimary = 'padding:13px 28px;border-radius:999px;border:none;background:var(--color-primary);color:var(--color-text-on-accent);font-family:Manrope,sans-serif;font-size:14px;font-weight:700;letter-spacing:0.01em;cursor:pointer';
+    const btnSecondary = 'padding:13px 28px;border-radius:999px;border:1.5px solid var(--color-border-strong);background:transparent;color:var(--color-text-primary);font-family:Manrope,sans-serif;font-size:14px;font-weight:700;cursor:pointer';
+    const btnGhost = 'padding:13px 28px;border-radius:999px;border:none;background:transparent;color:var(--color-primary);font-family:Manrope,sans-serif;font-size:14px;font-weight:700;cursor:pointer';
+    const btnDanger = 'padding:13px 28px;border-radius:999px;border:none;background:var(--color-danger);color:#fff;font-family:Manrope,sans-serif;font-size:14px;font-weight:700;cursor:pointer';
+
+    const fieldLabel = "display:block;font-size:13px;font-weight:600;color:var(--color-text-primary);margin-bottom:6px";
+    const fieldBase = "width:100%;padding:12px 16px;border-radius:14px;border:1.5px solid var(--color-border);background:var(--color-surface);color:var(--color-text-primary);font-family:Manrope,sans-serif;font-size:14px;outline:none";
+    const fieldHint = "font-size:12px;color:var(--color-text-muted);margin-top:6px";
+
+    const badge = "display:inline-flex;align-items:center;padding:5px 14px;border-radius:999px;font-size:12px;font-weight:700";
+    const chipStyle = "display:inline-flex;align-items:center;gap:8px;padding:7px 14px;border-radius:999px;background:var(--color-accent-subtle);color:var(--color-text-primary);font-size:13px;font-weight:600";
+    const tinyChip = "font-size:11px;color:var(--color-text-secondary);background:var(--color-surface-sunken);padding:4px 10px;border-radius:999px";
+    const avatarBase = "border-radius:50%;background:var(--color-primary-subtle);color:var(--color-primary);display:flex;align-items:center;justify-content:center;font-weight:700;font-family:Manrope,sans-serif";
+
+    const tabBtn = "padding:10px 20px;border-radius:999px;border:none;font-family:Manrope,sans-serif;font-size:13px;font-weight:700;cursor:pointer";
+    const pageBtn = "width:36px;height:36px;border-radius:10px;border:1px solid var(--color-border);background:var(--color-surface);color:var(--color-text-primary);font-size:13px;font-weight:600;cursor:pointer";
+
+    const masterCardBase = "background:var(--color-surface);border:1px solid var(--color-border);border-radius:24px;padding:24px;box-shadow:var(--shadow-sm)";
+    const masterPhoto = "width:100%;aspect-ratio:1;border-radius:50%;background:repeating-linear-gradient(135deg,var(--color-surface-sunken),var(--color-surface-sunken) 8px,var(--color-border) 8px,var(--color-border) 9px);display:flex;align-items:center;justify-content:center;color:var(--color-text-muted);font-size:11px;font-family:monospace";
+    const serviceCard = "width:280px;background:var(--color-surface);border:1.5px solid var(--color-border);border-radius:20px;padding:20px";
+
+    const slotBase = "padding:12px 20px;border-radius:14px;font-family:Manrope,sans-serif;font-size:14px;font-weight:700;font-variant-numeric:tabular-nums;cursor:pointer";
+    const slotFree = slotBase + ";background:var(--color-slot-free-bg);border:1.5px solid var(--color-slot-free-border);color:var(--color-slot-free-text)";
+    const slotSelected = slotBase + ";background:var(--color-slot-selected-bg);border:1.5px solid var(--color-slot-selected-border);color:var(--color-slot-selected-text)";
+    const slotBusy = slotBase + ";background:repeating-linear-gradient(135deg,var(--color-slot-busy-bg),var(--color-slot-busy-bg) 6px,var(--color-slot-busy-border) 6px,var(--color-slot-busy-border) 7px);border:1.5px solid var(--color-slot-busy-border);color:var(--color-slot-busy-text);cursor:not-allowed";
+    const slotPast = slotBase + ";background:var(--color-slot-past-bg);border:1px dashed var(--color-slot-past-border);color:var(--color-slot-past-text);opacity:0.7;cursor:not-allowed";
+    const slotMine = slotBase + ";background:var(--color-slot-mine-bg);border:1.5px solid var(--color-slot-mine-border);color:var(--color-slot-mine-text)";
+    const skeletonShimmer = "background-image:linear-gradient(90deg, transparent, rgba(255,255,255,0.25), transparent);background-size:200px 100%;background-repeat:no-repeat;animation:ds-shimmer 1.3s infinite";
+    const skeletonPill = "width:76px;height:44px;border-radius:14px;background-color:var(--color-surface-sunken);" + skeletonShimmer;
+    const skeletonLine = "height:12px;border-radius:6px;background-color:var(--color-surface-sunken);" + skeletonShimmer;
+    const skeletonCircle = "width:56px;height:56px;border-radius:50%;background-color:var(--color-surface-sunken);" + skeletonShimmer;
+
+    const calendarCard = "background:var(--color-surface);border:1px solid var(--color-border);border-radius:20px;padding:20px;width:320px";
+    const calNavBtn = "width:32px;height:32px;border-radius:10px;border:1px solid var(--color-border);background:var(--color-surface-raised);color:var(--color-text-primary);cursor:pointer";
+
+    const bookingCard = "width:300px;background:var(--color-surface);border:1px solid var(--color-border);border-radius:20px;padding:20px";
+    const modalCard = "width:360px;background:var(--color-surface-raised);border-radius:24px;padding:28px;box-shadow:var(--shadow-xl)";
+    const toastBase = "background:var(--color-surface-raised);border-radius:14px;padding:14px 18px;font-size:13px;color:var(--color-text-primary);box-shadow:var(--shadow-md)";
+    const alertBase = "padding:16px 20px;border-radius:14px;font-size:13px;line-height:1.5;max-width:600px";
+    const emptyCard = "width:260px;background:var(--color-surface);border:1px solid var(--color-border);border-radius:20px;padding:28px;text-align:center;display:flex;flex-direction:column;align-items:center";
+    const emptyBlob = "width:64px;height:64px;border-radius:42% 58% 61% 39% / 45% 40% 60% 55%;background:var(--color-accent-subtle)";
+    const sidebarItemActive = "padding:10px 14px;border-radius:12px;background:var(--color-primary);color:var(--color-text-on-accent);font-size:13px;font-weight:700;cursor:pointer";
+    const sidebarItem = "padding:10px 14px;border-radius:12px;color:var(--color-text-secondary);font-size:13px;font-weight:600;cursor:pointer";
+    const ruleCard = "background:var(--color-surface);border:1px solid var(--color-border);border-radius:18px;padding:20px";
+    const ruleTitle = "font-size:14px;font-weight:700;color:var(--color-text-primary);margin-bottom:8px";
+    const ruleText = "font-size:13px;color:var(--color-text-secondary);line-height:1.6";
+
+    const checkboxBox = 'width:22px;height:22px;border-radius:7px;border:2px solid ' + (this.state.checkboxOn ? T.primary : T.borderStrong) + ';background:' + (this.state.checkboxOn ? T.primary : 'transparent') + ';display:flex;align-items:center;justify-content:center;color:' + T.textOnAccent + ';font-size:13px;flex-shrink:0';
+    const checkboxMark = this.state.checkboxOn ? '✓' : '';
+
+    const radioOuter = (active) => 'width:20px;height:20px;border-radius:50%;border:2px solid ' + (active ? T.primary : T.borderStrong) + ';display:flex;align-items:center;justify-content:center;flex-shrink:0';
+    const radioInner = (active) => 'width:10px;height:10px;border-radius:50%;background:' + (active ? T.primary : 'transparent');
+
+    const switchOn = this.state.switchOn;
+    const switchTrack = 'width:44px;height:24px;border-radius:999px;background:' + (switchOn ? T.accent : T.borderStrong) + ';position:relative;transition:background .2s ease;flex-shrink:0';
+    const switchDot = 'position:absolute;top:3px;left:' + (switchOn ? '23px' : '3px') + ';width:18px;height:18px;border-radius:50%;background:#fff;transition:left .2s ease;display:block';
+
+    const tabActiveStyle = (i) => this.state.activeTab === i
+      ? { bg: T.surfaceRaised, color: T.textPrimary }
+      : { bg: 'transparent', color: T.textMuted };
+    const tab0 = tabActiveStyle(0), tab1 = tabActiveStyle(1), tab2 = tabActiveStyle(2);
+
+    const stepNames = ['Мастер', 'Услуга', 'Время', 'Подтверждение'];
+    const steps = stepNames.map((name, i) => {
+      const st = i < this.state.activeStep ? 'done' : i === this.state.activeStep ? 'current' : 'upcoming';
+      const circleStyle = 'width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;font-family:Manrope,sans-serif;' +
+        (st === 'done' ? 'background:' + T.primary + ';color:' + T.textOnAccent + ';'
+        : st === 'current' ? 'background:' + T.accent + ';color:' + T.textOnAccent + ';box-shadow:0 0 0 4px ' + T.accentSubtle + ';'
+        : 'background:' + T.surfaceSunken + ';color:' + T.textDisabled + ';border:1.5px solid ' + T.border + ';');
+      return {
+        name, mark: st === 'done' ? '✓' : (i + 1).toString(),
+        circleStyle,
+        labelStyle: 'font-size:12px;font-weight:600;color:' + (st === 'upcoming' ? T.textDisabled : T.textPrimary),
+        hasLine: i < stepNames.length - 1,
+        lineStyle: 'flex:1;height:2px;background:' + (st === 'done' ? T.primary : T.border) + ';margin:0 8px;transform:translateY(-14px)',
+        select: () => this.setState({ activeStep: i }),
+      };
+    });
+
+    const dow = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
+    const calendarDays = Array.from({ length: 31 }, (_, idx) => {
+      const num = idx + 1;
+      const isPast = num < 10;
+      const isSelected = num === this.state.selectedDay;
+      const hasSlots = !isPast && (num % 3 !== 0);
+      let style = 'aspect-ratio:1;border-radius:12px;border:none;font-family:Manrope,sans-serif;font-size:13px;font-weight:600;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:' + (isPast ? 'not-allowed' : 'pointer') + ';';
+      if (isSelected) style += 'background:' + T.primary + ';color:' + T.textOnAccent + ';';
+      else if (isPast) style += 'background:transparent;color:' + T.textDisabled + ';opacity:0.5;';
+      else style += 'background:' + T.surfaceSunken + ';color:' + T.textPrimary + ';';
+      return {
+        num, hasSlots: hasSlots && !isSelected,
+        style,
+        dotStyle: 'width:4px;height:4px;border-radius:50%;background:' + T.accent + ';display:block',
+        select: () => !isPast && this.setState({ selectedDay: num }),
+      };
+    });
+
+    const ribbonDays = Array.from({ length: 7 }, (_, i) => {
+      const active = i === 2;
+      return {
+        num: 12 + i, dow: dow[i],
+        style: 'flex-shrink:0;width:56px;padding:10px 0;border-radius:16px;text-align:center;background:' + (active ? T.primary : T.surface) + ';color:' + (active ? T.textOnAccent : T.textPrimary) + ';border:1px solid ' + (active ? T.primary : T.border),
+      };
+    });
+
+    const chips = this.state.chips.map(c => ({ ...c, remove: () => this.removeChip(c.id) }));
+
+    return {
+      rootStyle, isDark, themeLabel: isDark ? 'Тёмная' : 'Светлая',
+      switchTrackBg: isDark ? T.accent : T.borderStrong, themeDotLeft: isDark ? '18px' : '2px',
+      navLink, sectionKicker, h2, sectionLead, groupTitle, swatchRow, swatchCard, swatchName, swatchHex, swatchUse,
+      statusCard, demoBox, spaceItem, spaceLabel, iconCell,
+      btnPrimary, btnSecondary, btnGhost, btnDanger,
+      fieldLabel, fieldBase, fieldHint,
+      badge, chipStyle, tinyChip, avatarBase, tabBtn, pageBtn,
+      masterCardBase, masterPhoto, serviceCard,
+      slotFree, slotSelected, slotBusy, slotPast, slotMine,
+      skeletonPill, skeletonLine, skeletonCircle,
+      calendarCard, calNavBtn, bookingCard, modalCard, toastBase, alertBase,
+      emptyCard, emptyBlob, sidebarItemActive, sidebarItem, ruleCard, ruleTitle, ruleText,
+      bgHexLabel: T.background, surfaceHexLabel: T.surface, surfaceRaisedHexLabel: T.surfaceRaised, surfaceSunkenHexLabel: T.surfaceSunken,
+      contrastPrimary: isDark ? '15.98:1 на bg' : '15.15:1 на bg', contrastSecondary: isDark ? '9.56:1' : '7.81:1', contrastMuted: isDark ? '5.27:1' : '4.67:1',
+      ratioSuccess: '9.9:1+', ratioWarning: '9.6:1+', ratioDanger: '8.9:1+', ratioInfo: '9.5:1+',
+      checkboxOn: this.state.checkboxOn, toggleCheckbox: this.toggleCheckbox, checkboxBox, checkboxMark,
+      radioOuterClassic: radioOuter(this.state.radioVal === 'classic'), radioInnerClassic: radioInner(this.state.radioVal === 'classic'),
+      radioOuterLength: radioOuter(this.state.radioVal === 'length'), radioInnerLength: radioInner(this.state.radioVal === 'length'),
+      setRadioClassic: this.setRadioClassic, setRadioLength: this.setRadioLength,
+      switchTrack, switchDot, toggleSwitch: this.toggleSwitch,
+      sliderVal: this.state.sliderVal, setSlider: this.setSlider,
+      passwordType: this.state.passwordVisible ? 'text' : 'password', passwordIcon: this.state.passwordVisible ? '🙈' : '👁',
+      togglePassword: this.togglePassword,
+      setTab0: this.setTab0, setTab1: this.setTab1, setTab2: this.setTab2,
+      tab0Bg: tab0.bg, tab0Color: tab0.color, tab1Bg: tab1.bg, tab1Color: tab1.color, tab2Bg: tab2.bg, tab2Color: tab2.color,
+      steps, calendarDays, ribbonDays, chips,
+      toggleTheme: this.toggleTheme, copyCSS: this.copyCSS, copyLabel: this.state.copied ? 'Скопировано ✓' : 'Копировать',
+    };
+  }
+}
+</script>
+</body>
+</html>

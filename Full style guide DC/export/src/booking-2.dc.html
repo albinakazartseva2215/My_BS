@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; background: #fbf4eb; }
+    a { color: #8d671d; }
+    a:hover { color: #785300; }
+    @keyframes bk-shimmer { 0% { background-position: -200px 0; } 100% { background-position: 200px 0; } }
+    @keyframes bk-spin { to { transform: rotate(360deg); } }
+    .bk-master-card:hover { border-color: #a4958c !important; box-shadow: 0 12px 24px rgba(72,42,29,0.14), 0 2px 6px rgba(72,42,29,0.08) !important; }
+    @media (max-width: 640px) {
+      .bk-masters-grid { grid-template-columns: 1fr !important; }
+      .bk-container { padding: 20px 16px 100px !important; }
+    }
+  </style>
+</helmet>
+
+<div style="font-family:'Manrope',sans-serif;background:#fbf4eb;color:#291c15;min-height:100vh;padding-bottom:40px">
+
+  <div style="max-width:640px;margin:0 auto;padding:12px 24px;display:flex;gap:8px;justify-content:center;flex-wrap:wrap">
+    <button onClick="{{setView0}}" style="{{devBtn0}}">Обычное состояние</button>
+    <button onClick="{{setView1}}" style="{{devBtn1}}">Скелетон загрузки</button>
+    <button onClick="{{setView2}}" style="{{devBtn2}}">Никто не подходит</button>
+  </div>
+
+  <div class="bk-container" style="max-width:640px;margin:0 auto;padding:20px 24px 100px">
+
+    <!-- STEPPER -->
+    <div style="display:flex;align-items:center;margin-bottom:24px">
+      <div style="display:flex;align-items:center;flex:1">
+        <div onClick="{{goStep1}}" style="display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer">
+          <div style="width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;font-family:Manrope,sans-serif;background:#482a1d;color:#fdf8f1">✓</div>
+          <div style="font-size:12px;font-weight:600;color:#291c15">Услуги</div>
+        </div>
+        <div style="flex:1;height:2px;background:#482a1d;margin:0 8px;transform:translateY(-14px)"></div>
+      </div>
+      <div style="display:flex;align-items:center;flex:1">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:8px">
+          <div style="width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;font-family:Manrope,sans-serif;background:#8d671d;color:#fdf8f1;box-shadow:0 0 0 4px #f5e2c4">2</div>
+          <div style="font-size:12px;font-weight:600;color:#291c15">Мастер</div>
+        </div>
+        <div style="flex:1;height:2px;background:#d6ccc4;margin:0 8px;transform:translateY(-14px)"></div>
+      </div>
+      <div style="display:flex;align-items:center;flex:1">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:8px">
+          <div style="width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;font-family:Manrope,sans-serif;background:#f2eae0;color:#a59c98;border:1.5px solid #d6ccc4">3</div>
+          <div style="font-size:12px;font-weight:600;color:#a59c98">Время</div>
+        </div>
+        <div style="flex:1;height:2px;background:#d6ccc4;margin:0 8px;transform:translateY(-14px)"></div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:8px">
+        <div style="width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;font-family:Manrope,sans-serif;background:#f2eae0;color:#a59c98;border:1.5px solid #d6ccc4">4</div>
+        <div style="font-size:12px;font-weight:600;color:#a59c98">Подтверждение</div>
+      </div>
+    </div>
+
+    <!-- SELECTED SERVICES BANNER -->
+    <div style="display:flex;align-items:center;justify-content:space-between;background:#fef9f3;border:1px solid #d6ccc4;border-radius:16px;padding:14px 18px;margin-bottom:24px">
+      <div style="font-size:14px;font-weight:700;color:#291c15;font-variant-numeric:tabular-nums">Стрижка + окрашивание · 3 ч</div>
+      <button onClick="{{goStep1}}" style="background:none;border:none;color:#796c65;cursor:pointer;padding:6px;display:flex;align-items:center;gap:6px;font-family:Manrope,sans-serif;font-size:12px;font-weight:600">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20l1-4.2L15.8 5 19 8.2 8.2 19z"/><line x1="13" y1="7" x2="17" y2="11"/></svg>
+        Изменить
+      </button>
+    </div>
+
+    <h1 style="font-family:'Playfair Display',serif;font-size:26px;font-weight:600;color:#291c15;margin:0 0 20px">Выберите мастера</h1>
+
+    <!-- NORMAL STATE -->
+    <sc-if value="{{isNormal}}" hint-placeholder-val="{{true}}">
+      <div class="bk-masters-grid" style="display:grid;grid-template-columns:1fr;gap:14px;margin-bottom:28px">
+
+        <div onClick="{{selectAny}}" style="{{anyCardStyle}}">
+          <div style="width:56px;height:56px;border-radius:50%;background:#f5e2c4;display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#8d671d" stroke-width="1.75" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7" stroke-linejoin="round"/></svg></div>
+          <div style="flex:1">
+            <div style="font-size:15px;font-weight:700;color:#291c15">Любой свободный мастер</div>
+            <div style="font-size:12px;color:#8d671d;font-weight:600;margin-top:2px">Больше свободного времени</div>
+          </div>
+          <span style="{{anyCheckStyle}}">✓</span>
+        </div>
+
+        <sc-for list="{{masters}}" as="m" hint-placeholder-count="3">
+          <div onClick="{{m.select}}" class="bk-master-card" style="{{m.cardStyle}}">
+            <div style="display:flex;gap:14px;align-items:flex-start">
+              <div style="width:56px;height:56px;border-radius:50%;flex-shrink:0;background:repeating-linear-gradient(135deg,#f2eae0,#f2eae0 7px,#d6ccc4 7px,#d6ccc4 8px);display:flex;align-items:center;justify-content:center;color:#a59c98;font-size:9px;font-family:monospace">фото</div>
+              <div style="flex:1">
+                <div style="display:flex;justify-content:space-between;align-items:flex-start">
+                  <div>
+                    <div style="font-family:'Playfair Display',serif;font-size:17px;font-weight:600;color:#291c15">{{m.name}}</div>
+                    <div style="font-size:12px;color:#796c65">{{m.spec}}</div>
+                  </div>
+                  <span style="{{m.checkStyle}}">✓</span>
+                </div>
+                <div style="display:flex;align-items:center;gap:4px;margin:8px 0">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="#8d671d" stroke="none"><polygon points="12,3 14.7,9 21,9.5 16.2,13.7 17.6,20 12,16.6 6.4,20 7.8,13.7 3,9.5 9.3,9"/></svg>
+                  <span style="font-size:12px;font-weight:700;color:#291c15;font-variant-numeric:tabular-nums">{{m.rating}}</span>
+                  <span style="font-size:11px;color:#796c65">({{m.reviews}})</span>
+                </div>
+                <div style="font-size:12px;font-weight:700;color:#482a1d;background:#f4e4dd;display:inline-block;padding:5px 10px;border-radius:10px;font-variant-numeric:tabular-nums">Ближайшее окно: {{m.nextSlot}}</div>
+              </div>
+            </div>
+            <div style="text-align:right;margin-top:8px">
+              <a href="#" style="font-size:12px;font-weight:700;text-decoration:none">О мастере →</a>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+    </sc-if>
+
+    <!-- SKELETON STATE -->
+    <sc-if value="{{isSkeleton}}" hint-placeholder-val="{{false}}">
+      <div style="display:flex;flex-direction:column;gap:14px;margin-bottom:28px">
+        <div style="background:#fef9f3;border:1px solid #d6ccc4;border-radius:20px;padding:18px;display:flex;gap:14px">
+          <div style="{{skelCircle}}"></div>
+          <div style="flex:1;display:flex;flex-direction:column;gap:8px;padding-top:4px">
+            <div style="{{skelLine}};width:50%"></div>
+            <div style="{{skelLine}};width:35%"></div>
+            <div style="{{skelPill}};width:140px;margin-top:6px"></div>
+          </div>
+        </div>
+        <div style="background:#fef9f3;border:1px solid #d6ccc4;border-radius:20px;padding:18px;display:flex;gap:14px">
+          <div style="{{skelCircle}}"></div>
+          <div style="flex:1;display:flex;flex-direction:column;gap:8px;padding-top:4px">
+            <div style="{{skelLine}};width:55%"></div>
+            <div style="{{skelLine}};width:30%"></div>
+            <div style="{{skelPill}};width:140px;margin-top:6px"></div>
+          </div>
+        </div>
+        <div style="background:#fef9f3;border:1px solid #d6ccc4;border-radius:20px;padding:18px;display:flex;gap:14px">
+          <div style="{{skelCircle}}"></div>
+          <div style="flex:1;display:flex;flex-direction:column;gap:8px;padding-top:4px">
+            <div style="{{skelLine}};width:45%"></div>
+            <div style="{{skelLine}};width:40%"></div>
+            <div style="{{skelPill}};width:140px;margin-top:6px"></div>
+          </div>
+        </div>
+      </div>
+    </sc-if>
+
+    <!-- EMPTY STATE -->
+    <sc-if value="{{isEmpty}}" hint-placeholder-val="{{false}}">
+      <div style="background:#fef9f3;border:1px solid #d6ccc4;border-radius:24px;padding:40px 28px;text-align:center;margin-bottom:28px;display:flex;flex-direction:column;align-items:center">
+        <div style="width:72px;height:72px;border-radius:42% 58% 61% 39% / 45% 40% 60% 55%;background:#f5e2c4;margin-bottom:20px"></div>
+        <div style="font-size:16px;font-weight:700;color:#291c15;margin-bottom:8px;max-width:340px">Никто не оказывает все выбранные услуги в один визит</div>
+        <div style="font-size:13px;color:#796c65;margin-bottom:24px;max-width:320px">Стрижку и окрашивание у одного мастера сегодня не совместить</div>
+        <div style="display:flex;flex-direction:column;gap:10px;width:100%;max-width:300px">
+          <button style="padding:13px 24px;border-radius:999px;border:none;background:#482a1d;color:#fdf8f1;font-family:Manrope,sans-serif;font-size:14px;font-weight:700;cursor:pointer;min-height:44px">Записаться на две отдельные даты</button>
+          <button onClick="{{goStep1}}" style="padding:13px 24px;border-radius:999px;border:1.5px solid #a4958c;background:transparent;color:#291c15;font-family:Manrope,sans-serif;font-size:14px;font-weight:700;cursor:pointer;min-height:44px">Изменить набор услуг</button>
+        </div>
+      </div>
+    </sc-if>
+
+    <!-- FOOTER NAV -->
+    <div style="display:flex;gap:12px;justify-content:space-between;position:sticky;bottom:16px">
+      <button onClick="{{goStep1}}" style="padding:13px 26px;border-radius:999px;border:1.5px solid #a4958c;background:#fbf4eb;color:#291c15;font-family:Manrope,sans-serif;font-size:14px;font-weight:700;cursor:pointer;min-height:44px">Назад</button>
+      <button disabled="{{nextDisabled}}" style="{{nextBtnStyle}}">Далее</button>
+    </div>
+
+  </div>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = {
+    view: 'normal',
+    selected: 'any',
+  };
+
+  setView0 = () => this.setState({ view: 'normal' });
+  setView1 = () => this.setState({ view: 'skeleton' });
+  setView2 = () => this.setState({ view: 'empty' });
+  select = (id) => this.setState({ selected: id });
+  selectAny = () => this.setState({ selected: 'any' });
+  goStep1 = () => {};
+
+  renderVals() {
+    const devBtnBase = "padding:8px 16px;border-radius:999px;border:1px solid #d6ccc4;background:#fef9f3;color:#796c65;font-family:Manrope,sans-serif;font-size:12px;font-weight:700;cursor:pointer";
+    const devBtnActive = "padding:8px 16px;border-radius:999px;border:1px solid #482a1d;background:#482a1d;color:#fdf8f1;font-family:Manrope,sans-serif;font-size:12px;font-weight:700;cursor:pointer";
+
+    const cardBase = "background:#fef9f3;border-radius:20px;padding:18px;cursor:pointer;transition:border-color .15s ease,box-shadow .15s ease;display:flex;align-items:center;gap:14px;";
+    const cardDefault = cardBase + "border:1.5px solid #d6ccc4;";
+    const cardSelected = cardBase + "border:2px solid #8d671d;box-shadow:0 0 0 3px #f5e2c4;";
+
+    const checkDefault = "width:22px;height:22px;border-radius:50%;border:1.5px solid #a4958c;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:12px;color:transparent";
+    const checkSelected = "width:22px;height:22px;border-radius:50%;border:1.5px solid #8d671d;background:#8d671d;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:12px;color:#fdf8f1;font-weight:700";
+
+    const masterDefs = [
+      { id: 'anna', name: 'Анна Соколова', spec: 'Окрашивание, стрижка', rating: '4.9', reviews: 128, nextSlot: 'завтра, 11:00' },
+      { id: 'polina', name: 'Полина Ерохина', spec: 'Стрижка, укладка', rating: '4.9', reviews: 74, nextSlot: 'сегодня, 18:00' },
+      { id: 'diana', name: 'Диана Костина', spec: 'Окрашивание, тонирование', rating: '4.7', reviews: 51, nextSlot: 'послезавтра, 09:30' },
+    ];
+    const masters = masterDefs.map(m => ({
+      ...m,
+      cardStyle: this.state.selected === m.id ? cardSelected : cardDefault,
+      checkStyle: this.state.selected === m.id ? checkSelected : checkDefault,
+      select: () => this.select(m.id),
+    }));
+
+    const skelShimmer = "background-image:linear-gradient(90deg, transparent, rgba(255,255,255,0.35), transparent);background-size:200px 100%;background-repeat:no-repeat;animation:bk-shimmer 1.3s infinite;";
+    const skelCircle = "width:56px;height:56px;border-radius:50%;background-color:#f2eae0;flex-shrink:0;" + skelShimmer;
+    const skelLine = "height:12px;border-radius:6px;background-color:#f2eae0;" + skelShimmer;
+    const skelPill = "height:28px;border-radius:10px;background-color:#f2eae0;" + skelShimmer;
+
+    const nextDisabled = !this.state.selected;
+    const nextBtnStyle = "padding:13px 32px;border-radius:999px;border:none;font-family:Manrope,sans-serif;font-size:14px;font-weight:700;min-height:44px;" +
+      (nextDisabled ? "background:#e4dcd3;color:#a59c98;cursor:not-allowed;" : "background:#482a1d;color:#fdf8f1;cursor:pointer;");
+
+    return {
+      isNormal: this.state.view === 'normal', isSkeleton: this.state.view === 'skeleton', isEmpty: this.state.view === 'empty',
+      setView0: this.setView0, setView1: this.setView1, setView2: this.setView2,
+      devBtn0: this.state.view === 'normal' ? devBtnActive : devBtnBase,
+      devBtn1: this.state.view === 'skeleton' ? devBtnActive : devBtnBase,
+      devBtn2: this.state.view === 'empty' ? devBtnActive : devBtnBase,
+      goStep1: this.goStep1,
+      anyCardStyle: this.state.selected === 'any' ? cardSelected : cardDefault,
+      anyCheckStyle: this.state.selected === 'any' ? checkSelected : checkDefault,
+      selectAny: this.selectAny,
+      masters,
+      skelCircle, skelLine, skelPill,
+      nextDisabled, nextBtnStyle,
+    };
+  }
+}
+</script>
+</body>
+</html>

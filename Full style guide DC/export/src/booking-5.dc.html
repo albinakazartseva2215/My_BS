@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; background: #fbf4eb; }
+    a { color: #8d671d; }
+    a:hover { color: #785300; }
+    @keyframes cf-spin { to { transform: rotate(360deg); } }
+    @media (max-width: 640px) {
+      .cf-container { padding: 20px 16px 40px !important; }
+    }
+  </style>
+</helmet>
+
+<div style="font-family:'Manrope',sans-serif;background:#fbf4eb;color:#291c15;min-height:100vh;padding-bottom:40px">
+
+  <div style="max-width:640px;margin:0 auto;padding:12px 24px;display:flex;gap:8px;justify-content:center;flex-wrap:wrap">
+    <button onClick="{{setNormal}}" style="{{devBtnNormal}}">Обычное</button>
+    <button onClick="{{toggleConflict}}" style="{{devBtnConflict}}">Пересечение по времени</button>
+    <button onClick="{{setLoading}}" style="{{devBtnLoading}}">Загрузка</button>
+  </div>
+
+  <div class="cf-container" style="max-width:640px;margin:0 auto;padding:20px 24px 40px">
+
+    <!-- STEPPER -->
+    <div style="display:flex;align-items:center;margin-bottom:20px">
+      <div style="display:flex;align-items:center;flex:1"><div style="display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer"><div style="width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;background:#482a1d;color:#fdf8f1">✓</div><div style="font-size:11px;font-weight:600;color:#291c15">Услуги</div></div><div style="flex:1;height:2px;background:#482a1d;margin:0 6px;transform:translateY(-13px)"></div></div>
+      <div style="display:flex;align-items:center;flex:1"><div style="display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer"><div style="width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;background:#482a1d;color:#fdf8f1">✓</div><div style="font-size:11px;font-weight:600;color:#291c15">Мастер</div></div><div style="flex:1;height:2px;background:#482a1d;margin:0 6px;transform:translateY(-13px)"></div></div>
+      <div style="display:flex;align-items:center;flex:1"><div style="display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer"><div style="width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;background:#482a1d;color:#fdf8f1">✓</div><div style="font-size:11px;font-weight:600;color:#291c15">Время</div></div><div style="flex:1;height:2px;background:#482a1d;margin:0 6px;transform:translateY(-13px)"></div></div>
+      <div style="display:flex;align-items:center;flex:1"><div style="display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer"><div style="width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;background:#482a1d;color:#fdf8f1">✓</div><div style="font-size:11px;font-weight:600;color:#291c15">Вход</div></div><div style="flex:1;height:2px;background:#482a1d;margin:0 6px;transform:translateY(-13px)"></div></div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:8px"><div style="width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;background:#8d671d;color:#fdf8f1;box-shadow:0 0 0 4px #f5e2c4">5</div><div style="font-size:11px;font-weight:600;color:#291c15">Подтверждение</div></div>
+    </div>
+
+    <!-- HOLD BANNER -->
+    <div style="{{holdBannerStyle}}">
+      <div style="display:flex;align-items:center;gap:10px">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="{{holdColor}}" stroke-width="1.75" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><line x1="12" y1="12" x2="12" y2="7"/><line x1="12" y1="12" x2="16" y2="14"/></svg>
+        <div style="font-size:14px;font-weight:700;color:{{holdColor}}">Держим 14:00 за вами</div>
+      </div>
+      <div style="font-size:18px;font-weight:700;font-variant-numeric:tabular-nums;color:{{holdColor}}">{{timerLabel}}</div>
+    </div>
+
+    <!-- CONFLICT WARNING -->
+    <sc-if value="{{showConflict}}" hint-placeholder-val="{{false}}">
+      <div style="background:#dceaf4;color:#1b394c;border-radius:14px;padding:12px 16px;font-size:13px;font-weight:600;margin-bottom:20px;display:flex;align-items:center;gap:10px">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1b394c" stroke-width="1.75" stroke-linecap="round" style="flex-shrink:0"><circle cx="12" cy="12" r="9"/><line x1="12" y1="8" x2="12" y2="13"/><line x1="12" y1="16" x2="12" y2="16.5"/></svg>
+        У вас уже есть запись 12 марта в 13:00
+      </div>
+    </sc-if>
+
+    <h1 style="font-family:'Playfair Display',serif;font-size:26px;font-weight:600;color:#291c15;margin:0 0 20px">Проверьте запись</h1>
+
+    <!-- VISIT CARD -->
+    <div style="background:#fef9f3;border:1px solid #d6ccc4;border-radius:20px;padding:24px;margin-bottom:20px">
+
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px">
+        <div style="font-family:'Playfair Display',serif;font-size:24px;font-weight:600;color:#291c15;font-variant-numeric:tabular-nums">18 августа, 14:00</div>
+        <a href="#" style="font-size:12px;font-weight:700;text-decoration:none;flex-shrink:0;margin-left:12px">Изменить</a>
+      </div>
+
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;padding-bottom:20px;border-bottom:1px solid #d6ccc4">
+        <div style="width:48px;height:48px;border-radius:50%;background:#f4e4dd;color:#482a1d;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;flex-shrink:0">АС</div>
+        <div style="flex:1"><div style="font-size:14px;font-weight:700;color:#291c15">Анна Соколова</div><div style="font-size:12px;color:#796c65">Мастер</div></div>
+        <a href="#" style="font-size:12px;font-weight:700;text-decoration:none;flex-shrink:0">Изменить</a>
+      </div>
+
+      <div style="margin-bottom:16px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+          <div style="font-size:12px;text-transform:uppercase;letter-spacing:0.06em;color:#796c65;font-weight:700">Услуги</div>
+          <a href="#" style="font-size:12px;font-weight:700;text-decoration:none">Изменить</a>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:14px;color:#291c15;margin-bottom:8px"><span>Стрижка · 45 мин</span><span style="font-weight:700;font-variant-numeric:tabular-nums">2 800 ₽</span></div>
+        <div style="display:flex;justify-content:space-between;font-size:14px;color:#291c15"><span>Окрашивание · 2 ч 15 мин</span><span style="font-weight:700;font-variant-numeric:tabular-nums">7 500 ₽</span></div>
+      </div>
+
+      <div style="display:flex;justify-content:space-between;align-items:center;padding-top:16px;border-top:1px solid #d6ccc4;font-size:16px;font-weight:700;color:#291c15;margin-bottom:16px">
+        <span>Итого: 3 ч</span><span style="font-variant-numeric:tabular-nums">10 300 ₽</span>
+      </div>
+
+      <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:#796c65;margin-bottom:6px">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#796c65" stroke-width="1.75" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><line x1="12" y1="8" x2="12" y2="13"/></svg>
+        Оплата в салоне, сумма справочная
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:#796c65">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#796c65" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s7-6.5 7-11.5A7 7 0 005 9.5C5 14.5 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>
+        г. Москва, ул. Тверская, 12
+      </div>
+    </div>
+
+    <!-- COMMENT -->
+    <div style="margin-bottom:16px">
+      <label style="display:block;font-size:13px;font-weight:600;color:#291c15;margin-bottom:6px">Комментарий мастеру (необязательно)</label>
+      <textarea placeholder="Например, пожелания по оттенку" rows="3" onChange="{{onComment}}" style="width:100%;padding:12px 16px;border-radius:14px;border:1.5px solid #d6ccc4;background:#fef9f3;color:#291c15;font-family:Manrope,sans-serif;font-size:14px;outline:none;resize:vertical"></textarea>
+      <div style="font-size:12px;color:#796c65;text-align:right;margin-top:4px;font-variant-numeric:tabular-nums">{{commentLen}} / 200</div>
+    </div>
+
+    <!-- REMIND CHECKBOX -->
+    <label onClick="{{toggleRemind}}" style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;margin-bottom:24px">
+      <span style="{{remindBoxStyle}}">{{remindMark}}</span>
+      <span style="font-size:13px;color:#291c15">Напомнить мне о визите <span style="color:#796c65">— напоминание появится в личном кабинете</span></span>
+    </label>
+
+    <!-- CTA -->
+    <button onClick="{{setLoading}}" disabled="{{isLoading}}" style="{{ctaStyle}}">
+      <sc-if value="{{isLoading}}" hint-placeholder-val="{{false}}"><span style="width:15px;height:15px;border-radius:50%;border:2px solid #fdf8f1;border-top-color:transparent;animation:cf-spin 0.7s linear infinite;display:inline-block;margin-right:8px"></span></sc-if>
+      {{ctaLabel}}
+    </button>
+    <div style="font-size:12px;color:#796c65;text-align:center;margin-top:12px">Отменить или перенести можно не позднее чем за 2 часа до визита</div>
+
+  </div>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = {
+    remaining: 522,
+    demoState: 'normal',
+    showConflict: false,
+    remind: true,
+    commentLen: 0,
+  };
+
+  componentDidMount() {
+    this._timer = setInterval(() => {
+      this.setState(s => s.remaining > 0 ? { remaining: s.remaining - 1 } : null);
+    }, 1000);
+  }
+  componentWillUnmount() { clearInterval(this._timer); }
+
+  setNormal = () => this.setState({ demoState: 'normal' });
+  setLoading = () => this.setState({ demoState: 'loading' });
+  toggleConflict = () => this.setState(s => ({ showConflict: !s.showConflict }));
+  toggleRemind = () => this.setState(s => ({ remind: !s.remind }));
+  onComment = (e) => this.setState({ commentLen: e.target.value.length });
+
+  renderVals() {
+    const s = this.state;
+    const isLoading = s.demoState === 'loading';
+    const mm = Math.floor(Math.max(0, s.remaining) / 60);
+    const ss = Math.max(0, s.remaining) % 60;
+    const timerLabel = String(mm).padStart(2, '0') + ':' + String(ss).padStart(2, '0');
+    const warning = s.remaining <= 120;
+
+    const holdBannerStyle = "display:flex;justify-content:space-between;align-items:center;border-radius:16px;padding:14px 18px;margin-bottom:20px;" +
+      (warning ? "background:#fde7cf;border:1px solid #ad7b3d;" : "background:#fef9f3;border:1px solid #d6ccc4;");
+    const holdColor = warning ? '#582f02' : '#291c15';
+
+    const remindBoxStyle = "width:20px;height:20px;border-radius:6px;border:2px solid " + (s.remind ? '#482a1d' : '#a4958c') + ";background:" + (s.remind ? '#482a1d' : 'transparent') + ";display:flex;align-items:center;justify-content:center;color:#fdf8f1;font-size:12px;flex-shrink:0;margin-top:1px";
+    const remindMark = s.remind ? '✓' : '';
+
+    const ctaStyle = "width:100%;padding:15px;border-radius:999px;border:none;font-family:Manrope,sans-serif;font-size:15px;font-weight:700;min-height:44px;display:flex;align-items:center;justify-content:center;" +
+      (isLoading ? "background:#482a1d;color:#fdf8f1;cursor:not-allowed;opacity:0.85;" : "background:#482a1d;color:#fdf8f1;cursor:pointer;");
+    const ctaLabel = isLoading ? 'Записываем…' : 'Записаться';
+
+    const devBtnBase = "padding:8px 14px;border-radius:999px;border:1px solid #d6ccc4;background:#fef9f3;color:#796c65;font-family:Manrope,sans-serif;font-size:12px;font-weight:700;cursor:pointer;";
+    const devBtnActive = "padding:8px 14px;border-radius:999px;border:1px solid #482a1d;background:#482a1d;color:#fdf8f1;font-family:Manrope,sans-serif;font-size:12px;font-weight:700;cursor:pointer;";
+
+    return {
+      timerLabel, holdBannerStyle, holdColor,
+      showConflict: s.showConflict,
+      setNormal: this.setNormal, setLoading: this.setLoading, toggleConflict: this.toggleConflict,
+      devBtnNormal: s.demoState === 'normal' && !s.showConflict ? devBtnActive : devBtnBase,
+      devBtnConflict: s.showConflict ? devBtnActive : devBtnBase,
+      devBtnLoading: isLoading ? devBtnActive : devBtnBase,
+      isLoading, ctaStyle, ctaLabel,
+      commentLen: s.commentLen, onComment: this.onComment,
+      remindBoxStyle, remindMark, toggleRemind: this.toggleRemind,
+    };
+  }
+}
+</script>
+</body>
+</html>

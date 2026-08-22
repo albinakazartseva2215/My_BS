@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; background: #fbf4eb; }
+    a { color: #8d671d; }
+    a:hover { color: #785300; }
+    @media (max-width: 640px) {
+      .er-container { padding: 32px 16px 40px !important; }
+      .er-modal { width: calc(100% - 32px) !important; }
+    }
+  </style>
+</helmet>
+
+<div style="font-family:'Manrope',sans-serif;background:#fbf4eb;color:#291c15;min-height:100vh">
+
+  <div style="max-width:640px;margin:0 auto;padding:16px 24px 0;display:flex;gap:8px;justify-content:center;flex-wrap:wrap">
+    <button onClick="{{setFull}}" style="{{devBtnFull}}">Полноэкранный</button>
+    <button onClick="{{setModal}}" style="{{devBtnModal}}">Модальное окно поверх подтверждения</button>
+  </div>
+  <div style="max-width:480px;margin:8px auto 0;text-align:center;font-size:12px;color:#796c65;padding:0 24px">{{modeCaption}}</div>
+
+  <!-- FULLSCREEN VARIANT -->
+  <sc-if value="{{isFull}}" hint-placeholder-val="{{true}}">
+    <div class="er-container" style="max-width:480px;margin:0 auto;padding:40px 24px 56px;text-align:center">
+
+      <div style="width:72px;height:72px;border-radius:50%;background:#fde7cf;display:flex;align-items:center;justify-content:center;margin:0 auto 24px">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#ad7b3d" stroke-width="1.75" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><line x1="12" y1="12" x2="12" y2="7"/><line x1="12" y1="12" x2="16" y2="14"/></svg>
+      </div>
+      <h1 style="font-family:'Playfair Display',serif;font-size:24px;font-weight:600;color:#291c15;margin:0 0 12px">Это время только что заняли</h1>
+      <p style="font-size:14px;color:#594941;line-height:1.6;margin:0 0 24px">Пока вы оформляли запись, слот 14:00 забрал другой клиент. Вот ближайшее свободное время у Анны.</p>
+
+      <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:16px">
+        <sc-for list="{{altSlots}}" as="sl" hint-placeholder-count="3">
+          <button onClick="{{sl.select}}" style="{{sl.style}}">{{sl.label}}</button>
+        </sc-for>
+      </div>
+
+      <button style="padding:13px 24px;border-radius:999px;border:1.5px solid #a4958c;background:transparent;color:#291c15;font-family:Manrope,sans-serif;font-size:14px;font-weight:700;cursor:pointer;min-height:44px;width:100%;margin-bottom:16px">Выбрать другое время</button>
+      <a href="#" style="font-size:13px;font-weight:600;text-decoration:none;display:block;margin-bottom:24px">14:00 свободно у другого мастера</a>
+      <div style="background:#f2eae0;border-radius:14px;padding:12px 16px;font-size:12px;color:#594941">Ваши услуги сохранены: стрижка + окрашивание, 3 ч</div>
+    </div>
+  </sc-if>
+
+  <!-- MODAL VARIANT (over a dimmed confirmation backdrop) -->
+  <sc-if value="{{isModal}}" hint-placeholder-val="{{false}}">
+    <div style="position:relative;min-height:calc(100vh - 90px)">
+      <div style="filter:blur(3px);opacity:0.5;padding:24px;max-width:640px;margin:0 auto">
+        <div style="background:#fef9f3;border:1px solid #d6ccc4;border-radius:20px;padding:24px">
+          <div style="font-family:'Playfair Display',serif;font-size:22px;font-weight:600;color:#291c15;margin-bottom:16px">18 августа, 14:00</div>
+          <div style="height:12px;background:#f2eae0;border-radius:6px;width:60%;margin-bottom:10px"></div>
+          <div style="height:12px;background:#f2eae0;border-radius:6px;width:40%"></div>
+        </div>
+      </div>
+      <div style="position:fixed;inset:0;background:rgba(41,28,21,0.5);display:flex;align-items:center;justify-content:center;padding:16px">
+        <div class="er-modal" style="background:#fef9f3;border-radius:24px;padding:36px 28px;max-width:440px;width:100%;text-align:center;box-shadow:0 24px 48px rgba(41,28,21,0.28), 0 4px 12px rgba(41,28,21,0.12);max-height:90vh;overflow-y:auto">
+
+          <div style="width:64px;height:64px;border-radius:50%;background:#fde7cf;display:flex;align-items:center;justify-content:center;margin:0 auto 20px">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#ad7b3d" stroke-width="1.75" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><line x1="12" y1="12" x2="12" y2="7"/><line x1="12" y1="12" x2="16" y2="14"/></svg>
+          </div>
+          <h1 style="font-family:'Playfair Display',serif;font-size:22px;font-weight:600;color:#291c15;margin:0 0 10px">Это время только что заняли</h1>
+          <p style="font-size:13px;color:#594941;line-height:1.6;margin:0 0 20px">Пока вы оформляли запись, слот 14:00 забрал другой клиент. Вот ближайшее свободное время у Анны.</p>
+
+          <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:14px">
+            <sc-for list="{{altSlots}}" as="sl2" hint-placeholder-count="3">
+              <button onClick="{{sl2.select}}" style="{{sl2.style}}">{{sl2.label}}</button>
+            </sc-for>
+          </div>
+
+          <button style="padding:13px 24px;border-radius:999px;border:1.5px solid #a4958c;background:transparent;color:#291c15;font-family:Manrope,sans-serif;font-size:14px;font-weight:700;cursor:pointer;min-height:44px;width:100%;margin-bottom:14px">Выбрать другое время</button>
+          <a href="#" style="font-size:13px;font-weight:600;text-decoration:none;display:block;margin-bottom:20px">14:00 свободно у другого мастера</a>
+          <div style="background:#f2eae0;border-radius:14px;padding:12px 16px;font-size:12px;color:#594941">Ваши услуги сохранены: стрижка + окрашивание, 3 ч</div>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = {
+    mode: 'full',
+    selectedSlot: null,
+  };
+
+  setFull = () => this.setState({ mode: 'full' });
+  setModal = () => this.setState({ mode: 'modal' });
+  selectSlot = (label) => this.setState(s => ({ selectedSlot: s.selectedSlot === label ? null : label }));
+
+  renderVals() {
+    const s = this.state;
+    const slotBase = "padding:16px;border-radius:16px;font-family:Manrope,sans-serif;font-size:16px;font-weight:700;font-variant-numeric:tabular-nums;cursor:pointer;width:100%;text-align:center;min-height:44px;";
+    const slotDefault = slotBase + "background:#fef9f3;border:1.5px solid #a4958c;color:#291c15;";
+    const slotSelected = slotBase + "background:#8d671d;border:1.5px solid #8d671d;color:#fdf8f1;";
+
+    const altSlots = ['Сегодня 15:30', 'Сегодня 17:00', 'Завтра 11:00'].map(label => ({
+      label,
+      style: s.selectedSlot === label ? slotSelected : slotDefault,
+      select: () => this.selectSlot(label),
+    }));
+
+    const devBtnBase = "padding:8px 16px;border-radius:999px;border:1px solid #d6ccc4;background:#fef9f3;color:#796c65;font-family:Manrope,sans-serif;font-size:12px;font-weight:700;cursor:pointer";
+    const devBtnActive = "padding:8px 16px;border-radius:999px;border:1px solid #482a1d;background:#482a1d;color:#fdf8f1;font-family:Manrope,sans-serif;font-size:12px;font-weight:700;cursor:pointer";
+
+    return {
+      isFull: s.mode === 'full', isModal: s.mode === 'modal',
+      setFull: this.setFull, setModal: this.setModal,
+      devBtnFull: s.mode === 'full' ? devBtnActive : devBtnBase,
+      devBtnModal: s.mode === 'modal' ? devBtnActive : devBtnBase,
+      modeCaption: s.mode === 'full'
+        ? 'Полноэкранный: слот истёк ДО перехода к подтверждению — клиент ещё на шаге выбора времени.'
+        : 'Модальное окно: слот заняли, когда клиент уже был на экране подтверждения — конфликт всплывает поверх, не сбрасывая шаг.',
+      altSlots,
+    };
+  }
+}
+</script>
+</body>
+</html>

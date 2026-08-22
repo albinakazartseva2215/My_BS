@@ -141,3 +141,20 @@ dist
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 .vite/
+
+# OS junk files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor/IDE service folders
+.idea/
+.vscode/
+*.swp
+
+# Local databases
+*.sqlite
+*.sqlite3
+*.db
+/data/
+/prisma/dev.db
