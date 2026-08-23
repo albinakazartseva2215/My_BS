@@ -61,10 +61,21 @@
       <button style="padding:14px 24px;border-radius:999px;border:1.5px solid #a4958c;background:transparent;color:#291c15;font-family:Manrope,sans-serif;font-size:15px;font-weight:700;cursor:pointer;min-height:44px">Добавить в календарь</button>
     </div>
 
-    <a href="#" style="font-size:13px;font-weight:600;text-decoration:none">Записаться ещё раз</a>
+    <a href="#" onClick="{{goStep1}}" style="font-size:13px;font-weight:600;text-decoration:none">Записаться ещё раз</a>
   </div>
 </div>
 
 </x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  goStep1 = () => { location.href = './Booking · 1 · Услуги.dc.html'; };
+
+  renderVals() {
+    return {
+      goStep1: this.goStep1,
+    };
+  }
+}
+</script>
 </body>
 </html>

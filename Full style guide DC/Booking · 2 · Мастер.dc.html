@@ -162,7 +162,7 @@
     <!-- FOOTER NAV -->
     <div style="display:flex;gap:12px;justify-content:space-between;position:sticky;bottom:16px">
       <button onClick="{{goStep1}}" style="padding:13px 26px;border-radius:999px;border:1.5px solid #a4958c;background:#fbf4eb;color:#291c15;font-family:Manrope,sans-serif;font-size:14px;font-weight:700;cursor:pointer;min-height:44px">Назад</button>
-      <button disabled="{{nextDisabled}}" style="{{nextBtnStyle}}">Далее</button>
+      <button onClick="{{goStep3}}" disabled="{{nextDisabled}}" style="{{nextBtnStyle}}">Далее</button>
     </div>
 
   </div>
@@ -181,7 +181,8 @@ class Component extends DCLogic {
   setView2 = () => this.setState({ view: 'empty' });
   select = (id) => this.setState({ selected: id });
   selectAny = () => this.setState({ selected: 'any' });
-  goStep1 = () => {};
+  goStep1 = () => { location.href = './Booking · 1 · Услуги.dc.html'; };
+  goStep3 = () => { location.href = './Booking · 3 · Дата и время.dc.html'; };
 
   renderVals() {
     const devBtnBase = "padding:8px 16px;border-radius:999px;border:1px solid #d6ccc4;background:#fef9f3;color:#796c65;font-family:Manrope,sans-serif;font-size:12px;font-weight:700;cursor:pointer";
@@ -221,7 +222,7 @@ class Component extends DCLogic {
       devBtn0: this.state.view === 'normal' ? devBtnActive : devBtnBase,
       devBtn1: this.state.view === 'skeleton' ? devBtnActive : devBtnBase,
       devBtn2: this.state.view === 'empty' ? devBtnActive : devBtnBase,
-      goStep1: this.goStep1,
+      goStep1: this.goStep1, goStep3: this.goStep3,
       anyCardStyle: this.state.selected === 'any' ? cardSelected : cardDefault,
       anyCheckStyle: this.state.selected === 'any' ? checkSelected : checkDefault,
       selectAny: this.selectAny,

@@ -31,7 +31,7 @@
   <!-- FLOW HEADER -->
   <div style="max-width:640px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;padding:16px 24px 0">
     <span style="font-family:'Playfair Display',serif;font-size:16px;font-weight:600;color:#291c15">Тон</span>
-    <button style="width:36px;height:36px;border-radius:50%;border:1px solid #d6ccc4;background:#fef9f3;color:#796c65;display:flex;align-items:center;justify-content:center;cursor:pointer">
+    <button onClick="{{goHome}}" style="width:36px;height:36px;border-radius:50%;border:1px solid #d6ccc4;background:#fef9f3;color:#796c65;display:flex;align-items:center;justify-content:center;cursor:pointer">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg>
     </button>
   </div>
@@ -108,7 +108,7 @@
   <!-- STICKY BOTTOM BAR -->
   <div style="position:sticky;bottom:0;left:0;right:0;background:#fef9f3;border-top:1px solid #d6ccc4;padding:16px 24px;box-shadow:0 -8px 24px rgba(72,42,29,0.08)">
     <div style="max-width:640px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:16px">
-      <button style="padding:13px 26px;border-radius:999px;border:1.5px solid #a4958c;background:transparent;color:#291c15;font-family:Manrope,sans-serif;font-size:14px;font-weight:700;cursor:pointer;min-height:44px;flex-shrink:0">Назад</button>
+      <button onClick="{{goHome}}" style="padding:13px 26px;border-radius:999px;border:1.5px solid #a4958c;background:transparent;color:#291c15;font-family:Manrope,sans-serif;font-size:14px;font-weight:700;cursor:pointer;min-height:44px;flex-shrink:0">Назад</button>
 
       <sc-if value="{{hasSelection}}" hint-placeholder-val="{{false}}">
         <div style="display:flex;align-items:center;gap:16px;flex:1;justify-content:flex-end">
@@ -116,7 +116,7 @@
             <div style="font-size:13px;color:#796c65">{{summaryCount}}</div>
             <div style="font-family:'Playfair Display',serif;font-size:20px;font-weight:600;color:#291c15;font-variant-numeric:tabular-nums">{{summaryDuration}} · {{summaryPrice}}</div>
           </div>
-          <button style="padding:13px 30px;border-radius:999px;border:none;background:#482a1d;color:#fdf8f1;font-family:Manrope,sans-serif;font-size:14px;font-weight:700;cursor:pointer;min-height:44px;flex-shrink:0">Далее</button>
+          <button onClick="{{goStep2}}" style="padding:13px 30px;border-radius:999px;border:none;background:#482a1d;color:#fdf8f1;font-family:Manrope,sans-serif;font-size:14px;font-weight:700;cursor:pointer;min-height:44px;flex-shrink:0">Далее</button>
         </div>
       </sc-if>
       <sc-if value="{{noSelection}}" hint-placeholder-val="{{true}}">
@@ -150,6 +150,9 @@ class Component extends DCLogic {
   setDemo0 = () => this.setState({ selected: {}, demoOverride: 0 });
   setDemo1 = () => this.setState({ selected: { haircut: true }, demoOverride: 1 });
   setDemo2 = () => this.setState({ selected: { haircut: true, color: true }, demoOverride: 2 });
+
+  goHome = () => { location.href = './Landing my B.S..dc.html'; };
+  goStep2 = () => { location.href = './Booking · 2 · Мастер.dc.html'; };
 
   renderVals() {
     const s = this.state;
@@ -207,6 +210,7 @@ class Component extends DCLogic {
       summaryDuration: durationLabel,
       summaryPrice: totalPrice.toLocaleString('ru-RU') + ' ₽',
       setDemo0: this.setDemo0, setDemo1: this.setDemo1, setDemo2: this.setDemo2,
+      goHome: this.goHome, goStep2: this.goStep2,
       devBtn0: s.demoOverride === 0 ? devBtnActive : devBtnBase,
       devBtn1: s.demoOverride === 1 ? devBtnActive : devBtnBase,
       devBtn2: s.demoOverride === 2 ? devBtnActive : devBtnBase,

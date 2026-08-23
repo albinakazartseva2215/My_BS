@@ -46,8 +46,8 @@
         </sc-for>
       </div>
 
-      <button style="padding:13px 24px;border-radius:999px;border:1.5px solid #a4958c;background:transparent;color:#291c15;font-family:Manrope,sans-serif;font-size:14px;font-weight:700;cursor:pointer;min-height:44px;width:100%;margin-bottom:16px">Выбрать другое время</button>
-      <a href="#" style="font-size:13px;font-weight:600;text-decoration:none;display:block;margin-bottom:24px">14:00 свободно у другого мастера</a>
+      <button onClick="{{goStep3}}" style="padding:13px 24px;border-radius:999px;border:1.5px solid #a4958c;background:transparent;color:#291c15;font-family:Manrope,sans-serif;font-size:14px;font-weight:700;cursor:pointer;min-height:44px;width:100%;margin-bottom:16px">Выбрать другое время</button>
+      <a href="#" onClick="{{goStep2}}" style="font-size:13px;font-weight:600;text-decoration:none;display:block;margin-bottom:24px">14:00 свободно у другого мастера</a>
       <div style="background:#f2eae0;border-radius:14px;padding:12px 16px;font-size:12px;color:#594941">Ваши услуги сохранены: стрижка + окрашивание, 3 ч</div>
     </div>
   </sc-if>
@@ -77,8 +77,8 @@
             </sc-for>
           </div>
 
-          <button style="padding:13px 24px;border-radius:999px;border:1.5px solid #a4958c;background:transparent;color:#291c15;font-family:Manrope,sans-serif;font-size:14px;font-weight:700;cursor:pointer;min-height:44px;width:100%;margin-bottom:14px">Выбрать другое время</button>
-          <a href="#" style="font-size:13px;font-weight:600;text-decoration:none;display:block;margin-bottom:20px">14:00 свободно у другого мастера</a>
+          <button onClick="{{goStep3}}" style="padding:13px 24px;border-radius:999px;border:1.5px solid #a4958c;background:transparent;color:#291c15;font-family:Manrope,sans-serif;font-size:14px;font-weight:700;cursor:pointer;min-height:44px;width:100%;margin-bottom:14px">Выбрать другое время</button>
+          <a href="#" onClick="{{goStep2}}" style="font-size:13px;font-weight:600;text-decoration:none;display:block;margin-bottom:20px">14:00 свободно у другого мастера</a>
           <div style="background:#f2eae0;border-radius:14px;padding:12px 16px;font-size:12px;color:#594941">Ваши услуги сохранены: стрижка + окрашивание, 3 ч</div>
         </div>
       </div>
@@ -98,6 +98,9 @@ class Component extends DCLogic {
   setFull = () => this.setState({ mode: 'full' });
   setModal = () => this.setState({ mode: 'modal' });
   selectSlot = (label) => this.setState(s => ({ selectedSlot: s.selectedSlot === label ? null : label }));
+
+  goStep2 = () => { location.href = './Booking · 2 · Мастер.dc.html'; };
+  goStep3 = () => { location.href = './Booking · 3 · Дата и время.dc.html'; };
 
   renderVals() {
     const s = this.state;
@@ -123,6 +126,7 @@ class Component extends DCLogic {
         ? 'Полноэкранный: слот истёк ДО перехода к подтверждению — клиент ещё на шаге выбора времени.'
         : 'Модальное окно: слот заняли, когда клиент уже был на экране подтверждения — конфликт всплывает поверх, не сбрасывая шаг.',
       altSlots,
+      goStep2: this.goStep2, goStep3: this.goStep3,
     };
   }
 }

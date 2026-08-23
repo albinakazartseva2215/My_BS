@@ -51,7 +51,7 @@
     </nav>
     <div style="display:flex;align-items:center;gap:12px">
       <button class="ln-header-login" style="padding:11px 22px;border-radius:999px;border:none;background:transparent;color:#482a1d;font-family:Manrope,sans-serif;font-size:14px;font-weight:700;cursor:pointer">Войти</button>
-      <button style="padding:11px 24px;border-radius:999px;border:none;background:#482a1d;color:#fdf8f1;font-family:Manrope,sans-serif;font-size:14px;font-weight:700;cursor:pointer;min-height:44px">Записаться</button>
+      <button onClick="{{goBooking}}" style="padding:11px 24px;border-radius:999px;border:none;background:#482a1d;color:#fdf8f1;font-family:Manrope,sans-serif;font-size:14px;font-weight:700;cursor:pointer;min-height:44px">Записаться</button>
       <button class="ln-burger" style="width:44px;height:44px;border-radius:12px;border:1px solid #d6ccc4;background:#fef9f3;display:flex;align-items:center;justify-content:center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#291c15" stroke-width="1.75" stroke-linecap="round"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/></svg></button>
     </div>
   </header>
@@ -64,7 +64,7 @@
         <h1 style="font-family:'Playfair Display',serif;font-size:56px;line-height:1.1;font-weight:600;letter-spacing:0.005em;color:#291c15;margin:0 0 20px">Запишитесь к своему мастеру за 30 секунд</h1>
         <p style="font-size:18px;line-height:1.6;color:#594941;margin:0 0 28px;max-width:480px">Выбираете мастера, видите свободное время, подтверждаете. Без звонков и переписки.</p>
         <div style="display:flex;gap:14px;flex-wrap:wrap;margin-bottom:16px">
-          <button style="padding:15px 30px;border-radius:999px;border:none;background:#482a1d;color:#fdf8f1;font-family:Manrope,sans-serif;font-size:15px;font-weight:700;cursor:pointer;min-height:44px">Записаться</button>
+          <button onClick="{{goBooking}}" style="padding:15px 30px;border-radius:999px;border:none;background:#482a1d;color:#fdf8f1;font-family:Manrope,sans-serif;font-size:15px;font-weight:700;cursor:pointer;min-height:44px">Записаться</button>
           <button style="padding:15px 30px;border-radius:999px;border:1.5px solid #a4958c;background:transparent;color:#291c15;font-family:Manrope,sans-serif;font-size:15px;font-weight:700;cursor:pointer;min-height:44px">Посмотреть мастеров</button>
         </div>
         <div style="font-size:13px;color:#796c65">Более 2 400 записей · 12 мастеров · Оплата в салоне</div>
@@ -114,7 +114,7 @@
         <div style="font-size:14px;color:#796c65;line-height:1.5">Запись появится в личном кабинете, мастер тоже получит уведомление.</div>
       </div>
     </div>
-    <button style="padding:14px 28px;border-radius:999px;border:1.5px solid #a4958c;background:transparent;color:#291c15;font-family:Manrope,sans-serif;font-size:14px;font-weight:700;cursor:pointer;min-height:44px">Начать запись</button>
+    <button onClick="{{goBooking}}" style="padding:14px 28px;border-radius:999px;border:1.5px solid #a4958c;background:transparent;color:#291c15;font-family:Manrope,sans-serif;font-size:14px;font-weight:700;cursor:pointer;min-height:44px">Начать запись</button>
   </section>
 
   <!-- SERVICES -->
@@ -128,7 +128,7 @@
         <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px"><div style="font-size:16px;font-weight:700;color:#291c15">Стрижка</div><div style="font-size:15px;font-weight:700;color:#291c15;font-variant-numeric:tabular-nums">от 2 800 ₽</div></div>
         <div style="font-size:13px;color:#796c65;margin-bottom:12px">Мытьё, стрижка, укладка</div>
         <div style="font-size:12px;color:#796c65;font-variant-numeric:tabular-nums;margin-bottom:16px">45 минут</div>
-        <button style="width:100%;padding:11px;border-radius:999px;border:none;background:#482a1d;color:#fdf8f1;font-family:Manrope,sans-serif;font-size:13px;font-weight:700;cursor:pointer;min-height:44px">Записаться</button>
+        <button onClick="{{goBooking}}" style="width:100%;padding:11px;border-radius:999px;border:none;background:#482a1d;color:#fdf8f1;font-family:Manrope,sans-serif;font-size:13px;font-weight:700;cursor:pointer;min-height:44px">Записаться</button>
       </div>
 
       <div style="background:#fef9f3;border:1.5px solid #d6ccc4;border-radius:20px;padding:24px">
@@ -136,7 +136,7 @@
         <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px"><div style="font-size:16px;font-weight:700;color:#291c15">Окрашивание</div><div style="font-size:15px;font-weight:700;color:#291c15;font-variant-numeric:tabular-nums">от 7 500 ₽</div></div>
         <div style="font-size:13px;color:#796c65;margin-bottom:12px">Балаяж, тонирование, седина</div>
         <div style="font-size:12px;color:#796c65;font-variant-numeric:tabular-nums;margin-bottom:16px">3 часа</div>
-        <button style="width:100%;padding:11px;border-radius:999px;border:none;background:#482a1d;color:#fdf8f1;font-family:Manrope,sans-serif;font-size:13px;font-weight:700;cursor:pointer;min-height:44px">Записаться</button>
+        <button onClick="{{goBooking}}" style="width:100%;padding:11px;border-radius:999px;border:none;background:#482a1d;color:#fdf8f1;font-family:Manrope,sans-serif;font-size:13px;font-weight:700;cursor:pointer;min-height:44px">Записаться</button>
       </div>
 
       <div style="background:#fef9f3;border:1.5px solid #d6ccc4;border-radius:20px;padding:24px">
@@ -144,7 +144,7 @@
         <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px"><div style="font-size:16px;font-weight:700;color:#291c15">Уход и маски</div><div style="font-size:15px;font-weight:700;color:#291c15;font-variant-numeric:tabular-nums">от 1 900 ₽</div></div>
         <div style="font-size:13px;color:#796c65;margin-bottom:12px">Восстановление и питание волос</div>
         <div style="font-size:12px;color:#796c65;font-variant-numeric:tabular-nums;margin-bottom:16px">30 минут</div>
-        <button style="width:100%;padding:11px;border-radius:999px;border:none;background:#482a1d;color:#fdf8f1;font-family:Manrope,sans-serif;font-size:13px;font-weight:700;cursor:pointer;min-height:44px">Записаться</button>
+        <button onClick="{{goBooking}}" style="width:100%;padding:11px;border-radius:999px;border:none;background:#482a1d;color:#fdf8f1;font-family:Manrope,sans-serif;font-size:13px;font-weight:700;cursor:pointer;min-height:44px">Записаться</button>
       </div>
 
       <div style="background:#fef9f3;border:1.5px solid #d6ccc4;border-radius:20px;padding:24px">
@@ -152,7 +152,7 @@
         <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px"><div style="font-size:16px;font-weight:700;color:#291c15">Укладка</div><div style="font-size:15px;font-weight:700;color:#291c15;font-variant-numeric:tabular-nums">от 1 500 ₽</div></div>
         <div style="font-size:13px;color:#796c65;margin-bottom:12px">На волосы любой длины</div>
         <div style="font-size:12px;color:#796c65;font-variant-numeric:tabular-nums;margin-bottom:16px">30 минут</div>
-        <button style="width:100%;padding:11px;border-radius:999px;border:none;background:#482a1d;color:#fdf8f1;font-family:Manrope,sans-serif;font-size:13px;font-weight:700;cursor:pointer;min-height:44px">Записаться</button>
+        <button onClick="{{goBooking}}" style="width:100%;padding:11px;border-radius:999px;border:none;background:#482a1d;color:#fdf8f1;font-family:Manrope,sans-serif;font-size:13px;font-weight:700;cursor:pointer;min-height:44px">Записаться</button>
       </div>
 
       <div style="background:#fef9f3;border:1.5px solid #d6ccc4;border-radius:20px;padding:24px">
@@ -160,7 +160,7 @@
         <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px;margin-top:14px"><div style="font-size:16px;font-weight:700;color:#291c15">Мытьё и стайлинг</div><div style="font-size:15px;font-weight:700;color:#291c15;font-variant-numeric:tabular-nums">от 900 ₽</div></div>
         <div style="font-size:13px;color:#796c65;margin-bottom:12px">Быстрое обновление образа</div>
         <div style="font-size:12px;color:#796c65;font-variant-numeric:tabular-nums;margin-bottom:16px">20 минут</div>
-        <button style="width:100%;padding:11px;border-radius:999px;border:none;background:#482a1d;color:#fdf8f1;font-family:Manrope,sans-serif;font-size:13px;font-weight:700;cursor:pointer;min-height:44px">Записаться</button>
+        <button onClick="{{goBooking}}" style="width:100%;padding:11px;border-radius:999px;border:none;background:#482a1d;color:#fdf8f1;font-family:Manrope,sans-serif;font-size:13px;font-weight:700;cursor:pointer;min-height:44px">Записаться</button>
       </div>
 
     </div>
@@ -179,7 +179,7 @@
         <div style="font-size:13px;color:#796c65;margin-bottom:8px">Окрашивание</div>
         <div style="display:flex;align-items:center;justify-content:center;gap:4px;margin-bottom:14px"><svg width="14" height="14" viewBox="0 0 24 24" fill="#8d671d" stroke="none"><polygon points="12,3 14.7,9 21,9.5 16.2,13.7 17.6,20 12,16.6 6.4,20 7.8,13.7 3,9.5 9.3,9"/></svg><span style="font-size:13px;font-weight:700;color:#291c15;font-variant-numeric:tabular-nums">4.9</span><span style="font-size:12px;color:#796c65">(128)</span></div>
         <div style="background:#f4e4dd;border-radius:12px;padding:10px;font-size:12px;font-weight:700;color:#482a1d;margin-bottom:14px;font-variant-numeric:tabular-nums">Ближайшее время: сегодня, 15:30</div>
-        <button style="width:100%;padding:11px;border-radius:999px;border:none;background:#482a1d;color:#fdf8f1;font-family:Manrope,sans-serif;font-size:13px;font-weight:700;cursor:pointer;min-height:44px">Записаться</button>
+        <button onClick="{{goBooking}}" style="width:100%;padding:11px;border-radius:999px;border:none;background:#482a1d;color:#fdf8f1;font-family:Manrope,sans-serif;font-size:13px;font-weight:700;cursor:pointer;min-height:44px">Записаться</button>
       </div>
 
       <div style="background:#fef9f3;border:1px solid #d6ccc4;border-radius:24px;padding:24px;text-align:center">
@@ -188,7 +188,7 @@
         <div style="font-size:13px;color:#796c65;margin-bottom:8px">Маникюр</div>
         <div style="display:flex;align-items:center;justify-content:center;gap:4px;margin-bottom:14px"><svg width="14" height="14" viewBox="0 0 24 24" fill="#8d671d" stroke="none"><polygon points="12,3 14.7,9 21,9.5 16.2,13.7 17.6,20 12,16.6 6.4,20 7.8,13.7 3,9.5 9.3,9"/></svg><span style="font-size:13px;font-weight:700;color:#291c15;font-variant-numeric:tabular-nums">4.8</span><span style="font-size:12px;color:#796c65">(96)</span></div>
         <div style="background:#f4e4dd;border-radius:12px;padding:10px;font-size:12px;font-weight:700;color:#482a1d;margin-bottom:14px;font-variant-numeric:tabular-nums">Ближайшее время: завтра, 10:00</div>
-        <button style="width:100%;padding:11px;border-radius:999px;border:none;background:#482a1d;color:#fdf8f1;font-family:Manrope,sans-serif;font-size:13px;font-weight:700;cursor:pointer;min-height:44px">Записаться</button>
+        <button onClick="{{goBooking}}" style="width:100%;padding:11px;border-radius:999px;border:none;background:#482a1d;color:#fdf8f1;font-family:Manrope,sans-serif;font-size:13px;font-weight:700;cursor:pointer;min-height:44px">Записаться</button>
       </div>
 
       <div style="background:#fef9f3;border:1px solid #d6ccc4;border-radius:24px;padding:24px;text-align:center">
@@ -197,7 +197,7 @@
         <div style="font-size:13px;color:#796c65;margin-bottom:8px">Стрижка, укладка</div>
         <div style="display:flex;align-items:center;justify-content:center;gap:4px;margin-bottom:14px"><svg width="14" height="14" viewBox="0 0 24 24" fill="#8d671d" stroke="none"><polygon points="12,3 14.7,9 21,9.5 16.2,13.7 17.6,20 12,16.6 6.4,20 7.8,13.7 3,9.5 9.3,9"/></svg><span style="font-size:13px;font-weight:700;color:#291c15;font-variant-numeric:tabular-nums">4.9</span><span style="font-size:12px;color:#796c65">(74)</span></div>
         <div style="background:#f4e4dd;border-radius:12px;padding:10px;font-size:12px;font-weight:700;color:#482a1d;margin-bottom:14px;font-variant-numeric:tabular-nums">Ближайшее время: сегодня, 18:00</div>
-        <button style="width:100%;padding:11px;border-radius:999px;border:none;background:#482a1d;color:#fdf8f1;font-family:Manrope,sans-serif;font-size:13px;font-weight:700;cursor:pointer;min-height:44px">Записаться</button>
+        <button onClick="{{goBooking}}" style="width:100%;padding:11px;border-radius:999px;border:none;background:#482a1d;color:#fdf8f1;font-family:Manrope,sans-serif;font-size:13px;font-weight:700;cursor:pointer;min-height:44px">Записаться</button>
       </div>
 
     </div>
@@ -238,7 +238,7 @@
         <button style="{{slotBusy}}">19:00</button>
       </div>
 
-      <button disabled="{{ctaDisabled}}" style="{{ctaSlotStyle}}">{{ctaSlotLabel}}</button>
+      <button onClick="{{goBooking}}" disabled="{{ctaDisabled}}" style="{{ctaSlotStyle}}">{{ctaSlotLabel}}</button>
     </div>
   </section>
 
@@ -330,7 +330,7 @@
     <div style="position:relative;z-index:1">
       <h2 style="font-family:'Playfair Display',serif;font-size:40px;font-weight:600;color:#fdf8f1;margin:0 0 16px">Готово? Записаться можно прямо сейчас</h2>
       <p style="font-size:16px;color:#f5e2c4;margin:0 0 32px">Меньше минуты — и время у мастера ваше</p>
-      <button style="padding:16px 36px;border-radius:999px;border:none;background:#d3aa64;color:#1f130b;font-family:Manrope,sans-serif;font-size:15px;font-weight:700;cursor:pointer;min-height:44px">Записаться</button>
+      <button onClick="{{goBooking}}" style="padding:16px 36px;border-radius:999px;border:none;background:#d3aa64;color:#1f130b;font-family:Manrope,sans-serif;font-size:15px;font-weight:700;cursor:pointer;min-height:44px">Записаться</button>
     </div>
   </section>
 
@@ -374,6 +374,7 @@ class Component extends DCLogic {
   selectRibbon = (i) => this.setState({ selectedRibbon: i });
   selectSlot = (label) => this.setState(s => ({ selectedSlot: s.selectedSlot === label ? null : label }));
   toggleFaq = (i) => this.setState(s => ({ faqOpen: s.faqOpen === i ? -1 : i }));
+  goBooking = () => { location.href = './Booking · 1 · Услуги.dc.html'; };
 
   renderVals() {
     const slotFree = "padding:12px 20px;border-radius:14px;font-family:Manrope,sans-serif;font-size:14px;font-weight:700;font-variant-numeric:tabular-nums;cursor:pointer;background:#fef9f3;border:1.5px solid #a4958c;color:#291c15;min-height:44px";
@@ -420,7 +421,7 @@ class Component extends DCLogic {
       toggle: () => this.toggleFaq(i),
     }));
 
-    return { ribbonDays, daySlots, slotFree, slotBusy, ctaDisabled, ctaSlotStyle, ctaSlotLabel, faqItems };
+    return { ribbonDays, daySlots, slotFree, slotBusy, ctaDisabled, ctaSlotStyle, ctaSlotLabel, faqItems, goBooking: this.goBooking };
   }
 }
 </script>

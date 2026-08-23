@@ -34,10 +34,10 @@
 
     <!-- STEPPER -->
     <div style="display:flex;align-items:center;margin-bottom:20px">
-      <div style="display:flex;align-items:center;flex:1"><div style="display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer"><div style="width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;background:#482a1d;color:#fdf8f1">✓</div><div style="font-size:11px;font-weight:600;color:#291c15">Услуги</div></div><div style="flex:1;height:2px;background:#482a1d;margin:0 6px;transform:translateY(-13px)"></div></div>
-      <div style="display:flex;align-items:center;flex:1"><div style="display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer"><div style="width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;background:#482a1d;color:#fdf8f1">✓</div><div style="font-size:11px;font-weight:600;color:#291c15">Мастер</div></div><div style="flex:1;height:2px;background:#482a1d;margin:0 6px;transform:translateY(-13px)"></div></div>
-      <div style="display:flex;align-items:center;flex:1"><div style="display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer"><div style="width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;background:#482a1d;color:#fdf8f1">✓</div><div style="font-size:11px;font-weight:600;color:#291c15">Время</div></div><div style="flex:1;height:2px;background:#482a1d;margin:0 6px;transform:translateY(-13px)"></div></div>
-      <div style="display:flex;align-items:center;flex:1"><div style="display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer"><div style="width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;background:#482a1d;color:#fdf8f1">✓</div><div style="font-size:11px;font-weight:600;color:#291c15">Вход</div></div><div style="flex:1;height:2px;background:#482a1d;margin:0 6px;transform:translateY(-13px)"></div></div>
+      <div style="display:flex;align-items:center;flex:1"><div onClick="{{goStep1}}" style="display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer"><div style="width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;background:#482a1d;color:#fdf8f1">✓</div><div style="font-size:11px;font-weight:600;color:#291c15">Услуги</div></div><div style="flex:1;height:2px;background:#482a1d;margin:0 6px;transform:translateY(-13px)"></div></div>
+      <div style="display:flex;align-items:center;flex:1"><div onClick="{{goStep2}}" style="display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer"><div style="width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;background:#482a1d;color:#fdf8f1">✓</div><div style="font-size:11px;font-weight:600;color:#291c15">Мастер</div></div><div style="flex:1;height:2px;background:#482a1d;margin:0 6px;transform:translateY(-13px)"></div></div>
+      <div style="display:flex;align-items:center;flex:1"><div onClick="{{goStep3}}" style="display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer"><div style="width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;background:#482a1d;color:#fdf8f1">✓</div><div style="font-size:11px;font-weight:600;color:#291c15">Время</div></div><div style="flex:1;height:2px;background:#482a1d;margin:0 6px;transform:translateY(-13px)"></div></div>
+      <div style="display:flex;align-items:center;flex:1"><div onClick="{{goStep4}}" style="display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer"><div style="width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;background:#482a1d;color:#fdf8f1">✓</div><div style="font-size:11px;font-weight:600;color:#291c15">Вход</div></div><div style="flex:1;height:2px;background:#482a1d;margin:0 6px;transform:translateY(-13px)"></div></div>
       <div style="display:flex;flex-direction:column;align-items:center;gap:8px"><div style="width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;background:#8d671d;color:#fdf8f1;box-shadow:0 0 0 4px #f5e2c4">5</div><div style="font-size:11px;font-weight:600;color:#291c15">Подтверждение</div></div>
     </div>
 
@@ -65,19 +65,19 @@
 
       <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px">
         <div style="font-family:'Playfair Display',serif;font-size:24px;font-weight:600;color:#291c15;font-variant-numeric:tabular-nums">18 августа, 14:00</div>
-        <a href="#" style="font-size:12px;font-weight:700;text-decoration:none;flex-shrink:0;margin-left:12px">Изменить</a>
+        <a href="#" onClick="{{goStep3}}" style="font-size:12px;font-weight:700;text-decoration:none;flex-shrink:0;margin-left:12px">Изменить</a>
       </div>
 
       <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;padding-bottom:20px;border-bottom:1px solid #d6ccc4">
         <div style="width:48px;height:48px;border-radius:50%;background:#f4e4dd;color:#482a1d;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;flex-shrink:0">АС</div>
         <div style="flex:1"><div style="font-size:14px;font-weight:700;color:#291c15">Анна Соколова</div><div style="font-size:12px;color:#796c65">Мастер</div></div>
-        <a href="#" style="font-size:12px;font-weight:700;text-decoration:none;flex-shrink:0">Изменить</a>
+        <a href="#" onClick="{{goStep2}}" style="font-size:12px;font-weight:700;text-decoration:none;flex-shrink:0">Изменить</a>
       </div>
 
       <div style="margin-bottom:16px">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
           <div style="font-size:12px;text-transform:uppercase;letter-spacing:0.06em;color:#796c65;font-weight:700">Услуги</div>
-          <a href="#" style="font-size:12px;font-weight:700;text-decoration:none">Изменить</a>
+          <a href="#" onClick="{{goStep1}}" style="font-size:12px;font-weight:700;text-decoration:none">Изменить</a>
         </div>
         <div style="display:flex;justify-content:space-between;font-size:14px;color:#291c15;margin-bottom:8px"><span>Стрижка · 45 мин</span><span style="font-weight:700;font-variant-numeric:tabular-nums">2 800 ₽</span></div>
         <div style="display:flex;justify-content:space-between;font-size:14px;color:#291c15"><span>Окрашивание · 2 ч 15 мин</span><span style="font-weight:700;font-variant-numeric:tabular-nums">7 500 ₽</span></div>
@@ -111,7 +111,7 @@
     </label>
 
     <!-- CTA -->
-    <button onClick="{{setLoading}}" disabled="{{isLoading}}" style="{{ctaStyle}}">
+    <button onClick="{{submitBooking}}" disabled="{{isLoading}}" style="{{ctaStyle}}">
       <sc-if value="{{isLoading}}" hint-placeholder-val="{{false}}"><span style="width:15px;height:15px;border-radius:50%;border:2px solid #fdf8f1;border-top-color:transparent;animation:cf-spin 0.7s linear infinite;display:inline-block;margin-right:8px"></span></sc-if>
       {{ctaLabel}}
     </button>
@@ -143,6 +143,13 @@ class Component extends DCLogic {
   toggleConflict = () => this.setState(s => ({ showConflict: !s.showConflict }));
   toggleRemind = () => this.setState(s => ({ remind: !s.remind }));
   onComment = (e) => this.setState({ commentLen: e.target.value.length });
+
+  goStep1 = () => { location.href = './Booking · 1 · Услуги.dc.html'; };
+  goStep2 = () => { location.href = './Booking · 2 · Мастер.dc.html'; };
+  goStep3 = () => { location.href = './Booking · 3 · Дата и время.dc.html'; };
+  goStep4 = () => { location.href = './Booking · 4 · Вход в потоке.dc.html'; };
+  goStep6 = () => { location.href = './Booking · 6 · Успех.dc.html'; };
+  submitBooking = () => { this.setState({ demoState: 'loading' }); setTimeout(this.goStep6, 900); };
 
   renderVals() {
     const s = this.state;
@@ -176,6 +183,8 @@ class Component extends DCLogic {
       isLoading, ctaStyle, ctaLabel,
       commentLen: s.commentLen, onComment: this.onComment,
       remindBoxStyle, remindMark, toggleRemind: this.toggleRemind,
+      goStep1: this.goStep1, goStep2: this.goStep2, goStep3: this.goStep3, goStep4: this.goStep4,
+      submitBooking: this.submitBooking,
     };
   }
 }

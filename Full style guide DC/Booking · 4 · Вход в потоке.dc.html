@@ -43,9 +43,9 @@
 
     <!-- STEPPER -->
     <div style="display:flex;align-items:center;margin-bottom:20px">
-      <div style="display:flex;align-items:center;flex:1"><div style="display:flex;flex-direction:column;align-items:center;gap:8px"><div style="width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;background:#482a1d;color:#fdf8f1">✓</div><div style="font-size:11px;font-weight:600;color:#291c15">Услуги</div></div><div style="flex:1;height:2px;background:#482a1d;margin:0 6px;transform:translateY(-13px)"></div></div>
-      <div style="display:flex;align-items:center;flex:1"><div style="display:flex;flex-direction:column;align-items:center;gap:8px"><div style="width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;background:#482a1d;color:#fdf8f1">✓</div><div style="font-size:11px;font-weight:600;color:#291c15">Мастер</div></div><div style="flex:1;height:2px;background:#482a1d;margin:0 6px;transform:translateY(-13px)"></div></div>
-      <div style="display:flex;align-items:center;flex:1"><div style="display:flex;flex-direction:column;align-items:center;gap:8px"><div style="width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;background:#482a1d;color:#fdf8f1">✓</div><div style="font-size:11px;font-weight:600;color:#291c15">Время</div></div><div style="flex:1;height:2px;background:#482a1d;margin:0 6px;transform:translateY(-13px)"></div></div>
+      <div style="display:flex;align-items:center;flex:1"><div onClick="{{goStep1}}" style="display:flex;flex-direction:column;align-items:center;gap:8px"><div style="width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;background:#482a1d;color:#fdf8f1">✓</div><div style="font-size:11px;font-weight:600;color:#291c15">Услуги</div></div><div style="flex:1;height:2px;background:#482a1d;margin:0 6px;transform:translateY(-13px)"></div></div>
+      <div style="display:flex;align-items:center;flex:1"><div onClick="{{goStep2}}" style="display:flex;flex-direction:column;align-items:center;gap:8px"><div style="width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;background:#482a1d;color:#fdf8f1">✓</div><div style="font-size:11px;font-weight:600;color:#291c15">Мастер</div></div><div style="flex:1;height:2px;background:#482a1d;margin:0 6px;transform:translateY(-13px)"></div></div>
+      <div style="display:flex;align-items:center;flex:1"><div onClick="{{goStep3}}" style="display:flex;flex-direction:column;align-items:center;gap:8px"><div style="width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;background:#482a1d;color:#fdf8f1">✓</div><div style="font-size:11px;font-weight:600;color:#291c15">Время</div></div><div style="flex:1;height:2px;background:#482a1d;margin:0 6px;transform:translateY(-13px)"></div></div>
       <div style="display:flex;flex-direction:column;align-items:center;gap:8px"><div style="width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;background:#8d671d;color:#fdf8f1;box-shadow:0 0 0 4px #f5e2c4">4</div><div style="font-size:11px;font-weight:600;color:#291c15">Вход</div></div>
     </div>
 
@@ -73,8 +73,8 @@
         <div style="font-family:'Playfair Display',serif;font-size:22px;font-weight:600;color:#291c15;margin-bottom:8px">Время брони истекло</div>
         <div style="font-size:13px;color:#796c65;margin-bottom:24px;max-width:340px">Кто-то другой мог занять это время. Проверим и вернём его, если оно всё ещё свободно</div>
         <div style="display:flex;flex-direction:column;gap:10px;width:100%;max-width:280px">
-          <button style="padding:13px 24px;border-radius:999px;border:none;background:#482a1d;color:#fdf8f1;font-family:Manrope,sans-serif;font-size:14px;font-weight:700;cursor:pointer;min-height:44px">Вернуть 14:00</button>
-          <button style="padding:13px 24px;border-radius:999px;border:1.5px solid #a4958c;background:transparent;color:#291c15;font-family:Manrope,sans-serif;font-size:14px;font-weight:700;cursor:pointer;min-height:44px">Выбрать другое время</button>
+          <button onClick="{{setStateNormal}}" style="padding:13px 24px;border-radius:999px;border:none;background:#482a1d;color:#fdf8f1;font-family:Manrope,sans-serif;font-size:14px;font-weight:700;cursor:pointer;min-height:44px">Вернуть 14:00</button>
+          <button onClick="{{goStep3}}" style="padding:13px 24px;border-radius:999px;border:1.5px solid #a4958c;background:transparent;color:#291c15;font-family:Manrope,sans-serif;font-size:14px;font-weight:700;cursor:pointer;min-height:44px">Выбрать другое время</button>
         </div>
       </div>
     </sc-if>
@@ -128,7 +128,7 @@
               <button onClick="{{toggleLoginPass}}" style="position:absolute;right:10px;top:38px;background:none;border:none;color:#796c65;cursor:pointer;padding:6px">{{loginPassIcon}}</button>
             </div>
             <div style="text-align:right;margin-bottom:20px"><a href="#" style="font-size:12px;font-weight:600;text-decoration:none">Забыли пароль?</a></div>
-            <button onClick="{{setStateLoading}}" disabled="{{isLoading}}" style="{{primaryBtnStyle}}">
+            <button onClick="{{submitLogin}}" disabled="{{isLoading}}" style="{{primaryBtnStyle}}">
               <sc-if value="{{isLoading}}" hint-placeholder-val="{{false}}"><span style="width:14px;height:14px;border-radius:50%;border:2px solid #fdf8f1;border-top-color:transparent;animation:lg-spin 0.7s linear infinite;display:inline-block;margin-right:8px"></span></sc-if>
               Войти
             </button>
@@ -164,7 +164,7 @@
               <span style="{{agreeBoxStyle}}">{{agreeMark}}</span>
               <span style="font-size:12px;color:#594941;line-height:1.5">Согласен с условиями публичной оферты</span>
             </label>
-            <button onClick="{{setStateLoading}}" disabled="{{signupBtnDisabled}}" style="{{signupBtnStyle}}">
+            <button onClick="{{submitLogin}}" disabled="{{signupBtnDisabled}}" style="{{signupBtnStyle}}">
               <sc-if value="{{isLoading}}" hint-placeholder-val="{{false}}"><span style="width:14px;height:14px;border-radius:50%;border:2px solid #fdf8f1;border-top-color:transparent;animation:lg-spin 0.7s linear infinite;display:inline-block;margin-right:8px"></span></sc-if>
               Создать и продолжить
             </button>
@@ -207,6 +207,12 @@ class Component extends DCLogic {
   setStateExpired = () => this.setState({ demoState: 'expired' });
   setTabLogin = () => this.setState({ tab: 'login' });
   setTabSignup = () => this.setState({ tab: 'signup' });
+
+  goStep1 = () => { location.href = './Booking · 1 · Услуги.dc.html'; };
+  goStep2 = () => { location.href = './Booking · 2 · Мастер.dc.html'; };
+  goStep3 = () => { location.href = './Booking · 3 · Дата и время.dc.html'; };
+  goStep5 = () => { location.href = './Booking · 5 · Подтверждение.dc.html'; };
+  submitLogin = () => { this.setState({ demoState: 'loading' }); setTimeout(this.goStep5, 900); };
   toggleLoginPass = () => this.setState(s => ({ loginPassVisible: !s.loginPassVisible }));
   toggleAgree = () => this.setState(s => ({ agree: !s.agree }));
 
@@ -266,6 +272,8 @@ class Component extends DCLogic {
       primaryBtnStyle,
       agreeBoxStyle, agreeMark, toggleAgree: this.toggleAgree,
       signupBtnDisabled, signupBtnStyle,
+      goStep1: this.goStep1, goStep2: this.goStep2, goStep3: this.goStep3,
+      submitLogin: this.submitLogin,
     };
   }
 }

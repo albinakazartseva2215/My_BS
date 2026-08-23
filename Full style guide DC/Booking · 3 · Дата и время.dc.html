@@ -40,14 +40,14 @@
     <!-- STEPPER -->
     <div style="display:flex;align-items:center;margin-bottom:24px">
       <div style="display:flex;align-items:center;flex:1">
-        <div style="display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer">
+        <div onClick="{{goStep1}}" style="display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer">
           <div style="width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;background:#482a1d;color:#fdf8f1">✓</div>
           <div style="font-size:12px;font-weight:600;color:#291c15">Услуги</div>
         </div>
         <div style="flex:1;height:2px;background:#482a1d;margin:0 8px;transform:translateY(-14px)"></div>
       </div>
       <div style="display:flex;align-items:center;flex:1">
-        <div style="display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer">
+        <div onClick="{{goStep2}}" style="display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer">
           <div style="width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;background:#482a1d;color:#fdf8f1">✓</div>
           <div style="font-size:12px;font-weight:600;color:#291c15">Мастер</div>
         </div>
@@ -153,8 +153,8 @@
 
     <!-- FOOTER NAV -->
     <div style="display:flex;gap:12px;justify-content:space-between;margin-top:28px;position:sticky;bottom:16px">
-      <button style="padding:13px 26px;border-radius:999px;border:1.5px solid #a4958c;background:#fbf4eb;color:#291c15;font-family:Manrope,sans-serif;font-size:14px;font-weight:700;cursor:pointer;min-height:44px">Назад</button>
-      <button disabled="{{nextBtnDisabled}}" style="{{nextBtnStyle}}">Далее</button>
+      <button onClick="{{goStep2}}" style="padding:13px 26px;border-radius:999px;border:1.5px solid #a4958c;background:#fbf4eb;color:#291c15;font-family:Manrope,sans-serif;font-size:14px;font-weight:700;cursor:pointer;min-height:44px">Назад</button>
+      <button onClick="{{goStep4}}" disabled="{{nextBtnDisabled}}" style="{{nextBtnStyle}}">Далее</button>
     </div>
 
   </div>
@@ -177,6 +177,10 @@ class Component extends DCLogic {
   nextMonth = () => this.setState(s => ({ monthOffset: Math.min(3, s.monthOffset + 1), selectedSlot: null }));
   selectDay = (num) => this.setState({ selectedDay: num, selectedSlot: null });
   selectSlot = (label) => this.setState(s => ({ selectedSlot: s.selectedSlot === label ? null : label }));
+
+  goStep1 = () => { location.href = './Booking · 1 · Услуги.dc.html'; };
+  goStep2 = () => { location.href = './Booking · 2 · Мастер.dc.html'; };
+  goStep4 = () => { location.href = './Booking · 4 · Вход в потоке.dc.html'; };
 
   renderVals() {
     const months = ['Август 2026', 'Сентябрь 2026', 'Октябрь 2026', 'Ноябрь 2026'];
@@ -267,6 +271,7 @@ class Component extends DCLogic {
       devBtn2: this.state.view === 'noSlots' ? "padding:8px 16px;border-radius:999px;border:1px solid #482a1d;background:#482a1d;color:#fdf8f1;font-family:Manrope,sans-serif;font-size:12px;font-weight:700;cursor:pointer" : "padding:8px 16px;border-radius:999px;border:1px solid #d6ccc4;background:#fef9f3;color:#796c65;font-family:Manrope,sans-serif;font-size:12px;font-weight:700;cursor:pointer",
       morningSlots, daySlots, eveningSlots, skelPill,
       hasSelection, nextBtnDisabled, nextBtnStyle,
+      goStep1: this.goStep1, goStep2: this.goStep2, goStep4: this.goStep4,
     };
   }
 }
