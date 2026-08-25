@@ -1,0 +1,16 @@
+{
+  "name": "booking-service-backend",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Бэкенд сервиса записи «Тон» — база данных и её обвязка (без API и фронтенда)",
+  "type": "module",
+  "engines": {
+    "node": ">=22.5.0"
+  },
+  "scripts": {
+    "migrate": "node --experimental-sqlite src/db/migrate.js",
+    "db:reset": "node --experimental-sqlite src/db/reset.js",
+    "seed": "node --experimental-sqlite src/db/seed.js"
+  },
+  "dependencies": {}
+}
