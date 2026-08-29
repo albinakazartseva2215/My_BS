@@ -2,10 +2,18 @@
 // чтобы сразу было чем проверять сервис: аккаунты с разными ролями,
 // мастера с графиком, услуги и уже существующие записи в календаре.
 //
-// Что НЕ входит сюда специально: роль "мастер" в users. В схеме
-// (docs/db-schema.md, 3.6 и «Спорные решения») мастера осознанно не
-// логинятся — это профиль в таблице masters, не аккаунт. Проверено с
-// заказчиком отдельно перед тем, как писать этот скрипт.
+// Роли пользователей — списком (user_roles), не единственным значением
+// (docs/db-schema.md, раздел 3.2 и "Спорные решения" — там же разбор
+// того, что это явный пересмотр более раннего решения "мастера не
+// логинятся"). Ниже нарочно заведены оба демонстрационных случая: мастер
+// с собственным логином (роль только master) и человек с двумя ролями
+// одновременно (master + admin) — ровно тот пример, который просили
+// показать явно, а не только описать в документации.
+//
+// Требования к паролям (хеш scrypt с солью и параметрами стойкости в
+// строке, см. security/passwords.js) применяются и здесь: hashPassword —
+// та же самая функция, что и в API аутентификации, тестовым пользователям
+// никакого послабления не делается.
 //
 // Скрипт идемпотентен: полностью очищает управляемые им таблицы и
 // заливает данные заново, поэтому повторный запуск не создаёт дублей.
@@ -29,6 +37,12 @@ if (env.isProduction) {
 export const DEMO_CREDENTIALS = {
   admin: { email: 'admin@ton-salon.test', password: 'AdminDemo123!' },
   client: { email: 'client@ton-salon.test', password: 'ClientDemo123!' },
+  // Роль master, привязана к профилю мастера "Анна Соколова" — видит
+  // только записи в своём расписании (GET /api/master/appointments).
+  master: { email: 'anna.master@ton-salon.test', password: 'MasterDemo123!' },
+  // Две роли одновременно (master + admin) — привязана к профилю мастера
+  // "Полина Ерохина". Демонстрирует, что роли — список, а не одно значение.
+  masterAdmin: { email: 'polina.masteradmin@ton-salon.test', password: 'MasterAdminDemo123!' },
 };
 
 // ---- Вспомогательное: даты для "ближайших дней" в календаре ----------
@@ -91,8 +105,8 @@ function seed() {
     // 0. Профиль салона — без него не из чего считать свободное время
     db.prepare(`
       INSERT INTO salon_profile
-        (id, name, address, phone, working_hours_note, timezone, booking_step_minutes, booking_horizon_days, updated_at)
-      VALUES (1, ?, ?, ?, ?, ?, ?, ?, ?)
+        (id, name, address, phone, working_hours_note, timezone, booking_step_minutes, booking_horizon_days, hold_duration_minutes, updated_at)
+      VALUES (1, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `).run(
       'Тон',
       'г. Москва, ул. Тверская, 12',
@@ -101,48 +115,73 @@ function seed() {
       'Europe/Moscow',
       60,
       90,
+      10,
       nowSql,
     );
 
-    // 1. Пользователи: администратор и клиент — каждый со своей ролью и
-    //    паролем в виде хеша (scrypt), как и должно быть у настоящих
-    //    пользователей. "Мастер" как логин не заводим — см. пояснение
-    //    в шапке файла.
+    // 1. Пользователи: у каждого пароль в виде хеша (scrypt) и список
+    //    ролей в user_roles (не колонка role — её больше нет, см. шапку
+    //    файла). insertUserRole вызывается отдельно для каждой роли, так
+    //    один человек может получить сразу несколько.
     const insertUser = db.prepare(`
-      INSERT INTO users (id, name, email, phone, password_hash, role, terms_accepted_at, created_at, updated_at)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO users (id, name, email, phone, password_hash, terms_accepted_at, created_at, updated_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     `);
-    insertUser.run(
-      1,
-      'Администратор салона',
-      DEMO_CREDENTIALS.admin.email,
-      '+7 999 111-22-33',
-      hashPassword(DEMO_CREDENTIALS.admin.password),
-      'admin',
-      nowSql,
-      nowSql,
-      nowSql,
-    );
-    insertUser.run(
-      2,
-      'Ирина Смирнова',
-      DEMO_CREDENTIALS.client.email,
-      '+7 999 444-55-66',
-      hashPassword(DEMO_CREDENTIALS.client.password),
-      'client',
-      nowSql,
-      nowSql,
-      nowSql,
-    );
+    const insertUserRole = db.prepare('INSERT INTO user_roles (user_id, role) VALUES (?, ?)');
+
+    function createUser({ id, name, email, phone, password, roles }) {
+      insertUser.run(id, name, email, phone, hashPassword(password), nowSql, nowSql, nowSql);
+      for (const role of roles) insertUserRole.run(id, role);
+    }
+
+    createUser({
+      id: 1,
+      name: 'Администратор салона',
+      email: DEMO_CREDENTIALS.admin.email,
+      phone: '+7 999 111-22-33',
+      password: DEMO_CREDENTIALS.admin.password,
+      roles: ['admin'],
+    });
+    createUser({
+      id: 2,
+      name: 'Ирина Смирнова',
+      email: DEMO_CREDENTIALS.client.email,
+      phone: '+7 999 444-55-66',
+      password: DEMO_CREDENTIALS.client.password,
+      roles: ['client'],
+    });
     const clientUserId = 2;
 
-    // 2. Мастера — два профиля со специализацией (не логинятся)
+    // Учётка мастера "Анна Соколова" — только роль master, без admin.
+    createUser({
+      id: 3,
+      name: 'Анна Соколова',
+      email: DEMO_CREDENTIALS.master.email,
+      phone: '+7 999 222-33-44',
+      password: DEMO_CREDENTIALS.master.password,
+      roles: ['master'],
+    });
+    // Учётка "Полина Ерохина" — master И admin одновременно, ровно тот
+    // пример, который просили показать явно.
+    createUser({
+      id: 4,
+      name: 'Полина Ерохина',
+      email: DEMO_CREDENTIALS.masterAdmin.email,
+      phone: '+7 999 555-66-77',
+      password: DEMO_CREDENTIALS.masterAdmin.password,
+      roles: ['master', 'admin'],
+    });
+
+    // 2. Мастера — два профиля со специализацией, оба теперь привязаны к
+    //    учётным записям выше через user_id (profile мастера и вход в
+    //    аккаунт — по-прежнему разные сущности, docs/db-schema.md, 3.6,
+    //    но связь между ними теперь может существовать).
     const insertMaster = db.prepare(`
-      INSERT INTO masters (id, name, specialization, rating_avg, reviews_count, is_active, created_at, updated_at)
-      VALUES (?, ?, ?, ?, ?, 1, ?, ?)
+      INSERT INTO masters (id, name, specialization, rating_avg, reviews_count, is_active, user_id, created_at, updated_at)
+      VALUES (?, ?, ?, ?, ?, 1, ?, ?, ?)
     `);
-    insertMaster.run(1, 'Анна Соколова', 'Окрашивание, стрижка', 4.9, 128, nowSql, nowSql);
-    insertMaster.run(2, 'Полина Ерохина', 'Стрижка, укладка', 4.9, 74, nowSql, nowSql);
+    insertMaster.run(1, 'Анна Соколова', 'Окрашивание, стрижка', 4.9, 128, 3, nowSql, nowSql);
+    insertMaster.run(2, 'Полина Ерохина', 'Стрижка, укладка', 4.9, 74, 4, nowSql, nowSql);
     const ANNA = 1;
     const POLINA = 2;
 
@@ -295,5 +334,7 @@ seed();
 console.log('тестовые данные загружены');
 console.log('');
 console.log('демо-вход:');
-console.log(`  админ:  ${DEMO_CREDENTIALS.admin.email} / ${DEMO_CREDENTIALS.admin.password}`);
-console.log(`  клиент: ${DEMO_CREDENTIALS.client.email} / ${DEMO_CREDENTIALS.client.password}`);
+console.log(`  админ:               ${DEMO_CREDENTIALS.admin.email} / ${DEMO_CREDENTIALS.admin.password}`);
+console.log(`  клиент:              ${DEMO_CREDENTIALS.client.email} / ${DEMO_CREDENTIALS.client.password}`);
+console.log(`  мастер (Анна):       ${DEMO_CREDENTIALS.master.email} / ${DEMO_CREDENTIALS.master.password}`);
+console.log(`  мастер+админ (Полина): ${DEMO_CREDENTIALS.masterAdmin.email} / ${DEMO_CREDENTIALS.masterAdmin.password}`);

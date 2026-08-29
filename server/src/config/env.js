@@ -17,12 +17,14 @@ const NODE_ENV = process.env.NODE_ENV || 'development';
 const DATABASE_FILE = process.env.DATABASE_FILE || './data/database.sqlite';
 const PORT = Number(process.env.PORT || 3000);
 
-// Секрет для подписи сессионных токенов (см. src/security/session.js).
-// Сессии сделаны без отдельной таблицы в БД (её нет в docs/db-schema.md) —
-// подписанный токен несёт id пользователя и срок действия, сервер только
-// проверяет подпись. Без SESSION_SECRET в проде токены нельзя доверять —
-// приложение отказывается стартовать. В деве, если секрет не задан,
-// генерируем случайный на процесс: сессии просто слетят при перезапуске.
+// Ключ для HMAC-хеша токена сессии (docs/db-schema.md, раздел 3.3а;
+// src/security/session.js, src/domain/session.js) — это настоящий
+// секрет: утечка даёт возможность подобрать/подтвердить хеш токена,
+// поэтому только .env, никогда не в БД (там же лежит сам token_hash —
+// хранить рядом ещё и ключ к нему было бы бессмысленно). Без
+// SESSION_SECRET в проде сессии нельзя доверять — приложение
+// отказывается стартовать. В деве, если секрет не задан, генерируем
+// случайный на процесс: сессии просто слетят при перезапуске.
 let sessionSecret = process.env.SESSION_SECRET;
 if (!sessionSecret) {
   if (NODE_ENV === 'production') {
@@ -48,9 +50,13 @@ export const env = {
   databaseFile: path.resolve(import.meta.dirname, '../..', DATABASE_FILE),
   port: PORT,
   sessionSecret,
+  // sessionTtlDays и passwordResetTtlMinutes — параметры безопасности
+  // (насколько долго действителен токен входа/сброса пароля), а не
+  // продуктовые настройки бронирования — в отличие от
+  // hold_duration_minutes, который переехал в salon_profile
+  // (docs/db-schema.md, "Спорные решения", п.15): это решение
+  // разработчика/эксплуатации, не то, что должен крутить администратор
+  // салона через настройки продукта.
   sessionTtlDays: Number(process.env.SESSION_TTL_DAYS || 30),
-  holdDurationMinutes: Number(process.env.HOLD_DURATION_MINUTES || 10),
-  // Срок жизни токена восстановления пароля (docs/db-schema.md, 3.3:
-  // "короткий срок жизни, например 30 минут").
   passwordResetTtlMinutes: Number(process.env.PASSWORD_RESET_TTL_MINUTES || 30),
 };

@@ -3,7 +3,7 @@
 // решения", п.12) — либо сразу привязывается к текущему пользователю,
 // если сессия уже есть (повторная запись из личного кабинета).
 
-import { requireInt, requireIntArray, requireUtcDateTime } from '../validation/validate.js';
+import { requireInt, requireIntArray, requireUtcDateTime, requireString } from '../validation/validate.js';
 import { createAppointment } from '../domain/booking.js';
 import { toAppointmentView } from '../domain/appointmentView.js';
 import { getSalonProfile } from '../db/repositories/salonProfile.js';
@@ -37,7 +37,11 @@ export function registerRoutes(router) {
   // время. Не обязателен для истечения (оно сработает само), но не
   // заставляет ждать таймер, если человек передумал раньше.
   router.delete('/api/holds/:holdToken', async (ctx) => {
-    const holdToken = ctx.params.holdToken;
+    // Раньше шло в запрос без проверки типа/длины — параметризация делала
+    // это безопасным от SQL-инъекции, но не от произвольно длинной/пустой
+    // строки в URL. Требование задачи — валидировать вход всех эндпоинтов,
+    // не только тех, где это заметно эксплуатируемо.
+    const holdToken = requireString(ctx.params.holdToken, 'holdToken', { min: 1, max: 100 });
     const appointment = findAppointmentByHoldToken(holdToken);
     if (!appointment) throw notFound('Удержание не найдено или уже истекло');
     if (appointment.client_id !== null && (!ctx.user || ctx.user.id !== appointment.client_id)) {

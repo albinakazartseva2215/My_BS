@@ -103,20 +103,56 @@ export function requireTimeString(value, field) {
   return str;
 }
 
+// Проверка IANA-имени часового пояса (salon_profile.timezone) — Intl сам
+// знает полный список валидных имён, отдельная таблица/список не нужны:
+// Intl.DateTimeFormat бросает RangeError на несуществующей зоне.
+export function requireTimezone(value, field) {
+  const str = requireString(value, field, { min: 1, max: 100 });
+  try {
+    new Intl.DateTimeFormat('en-US', { timeZone: str });
+  } catch {
+    throw badRequest(`Поле "${field}" должно быть корректным IANA-именем часового пояса, например "Europe/Moscow"`);
+  }
+  return str;
+}
+
+const UTC_DATETIME_RE = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(?:\.\d+)?(?:Z|[+-]00:00)$/;
+
 // Принимает ISO-8601 datetime, обязательно в UTC ('Z' или '+00:00') —
 // требование задачи: время принимается и хранится строго в UTC, чтобы на
 // границе не оставалось неоднозначного локального времени без зоны.
 // Возвращает объект Date.
 export function requireUtcDateTime(value, field) {
   const str = requireString(value, field, { min: 19, max: 40 });
-  const isUtc = /Z$|[+-]00:00$/.test(str);
-  if (!isUtc) {
+  const match = UTC_DATETIME_RE.exec(str);
+  if (!match) {
     throw badRequest(
       `Поле "${field}" должно быть временем в UTC (ISO-8601 с суффиксом "Z"), например 2026-09-01T11:00:00Z`,
     );
   }
-  const date = new Date(str);
-  if (Number.isNaN(date.getTime())) throw badRequest(`Поле "${field}" содержит некорректную дату/время`);
+
+  const [, yStr, moStr, dStr, hStr, miStr, sStr] = match;
+  const y = Number(yStr);
+  const mo = Number(moStr);
+  const d = Number(dStr);
+  const h = Number(hStr);
+  const mi = Number(miStr);
+  const s = Number(sStr);
+
+  const date = new Date(Date.UTC(y, mo - 1, d, h, mi, s));
+  // Date.UTC() "перекатывает" несуществующие даты вместо ошибки — например,
+  // 30 февраля молча становится 2 марта, isNaN(...) при этом — false.
+  // Явный round-trip: компоненты даты, прочитанные ОБРАТНО из построенного
+  // Date, должны точь-в-точь совпасть с тем, что ввели, иначе где-то было
+  // переполнение (месяц > 12, день, которого нет в этом месяце, и т.п.).
+  const rolledOver =
+    date.getUTCFullYear() !== y ||
+    date.getUTCMonth() !== mo - 1 ||
+    date.getUTCDate() !== d ||
+    date.getUTCHours() !== h ||
+    date.getUTCMinutes() !== mi ||
+    date.getUTCSeconds() !== s;
+  if (rolledOver) throw badRequest(`Поле "${field}" содержит несуществующую дату/время`);
   return date;
 }
 

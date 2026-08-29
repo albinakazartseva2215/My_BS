@@ -6,7 +6,7 @@
 // получает 403, а неавторизованный — 401 (см. middleware/auth.js).
 
 import { requireRole } from '../middleware/auth.js';
-import { badRequest, notFound } from '../http/errors.js';
+import { badRequest, notFound, conflict } from '../http/errors.js';
 import {
   requireInt,
   optionalInt,
@@ -19,6 +19,7 @@ import {
   requireDateString,
   requireTimeString,
   requireUtcDateTime,
+  requireTimezone,
 } from '../validation/validate.js';
 import {
   listAllServicesForAdmin,
@@ -36,6 +37,7 @@ import {
 import {
   listAllMastersForAdmin,
   findMasterById,
+  findMasterByUserId,
   insertMaster,
   updateMaster,
   toAdminMaster,
@@ -57,11 +59,25 @@ import { listAppointmentsForAdmin } from '../db/repositories/appointments.js';
 import { toAppointmentView } from '../domain/appointmentView.js';
 import { createAppointment, markAppointmentCompleted } from '../domain/booking.js';
 import { completePastAppointments } from '../domain/completionSweep.js';
-import { getSalonProfile } from '../db/repositories/salonProfile.js';
-import { findUserById } from '../db/repositories/users.js';
+import { getSalonProfile, updateSalonProfile, toAdminSalonProfile } from '../db/repositories/salonProfile.js';
+import {
+  findUserById,
+  findUserWithRolesById,
+  toPublicUser,
+  listRolesForUser,
+  grantRole,
+  revokeRole,
+} from '../db/repositories/users.js';
 import { dateToSql } from '../time/salonClock.js';
 
 const APPOINTMENT_STATUSES = ['hold', 'confirmed', 'completed', 'cancelled', 'expired'];
+// 'client' сюда не включена намеренно как выдаваемая/отзываемая роль —
+// её и так получает любой зарегистрировавшийся, отдельно назначать её
+// через админку незачем; убрать её у кого-то тоже отдельного смысла не
+// несёт (человек просто перестанет быть "просто клиентом", если у него
+// останется master/admin). Список — то, чем реально может управлять
+// админ поверх обычной регистрации.
+const GRANTABLE_ROLES = ['admin', 'master'];
 
 function nowSql() {
   return dateToSql(new Date());
@@ -74,6 +90,83 @@ function requireExistingMaster(masterId) {
 }
 
 export function registerRoutes(router) {
+  // ---- Профиль салона и продуктовые настройки бронирования ------------------
+  // salon_profile — единственное место, где живут настройки, которые
+  // может менять администратор салона (адрес, часы работы, часовой пояс,
+  // шаг сетки слотов, горизонт бронирования, длительность удержания
+  // слота) — не .env: .env только для секретов и инфраструктуры
+  // (docs/db-schema.md, "Спорные решения", п.15).
+  router.get('/api/admin/salon-profile', async (ctx) => {
+    requireRole(ctx, 'admin');
+    return { status: 200, body: toAdminSalonProfile(getSalonProfile()) };
+  });
+
+  router.patch('/api/admin/salon-profile', async (ctx) => {
+    requireRole(ctx, 'admin');
+    const body = ctx.body;
+    const fields = {};
+    if (body.name !== undefined) fields.name = requireString(body.name, 'name', { max: 200 });
+    if (body.address !== undefined) fields.address = requireString(body.address, 'address', { max: 500 });
+    if (body.phone !== undefined) fields.phone = requireString(body.phone, 'phone', { max: 50 });
+    if (body.workingHoursNote !== undefined) {
+      fields.workingHoursNote = optionalString(body.workingHoursNote, 'workingHoursNote', { max: 300 });
+    }
+    if (body.timezone !== undefined) fields.timezone = requireTimezone(body.timezone, 'timezone');
+    if (body.bookingStepMinutes !== undefined) {
+      fields.bookingStepMinutes = requireInt(body.bookingStepMinutes, 'bookingStepMinutes', { min: 1, max: 24 * 60 });
+    }
+    if (body.bookingHorizonDays !== undefined) {
+      fields.bookingHorizonDays = requireInt(body.bookingHorizonDays, 'bookingHorizonDays', { min: 1 });
+    }
+    if (body.holdDurationMinutes !== undefined) {
+      fields.holdDurationMinutes = requireInt(body.holdDurationMinutes, 'holdDurationMinutes', { min: 1, max: 24 * 60 });
+    }
+
+    const profile = updateSalonProfile(fields, nowSql());
+    return { status: 200, body: toAdminSalonProfile(profile) };
+  });
+
+  // ---- Пользователи и роли -------------------------------------------------
+  // Роли — список (docs/db-schema.md, раздел 3.2): выдать/забрать —
+  // отдельные операции над user_roles, а не перезапись одного значения.
+  // 'client' сюда не назначается/не отзывается (см. GRANTABLE_ROLES выше).
+  router.get('/api/admin/users/:id', async (ctx) => {
+    requireRole(ctx, 'admin');
+    const id = requireInt(ctx.params.id, 'id', { min: 1 });
+    const user = findUserWithRolesById(id);
+    if (!user) throw notFound('Пользователь не найден');
+    return { status: 200, body: toPublicUser(user) };
+  });
+
+  router.post('/api/admin/users/:id/roles', async (ctx) => {
+    requireRole(ctx, 'admin');
+    const id = requireInt(ctx.params.id, 'id', { min: 1 });
+    const role = requireOneOf(ctx.body.role, 'role', GRANTABLE_ROLES);
+    if (!findUserById(id)) throw notFound('Пользователь не найден');
+
+    grantRole(id, role);
+    return { status: 200, body: { userId: id, roles: listRolesForUser(id) } };
+  });
+
+  router.delete('/api/admin/users/:id/roles/:role', async (ctx) => {
+    requireRole(ctx, 'admin');
+    const id = requireInt(ctx.params.id, 'id', { min: 1 });
+    const role = requireOneOf(ctx.params.role, 'role', GRANTABLE_ROLES);
+    if (!findUserById(id)) throw notFound('Пользователь не найден');
+
+    const currentRoles = listRolesForUser(id);
+    if (currentRoles.length <= 1 && currentRoles.includes(role)) {
+      // Не даём случайно оставить учётку вовсе без ролей — это не
+      // столько защита от злоупотребления, сколько от опечатки админа:
+      // без единственной оставшейся роли аккаунт стал бы functionally
+      // мёртвым (requireRole никогда не пройдёт ни для одной проверки).
+      throw badRequest('Нельзя отозвать единственную оставшуюся роль пользователя');
+    }
+
+    revokeRole(id, role);
+    return { status: 200, body: { userId: id, roles: listRolesForUser(id) } };
+  });
+
   // ---- Записи: полный список для админ-панели ---------------------------
   router.get('/api/admin/appointments', async (ctx) => {
     requireRole(ctx, 'admin');
@@ -304,7 +397,7 @@ export function registerRoutes(router) {
   router.patch('/api/admin/masters/:id', async (ctx) => {
     requireRole(ctx, 'admin');
     const id = requireInt(ctx.params.id, 'id', { min: 1 });
-    requireExistingMaster(id);
+    const existingMaster = requireExistingMaster(id);
 
     const body = ctx.body;
     const fields = {};
@@ -312,6 +405,43 @@ export function registerRoutes(router) {
     if (body.specialization !== undefined) fields.specialization = optionalString(body.specialization, 'specialization', { max: 300 });
     if (body.photoUrl !== undefined) fields.photoUrl = optionalString(body.photoUrl, 'photoUrl', { max: 2000 });
     if (body.isActive !== undefined) fields.isActive = requireBoolean(body.isActive, 'isActive');
+    // Привязка/отвязка учётной записи — "мастер видит своё расписание"
+    // (требование 4) работает только через эту связь. userId: null снимает
+    // привязку; положительное число — привязывает и заодно выдаёт роль
+    // 'master' (инвариант: привязанный master.user_id обязан иметь роль
+    // master, иначе GET /api/master/appointments не пропустит его же
+    // собственный профиль — проверяется в коде приложения, не CHECK'ом,
+    // SQLite не умеет кросс-табличные ограничения).
+    if (body.userId !== undefined) {
+      if (body.userId === null) {
+        fields.userId = null;
+      } else {
+        const targetUserId = requireInt(body.userId, 'userId', { min: 1 });
+        if (!findUserById(targetUserId)) throw badRequest('Пользователь не найден', { field: 'userId' });
+
+        // Связь user_id ⇄ master.id должна быть 1:1 в обе стороны —
+        // проверяем обе, отдельными запросами, потому что уникальный
+        // индекс в БД (ux_masters_user_id) сам по себе ловит только
+        // сторону "один user_id — не более чем у одного master", но
+        // ничего не мешает ОБЫЧНОМУ UPDATE молча переписать чужую
+        // привязку конкретно у ЭТОЙ строки (это и есть баг, найденный
+        // вручную: PATCH на master id=2, уже привязанный к user_id=4,
+        // с телом {userId: 2} тихо забирал профиль у одного пользователя
+        // и отдавал другому, без единой ошибки).
+        if (existingMaster.user_id !== null && existingMaster.user_id !== targetUserId) {
+          throw conflict(
+            'Этот профиль мастера уже привязан к другому пользователю — сначала отвяжите его (userId: null)',
+          );
+        }
+        const existingLink = findMasterByUserId(targetUserId);
+        if (existingLink && existingLink.id !== id) {
+          throw conflict('Этот пользователь уже привязан к другому профилю мастера');
+        }
+
+        grantRole(targetUserId, 'master');
+        fields.userId = targetUserId;
+      }
+    }
 
     const master = updateMaster(id, fields, nowSql());
     return { status: 200, body: toAdminMaster(master) };

@@ -1,9 +1,10 @@
 // Регистрация, вход, выход, профиль текущего пользователя.
 //
-// Сессии — подписанный токен без состояния на сервере (см.
-// src/security/session.js), в httpOnly cookie. holdToken можно передать
-// при регистрации/входе — так шаг 4 прототипа привязывает анонимное
-// удержание слота (созданное на шаге 3) к вошедшему клиенту.
+// Сессии — токен с ограниченным сроком действия, хеш которого хранится
+// в БД (docs/db-schema.md, раздел 3.3а; domain/session.js), в httpOnly
+// cookie. holdToken можно передать при регистрации/входе — так шаг 4
+// прототипа привязывает анонимное удержание слота (созданное на шаге 3)
+// к вошедшему клиенту.
 
 import { badRequest } from '../http/errors.js';
 import {
@@ -14,23 +15,25 @@ import {
   requireBoolean,
   optionalString,
 } from '../validation/validate.js';
-import { findUserByEmail, insertUser, toPublicUser } from '../db/repositories/users.js';
+import { findUserWithRolesByEmail, insertUser, toPublicUser } from '../db/repositories/users.js';
 import { hashPassword, verifyPassword } from '../security/passwords.js';
-import { createSessionToken } from '../security/session.js';
+import { createSession, revokeSession } from '../domain/session.js';
 import { serializeSessionCookie, serializeSessionCookieClear } from '../http/cookies.js';
+import { extractSessionToken, requireAuth } from '../middleware/auth.js';
+import { enforceRateLimit } from '../middleware/rateLimit.js';
 import { attachClientToHold } from '../domain/holdAttach.js';
 import { requestPasswordReset, confirmPasswordReset } from '../domain/passwordReset.js';
-import { requireAuth } from '../middleware/auth.js';
 import { dateToSql, toIsoUtc } from '../time/salonClock.js';
 import { env } from '../config/env.js';
 
-function setSessionCookie(ctx, userId) {
-  const { token, expiresAt } = createSessionToken(userId);
+function setSessionCookie(ctx, userId, now) {
+  const { token, expiresAt } = createSession(userId, now);
   ctx.res.setHeader('Set-Cookie', serializeSessionCookie(token, expiresAt, { secure: env.isProduction }));
 }
 
 export function registerRoutes(router) {
   router.post('/api/auth/register', async (ctx) => {
+    enforceRateLimit(ctx, 'register');
     const body = ctx.body;
     const name = requireString(body.name, 'name', { max: 200 });
     const email = requireEmail(body.email);
@@ -41,50 +44,57 @@ export function registerRoutes(router) {
 
     if (!termsAccepted) throw badRequest('Нужно принять условия оферты', { field: 'termsAccepted' });
 
-    if (findUserByEmail(email)) {
+    if (findUserWithRolesByEmail(email)) {
       throw badRequest('Пользователь с таким e-mail уже зарегистрирован', { field: 'email' });
     }
 
     const now = new Date();
     const nowSql = dateToSql(now);
+    // roles всегда ['client'] — публичная регистрация не может выдать
+    // себе роль admin/master, что бы ни было в теле запроса (в body такого
+    // поля даже не читается, см. требование 7 про недопустимые поля).
     const user = insertUser({
       name,
       email,
       phone,
       passwordHash: hashPassword(password),
-      role: 'client',
+      roles: ['client'],
       termsAcceptedAt: nowSql,
       now: nowSql,
     });
 
-    setSessionCookie(ctx, user.id);
+    setSessionCookie(ctx, user.id, now);
     const holdAttached = holdToken ? attachClientToHold(holdToken, user.id, now) : false;
 
     return { status: 201, body: { user: toPublicUser(user), holdAttached } };
   });
 
   router.post('/api/auth/login', async (ctx) => {
+    enforceRateLimit(ctx, 'login');
     const body = ctx.body;
     const email = requireEmail(body.email);
     const password = requireString(body.password, 'password', { max: 200 });
     const holdToken = optionalString(body.holdToken, 'holdToken', { max: 100 });
 
-    const user = findUserByEmail(email);
+    const user = findUserWithRolesByEmail(email);
     if (!user || !verifyPassword(password, user.password_hash)) {
       throw badRequest('Неверный e-mail или пароль', { field: 'password' });
     }
 
-    setSessionCookie(ctx, user.id);
     const now = new Date();
+    setSessionCookie(ctx, user.id, now);
     const holdAttached = holdToken ? attachClientToHold(holdToken, user.id, now) : false;
 
     return { status: 200, body: { user: toPublicUser(user), holdAttached } };
   });
 
   router.post('/api/auth/logout', async (ctx) => {
-    // Токен без состояния на сервере (см. src/security/session.js) —
-    // logout снимает cookie у клиента; сам токен, если его успели
-    // скопировать, действителен до истечения TTL. Задокументировано там же.
+    // Реальный отзыв — сессия помечается revoked_at в БД (не только
+    // снятие cookie, как было раньше без таблицы sessions, см.
+    // domain/session.js) — токен, даже если его успели скопировать,
+    // больше не пройдёт resolveUserByToken.
+    const token = extractSessionToken(ctx.req);
+    if (token) revokeSession(token);
     ctx.res.setHeader('Set-Cookie', serializeSessionCookieClear({ secure: env.isProduction }));
     return { status: 204, body: null };
   });

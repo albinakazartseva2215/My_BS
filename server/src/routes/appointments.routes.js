@@ -21,12 +21,35 @@ import {
 import { toAppointmentView } from '../domain/appointmentView.js';
 import { getSalonProfile } from '../db/repositories/salonProfile.js';
 import { findAppointmentById, listAppointmentsForClient } from '../db/repositories/appointments.js';
+import { findMasterByUserId } from '../db/repositories/masters.js';
 
 const APPOINTMENT_STATUSES = ['hold', 'confirmed', 'completed', 'cancelled', 'expired'];
 
-function assertOwnerOrAdmin(user, appointment) {
-  if (user.role === 'admin') return;
-  if (appointment.client_id !== user.id) throw forbidden('Это не ваша запись');
+// Требование 4: на каждом эндпоинте — авторизован ли пользователь (это уже
+// проверил requireAuth ДО вызова этой функции), есть ли у него роль,
+// которая вообще может видеть такие объекты, и принадлежит ли ему именно
+// ЭТОТ объект. Роль и принадлежность здесь идут парой, потому что у
+// каждой роли своё определение "принадлежит": клиенту — записи, где он
+// клиент; мастеру — записи в его собственном расписании; админу
+// принадлежит (в смысле доступа) вообще всё, отдельной проверки не нужно.
+function assertCanAccessAppointment(user, appointment) {
+  if (user.roles.includes('admin')) return; // роль admin — доступ ко всем записям, доп. проверка не нужна
+  if (user.roles.includes('client') && appointment.client_id === user.id) return; // роль client + принадлежность
+  if (user.roles.includes('master')) {
+    const master = findMasterByUserId(user.id); // роль master + принадлежность своему расписанию
+    if (master && appointment.master_id === master.id) return;
+  }
+  throw forbidden('Это не ваша запись');
+}
+
+// Изменение (перенос/отмена) — только владелец-клиент или админ. Мастер,
+// в отличие от чтения выше, сюда намеренно не допущен: требование 4
+// говорит, что мастер "видит" записи своего расписания, но не даёт ему
+// права их менять — расширять это молча, без отдельного запроса, не стали.
+function assertCanModifyAppointment(user, appointment) {
+  if (user.roles.includes('admin')) return;
+  if (user.roles.includes('client') && appointment.client_id === user.id) return;
+  throw forbidden('Это не ваша запись');
 }
 
 export function registerRoutes(router) {
@@ -77,11 +100,14 @@ export function registerRoutes(router) {
     const id = requireInt(ctx.params.id, 'id', { min: 1 });
     const appointment = findAppointmentById(id);
     if (!appointment) throw notFound('Запись не найдена');
-    assertOwnerOrAdmin(user, appointment);
+    assertCanAccessAppointment(user, appointment);
     const salon = getSalonProfile();
+    // includeClient — и админу, и мастеру: обоим нужно знать, кто придёт
+    // и по какому поводу; обычному клиенту (это его собственная запись) — нет.
+    const includeClient = user.roles.includes('admin') || user.roles.includes('master');
     return {
       status: 200,
-      body: toAppointmentView(appointment, { timezone: salon.timezone, includeClient: user.role === 'admin' }),
+      body: toAppointmentView(appointment, { timezone: salon.timezone, includeClient }),
     };
   });
 
@@ -90,12 +116,12 @@ export function registerRoutes(router) {
     const id = requireInt(ctx.params.id, 'id', { min: 1 });
     const existing = findAppointmentById(id);
     if (!existing) throw notFound('Запись не найдена');
-    assertOwnerOrAdmin(user, existing);
+    assertCanModifyAppointment(user, existing);
 
     const body = ctx.body;
     const newStartUtc = requireUtcDateTime(body.startDatetime, 'startDatetime');
     const newMasterId = body.masterId !== undefined ? requireInt(body.masterId, 'masterId', { min: 1 }) : undefined;
-    if (newMasterId !== undefined && user.role !== 'admin') {
+    if (newMasterId !== undefined && !user.roles.includes('admin')) {
       throw badRequest('Смену мастера при переносе может выполнить только администратор');
     }
 
@@ -109,7 +135,7 @@ export function registerRoutes(router) {
     const id = requireInt(ctx.params.id, 'id', { min: 1 });
     const existing = findAppointmentById(id);
     if (!existing) throw notFound('Запись не найдена');
-    assertOwnerOrAdmin(user, existing);
+    assertCanModifyAppointment(user, existing);
 
     const appointment = cancelAppointment({ appointmentId: id });
     const salon = getSalonProfile();

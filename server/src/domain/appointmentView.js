@@ -4,7 +4,7 @@
 
 import { toIsoUtc, formatLocalIso } from '../time/salonClock.js';
 import { findMasterById, toPublicMaster } from '../db/repositories/masters.js';
-import { findUserById, toPublicUser } from '../db/repositories/users.js';
+import { findUserWithRolesById, toPublicUser } from '../db/repositories/users.js';
 import { listAppointmentServices } from '../db/repositories/appointments.js';
 
 function sqlToDate(sqlText) {
@@ -55,7 +55,7 @@ export function toAppointmentView(appointment, { timezone, includeClient = false
     view.holdToken = appointment.hold_token;
   }
   if (includeClient) {
-    const client = appointment.client_id ? findUserById(appointment.client_id) : null;
+    const client = appointment.client_id ? findUserWithRolesById(appointment.client_id) : null;
     view.client = client ? toPublicUser(client) : null;
   }
 

@@ -9,6 +9,7 @@ import { requestListener } from './app.js';
 import { env } from './config/env.js';
 import { releaseExpiredHolds } from './domain/holdExpiry.js';
 import { completePastAppointments } from './domain/completionSweep.js';
+import { sweepExpiredBuckets } from './middleware/rateLimit.js';
 
 const server = http.createServer((req, res) => {
   requestListener(req, res).catch((err) => {
@@ -41,6 +42,11 @@ const sweepTimer = setInterval(() => {
     completePastAppointments();
   } catch (err) {
     console.error('[index] ошибка фоновой зачистки завершённых визитов:', err);
+  }
+  try {
+    sweepExpiredBuckets();
+  } catch (err) {
+    console.error('[index] ошибка зачистки счётчиков ограничения частоты запросов:', err);
   }
 }, SWEEP_INTERVAL_MS);
 sweepTimer.unref(); // не должен держать процесс живым сам по себе

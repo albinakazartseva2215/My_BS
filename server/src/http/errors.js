@@ -17,3 +17,4 @@ export const unauthorized = (message = 'Требуется вход в акка�
 export const forbidden = (message = 'Недостаточно прав') => new ApiError(403, 'forbidden', message);
 export const notFound = (message = 'Не найдено') => new ApiError(404, 'not_found', message);
 export const conflict = (message, details) => new ApiError(409, 'conflict', message, details);
+export const tooManyRequests = (message, details) => new ApiError(429, 'too_many_requests', message, details);

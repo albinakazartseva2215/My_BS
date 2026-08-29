@@ -15,6 +15,7 @@ import { registerRoutes as registerCatalogRoutes } from './routes/catalog.routes
 import { registerRoutes as registerAvailabilityRoutes } from './routes/availability.routes.js';
 import { registerRoutes as registerHoldsRoutes } from './routes/holds.routes.js';
 import { registerRoutes as registerAppointmentsRoutes } from './routes/appointments.routes.js';
+import { registerRoutes as registerMasterRoutes } from './routes/master.routes.js';
 import { registerRoutes as registerAdminRoutes } from './routes/admin.routes.js';
 
 const router = new Router();
@@ -23,6 +24,7 @@ registerCatalogRoutes(router);
 registerAvailabilityRoutes(router);
 registerHoldsRoutes(router);
 registerAppointmentsRoutes(router);
+registerMasterRoutes(router);
 registerAdminRoutes(router);
 
 export async function requestListener(req, res) {

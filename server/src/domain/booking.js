@@ -27,7 +27,6 @@
 
 import crypto from 'node:crypto';
 import db from '../db/connection.js';
-import { env } from '../config/env.js';
 import { badRequest, conflict, notFound } from '../http/errors.js';
 import { dateToSql, toIsoUtc, formatLocalIso, utcToLocalParts } from '../time/salonClock.js';
 import { findMasterById, masterCanPerformAllServices } from '../db/repositories/masters.js';
@@ -157,9 +156,13 @@ function runOverlapProtectedInsert(insertFn, conflictContext) {
 //   - анонимное/клиентское удержание слота, шаг 3 прототипа (routes/holds.routes.js);
 //   - прямое бронирование клиентом без удержания (routes/appointments.routes.js);
 //   - бронирование администратором, включая осознанное наложение (routes/admin.routes.js).
-// "Мастер" в этом списке не участвует — по документу схемы (docs/db-schema.md,
-// 3.6) мастера не логинятся и записей сами не создают, роли "мастер" в
-// users.role не существует.
+// "Мастер" в этом списке не участвует, хотя с docs/db-schema.md, раздел
+// 3.2/3.6 роль 'master' в системе теперь есть (пользователь с ролью
+// master может быть привязан к профилю в masters) — но эта роль даёт
+// только право ВИДЕТЬ записи своего расписания (routes/appointments.routes.js,
+// assertCanAccessAppointment), не создавать их. Создание записи мастером
+// от себя ли, от лица клиента — отдельная функция, которую никто не
+// запрашивал; расширять список ролей здесь молча не стали.
 //
 // Роль и то, какие поля ей доступны, определяются ДО вызова — в routes/*:
 // какой status передать, разрешено ли передать overlapOverride и т.п. Сама
@@ -199,7 +202,11 @@ export function createAppointment({
   if (!check.ok) throw slotCheckToApiError(check.reason, conflictContext);
 
   const holdToken = status === 'hold' ? randomHoldToken() : null;
-  const holdExpiresAt = status === 'hold' ? new Date(now.getTime() + env.holdDurationMinutes * 60_000) : null;
+  // Длительность удержания — продуктовая настройка в salon_profile
+  // (docs/db-schema.md, раздел 3.1а), не .env: администратор салона
+  // должен мочь её поменять тем же способом, что и booking_step_minutes.
+  const holdExpiresAt =
+    status === 'hold' ? new Date(now.getTime() + salon.hold_duration_minutes * 60_000) : null;
   const nowSql = dateToSql(now);
 
   // Внутри транзакции сам INSERT — без повторной ручной проверки в JS:

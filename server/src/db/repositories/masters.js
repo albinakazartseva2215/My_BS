@@ -12,6 +12,13 @@ export function findMasterById(id) {
   return db.prepare('SELECT * FROM masters WHERE id = ?').get(id);
 }
 
+// Профиль мастера, привязанный к учётной записи с ролью 'master' — по
+// этой связи маршрут "мои записи как мастер" узнаёт, чьё расписание
+// показывать (docs/db-schema.md, раздел 3.6, поле user_id).
+export function findMasterByUserId(userId) {
+  return db.prepare('SELECT * FROM masters WHERE user_id = ?').get(userId);
+}
+
 // Мастера, которые могут выполнить ВСЕ переданные услуги за один визит
 // (Booking · 2 — пересечение master_services по нескольким выбранным услугам).
 export function listActiveMastersForServiceIds(serviceIds) {
@@ -62,6 +69,7 @@ export function updateMaster(id, fields, now) {
     ['reviewsCount', 'reviews_count'],
     ['photoUrl', 'photo_url'],
     ['isActive', 'is_active'],
+    ['userId', 'user_id'],
   ]) {
     if (fields[key] === undefined) continue;
     columns.push(`${column} = ?`);
@@ -182,6 +190,9 @@ export function toAdminMaster(row) {
   return {
     ...toPublicMaster(row),
     isActive: row.is_active === 1,
+    // userId — только в админском виде: публичный каталог мастеров не
+    // должен раскрывать, привязан ли (и к какому id) аккаунт пользователя.
+    userId: row.user_id,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   };
