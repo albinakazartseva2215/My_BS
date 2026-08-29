@@ -1,0 +1,32 @@
+# Нормализация окончаний строк: весь текстовый контент хранится в
+# репозитории с LF, независимо от того, как настроен core.autocrlf у
+# того, кто коммитит (сейчас true на этой машине — репозиторий и так уже
+# хранит текстовые файлы с LF, эта строка просто делает это правило явным
+# и обязательным для всех, а не зависящим от локальной настройки git).
+* text=auto eol=lf
+
+# Офисные и растровые форматы — бинарные: построчная нормализация испортит
+# их, а текстовый дифф на них бессмыслен.
+*.docx binary
+*.xlsx binary
+*.pdf binary
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.webp binary
+*.ico binary
+*.woff binary
+*.woff2 binary
+*.ttf binary
+*.eot binary
+
+# Файл превью Claude Design без расширения (WebP) — Full style guide DC/.thumbnail
+.thumbnail binary
+
+# Файлы SQLite и так исключены .gitignore (server/data/) — на случай,
+# если где-то ещё окажется .sqlite-файл, не диффить его как текст.
+*.sqlite binary
+*.sqlite-wal binary
+*.sqlite-shm binary
+*.db binary
