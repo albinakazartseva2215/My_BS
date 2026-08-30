@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>Вход — Тон</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<header class="site-nav">
+  <a href="index.html">Главная</a>
+  <a href="register.html">Регистрация</a>
+  <a href="login.html">Вход</a>
+  <a href="catalog.html">Услуги и мастера</a>
+  <a href="availability.html">Свободное время</a>
+  <a href="booking.html">Создать запись</a>
+  <a href="account.html">Личный кабинет</a>
+  <a href="admin.html">Админ-панель</a>
+  <span class="spacer"></span>
+  <span id="nav-status">…</span>
+</header>
+
+<h1>Вход</h1>
+<p class="hint">POST /api/auth/login</p>
+
+<div class="info-box">
+  Тестовые аккаунты:
+  <ul>
+    <li>админ — <code>admin@ton-salon.test</code> / <code>AdminDemo123!</code></li>
+    <li>клиент — <code>client@ton-salon.test</code> / <code>ClientDemo123!</code></li>
+    <li>мастер (Анна) — <code>anna.master@ton-salon.test</code> / <code>MasterDemo123!</code></li>
+    <li>мастер+админ (Полина) — <code>polina.masteradmin@ton-salon.test</code> / <code>MasterAdminDemo123!</code></li>
+  </ul>
+</div>
+
+<form id="login-form">
+  <label>E-mail
+    <input type="email" name="email" required maxlength="255">
+  </label>
+  <label>Пароль
+    <input type="password" name="password" required maxlength="200">
+  </label>
+  <label>holdToken <span class="hint">необязательно — привязать анонимное удержание слота к этой сессии</span>
+    <input type="text" name="holdToken" maxlength="100">
+  </label>
+  <button type="submit">Войти</button>
+</form>
+
+<div id="error-box" class="error-box" hidden></div>
+<div id="ok-box" class="ok-box" hidden></div>
+
+<h2>Восстановление пароля</h2>
+<p class="hint">
+  POST /api/auth/password-reset/request и /confirm. В MVP токен сброса возвращается прямо в
+  ответе (нет e-mail/Telegram-интеграции) — см. server/README.md, раздел 6.
+</p>
+<form id="reset-request-form">
+  <label>E-mail
+    <input type="email" name="email" maxlength="255">
+  </label>
+  <button type="submit">Запросить токен сброса</button>
+</form>
+<div id="reset-request-result" class="info-box" hidden></div>
+
+<form id="reset-confirm-form">
+  <label>E-mail
+    <input type="email" name="email" maxlength="255">
+  </label>
+  <label>Токен
+    <input type="text" name="token" maxlength="200">
+  </label>
+  <label>Новый пароль
+    <input type="password" name="newPassword" maxlength="200">
+  </label>
+  <button type="submit">Установить новый пароль</button>
+</form>
+<div id="reset-confirm-error" class="error-box" hidden></div>
+<div id="reset-confirm-ok" class="ok-box" hidden></div>
+
+<script type="module">
+import { apiFetch, showError, showOk } from './js/api.js';
+
+const params = new URLSearchParams(window.location.search);
+
+const loginForm = document.getElementById('login-form');
+const errorBox = document.getElementById('error-box');
+const okBox = document.getElementById('ok-box');
+
+loginForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  showError(errorBox, null);
+  showOk(okBox, null);
+  const fd = new FormData(loginForm);
+  const body = { email: fd.get('email'), password: fd.get('password') };
+  const holdToken = fd.get('holdToken');
+  if (holdToken) body.holdToken = holdToken;
+
+  try {
+    const data = await apiFetch('/auth/login', { method: 'POST', body });
+    showOk(okBox, `Вход выполнен: ${data.user.email}, роли: ${data.user.roles.join(', ')}. holdAttached: ${data.holdAttached}.`);
+    const next = params.get('next');
+    setTimeout(() => { window.location.href = next || 'account.html'; }, 600);
+  } catch (err) {
+    showError(errorBox, err);
+  }
+});
+
+const resetRequestForm = document.getElementById('reset-request-form');
+const resetRequestResult = document.getElementById('reset-request-result');
+resetRequestForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  resetRequestResult.hidden = true;
+  const fd = new FormData(resetRequestForm);
+  try {
+    const data = await apiFetch('/auth/password-reset/request', { method: 'POST', body: { email: fd.get('email') } });
+    let text = data.message;
+    if (data.resetToken) {
+      text += ` Токен (только для теста, в проде ушёл бы на e-mail): ${data.resetToken} — истекает ${data.expiresAt}.`;
+      document.getElementById('reset-confirm-form').email.value = fd.get('email');
+      document.getElementById('reset-confirm-form').token.value = data.resetToken;
+    }
+    resetRequestResult.hidden = false;
+    resetRequestResult.textContent = text;
+  } catch (err) {
+    resetRequestResult.hidden = false;
+    resetRequestResult.className = 'error-box';
+    resetRequestResult.textContent = err.message || String(err);
+  }
+});
+
+const resetConfirmForm = document.getElementById('reset-confirm-form');
+const resetConfirmError = document.getElementById('reset-confirm-error');
+const resetConfirmOk = document.getElementById('reset-confirm-ok');
+resetConfirmForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  showError(resetConfirmError, null);
+  showOk(resetConfirmOk, null);
+  const fd = new FormData(resetConfirmForm);
+  try {
+    const data = await apiFetch('/auth/password-reset/confirm', {
+      method: 'POST',
+      body: { email: fd.get('email'), token: fd.get('token'), newPassword: fd.get('newPassword') },
+    });
+    showOk(resetConfirmOk, data.message);
+    resetConfirmForm.reset();
+  } catch (err) {
+    showError(resetConfirmError, err);
+  }
+});
+</script>
+<script type="module" src="js/nav.js"></script>
+</body>
+</html>

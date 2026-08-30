@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>Регистрация — Тон</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<header class="site-nav">
+  <a href="index.html">Главная</a>
+  <a href="register.html">Регистрация</a>
+  <a href="login.html">Вход</a>
+  <a href="catalog.html">Услуги и мастера</a>
+  <a href="availability.html">Свободное время</a>
+  <a href="booking.html">Создать запись</a>
+  <a href="account.html">Личный кабинет</a>
+  <a href="admin.html">Админ-панель</a>
+  <span class="spacer"></span>
+  <span id="nav-status">…</span>
+</header>
+
+<h1>Регистрация</h1>
+<p class="hint">POST /api/auth/register — регистрация всегда создаёт роль <code>client</code>, другие роли назначает только админ.</p>
+
+<form id="register-form">
+  <label>Имя
+    <input type="text" name="name" required maxlength="200">
+  </label>
+  <label>E-mail
+    <input type="email" name="email" required maxlength="255">
+  </label>
+  <label>Телефон <span class="hint">цифры, +, -, скобки, пробелы</span>
+    <input type="tel" name="phone" required maxlength="32" placeholder="+7 900 123-45-67">
+  </label>
+  <label>Пароль <span class="hint">не короче 8 символов</span>
+    <input type="password" name="password" required minlength="8" maxlength="200">
+  </label>
+  <label>holdToken <span class="hint">необязательно — если до регистрации уже придерживали слот (POST /api/holds), впишите его сюда, чтобы привязать к новому аккаунту</span>
+    <input type="text" name="holdToken" maxlength="100">
+  </label>
+  <button type="submit">Зарегистрироваться</button>
+</form>
+
+<div id="error-box" class="error-box" hidden></div>
+<div id="ok-box" class="ok-box" hidden></div>
+
+<script type="module">
+import { apiFetch, showError, showOk } from './js/api.js';
+
+const form = document.getElementById('register-form');
+const errorBox = document.getElementById('error-box');
+const okBox = document.getElementById('ok-box');
+
+const params = new URLSearchParams(window.location.search);
+if (params.get('holdToken')) form.holdToken.value = params.get('holdToken');
+
+form.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  showError(errorBox, null);
+  showOk(okBox, null);
+
+  const fd = new FormData(form);
+  const body = {
+    name: fd.get('name'),
+    email: fd.get('email'),
+    phone: fd.get('phone'),
+    password: fd.get('password'),
+    // Чекбокс убран из формы по запросу, но API требует termsAccepted: true
+    // (server/src/routes/auth.routes.js) — отправляем его без отдельного поля.
+    termsAccepted: true,
+  };
+  const holdToken = fd.get('holdToken');
+  if (holdToken) body.holdToken = holdToken;
+
+  try {
+    const data = await apiFetch('/auth/register', { method: 'POST', body });
+    showOk(okBox, `Готово, аккаунт создан: ${data.user.email} (id ${data.user.id}). holdAttached: ${data.holdAttached}.`);
+    form.reset();
+    const next = params.get('next');
+    setTimeout(() => { window.location.href = next || 'account.html'; }, 800);
+  } catch (err) {
+    showError(errorBox, err);
+  }
+});
+</script>
+<script type="module" src="js/nav.js"></script>
+</body>
+</html>

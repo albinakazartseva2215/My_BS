@@ -1,0 +1,302 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>Админ-панель — Тон</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<header class="site-nav">
+  <a href="index.html">Главная</a>
+  <a href="register.html">Регистрация</a>
+  <a href="login.html">Вход</a>
+  <a href="catalog.html">Услуги и мастера</a>
+  <a href="availability.html">Свободное время</a>
+  <a href="booking.html">Создать запись</a>
+  <a href="account.html">Личный кабинет</a>
+  <a href="admin.html">Админ-панель</a>
+  <span class="spacer"></span>
+  <span id="nav-status">…</span>
+</header>
+
+<h1>Админ-панель</h1>
+<p class="hint">Все маршруты ниже требуют роль <code>admin</code> — без входа будет 401, без роли — 403 (это тоже нормальный результат теста, просто зайдите под <code>admin@ton-salon.test</code> / <code>AdminDemo123!</code>).</p>
+<div id="auth-warning" class="info-box" hidden></div>
+
+<nav>
+  <a href="#appointments">Все записи</a> ·
+  <a href="#salon">Профиль салона</a> ·
+  <a href="#categories">Категории услуг</a> ·
+  <a href="#services">Услуги</a> ·
+  <a href="#masters">Мастера</a> ·
+  <a href="#users">Пользователи и роли</a>
+</nav>
+
+<!-- ===================== ЗАПИСИ ===================== -->
+<h2 id="appointments">Все записи</h2>
+<p class="hint">GET /api/admin/appointments?status=&amp;masterId=&amp;clientId=&amp;from=&amp;to=</p>
+<form id="appt-filter-form">
+  <label>Статус
+    <select name="status">
+      <option value="">все</option>
+      <option>hold</option><option>confirmed</option><option>completed</option>
+      <option>cancelled</option><option>expired</option>
+    </select>
+  </label>
+  <label>ID мастера <input type="number" name="masterId" min="1"></label>
+  <label>ID клиента <input type="number" name="clientId" min="1"></label>
+  <label>С даты <input type="date" name="from"></label>
+  <label>По дату <input type="date" name="to"></label>
+  <button type="submit">Показать</button>
+</form>
+<div id="appt-error" class="error-box" hidden></div>
+<table id="appt-table">
+  <thead><tr><th>ID</th><th>Статус</th><th>Клиент</th><th>Мастер</th><th>Время</th><th>Сумма</th><th></th></tr></thead>
+  <tbody id="appt-tbody"><tr><td colspan="7">—</td></tr></tbody>
+</table>
+
+<h3>Завершить визит вручную</h3>
+<p class="hint">POST /api/admin/appointments/:id/complete</p>
+<form id="complete-form">
+  <label>ID записи <input type="number" name="id" min="1" required></label>
+  <button type="submit">Завершить</button>
+</form>
+<div id="complete-error" class="error-box" hidden></div>
+<div id="complete-ok" class="ok-box" hidden></div>
+
+<h3>Ручное бронирование администратором</h3>
+<p class="hint">POST /api/admin/appointments — единственный маршрут, где можно осознанно забронировать поверх занятого времени (overlapOverride).</p>
+<form id="admin-create-form">
+  <label>ID клиента <input type="number" name="clientId" min="1" required></label>
+  <label>ID мастера <input type="number" name="masterId" min="1" required></label>
+  <label>ID услуг (через запятую) <input type="text" name="serviceIds" required placeholder="1,2"></label>
+  <label>Начало (UTC ISO) <input type="text" name="startDatetime" required placeholder="2026-09-01T11:00:00Z"></label>
+  <label>Комментарий <textarea name="comment" rows="2" maxlength="200"></textarea></label>
+  <label class="checkbox-line"><input type="checkbox" name="remindEnabled" checked> Напоминание включено</label>
+  <label class="checkbox-line"><input type="checkbox" name="overlapOverride"> Осознанное наложение (overlapOverride)</label>
+  <button type="submit">Создать запись</button>
+</form>
+<div id="admin-create-error" class="error-box" hidden></div>
+<div id="admin-create-ok" class="ok-box" hidden></div>
+
+<!-- ===================== САЛОН ===================== -->
+<h2 id="salon">Профиль салона</h2>
+<p class="hint">GET/PATCH /api/admin/salon-profile</p>
+<div id="salon-error" class="error-box" hidden></div>
+<div id="salon-ok" class="ok-box" hidden></div>
+<form id="salon-form">
+  <label>Название <input type="text" name="name" maxlength="200"></label>
+  <label>Адрес <input type="text" name="address" maxlength="500"></label>
+  <label>Телефон <input type="text" name="phone" maxlength="50"></label>
+  <label>Часы работы (текст) <input type="text" name="workingHoursNote" maxlength="300"></label>
+  <label>Часовой пояс (IANA) <input type="text" name="timezone" maxlength="100" placeholder="Europe/Moscow"></label>
+  <label>Шаг сетки слотов (мин) <input type="number" name="bookingStepMinutes" min="1" max="1440"></label>
+  <label>Горизонт бронирования (дней) <input type="number" name="bookingHorizonDays" min="1"></label>
+  <label>Длительность удержания слота (мин) <input type="number" name="holdDurationMinutes" min="1" max="1440"></label>
+  <button type="submit">Сохранить</button>
+</form>
+
+<!-- ===================== КАТЕГОРИИ ===================== -->
+<h2 id="categories">Категории услуг</h2>
+<p class="hint">GET/POST /api/admin/service-categories, PATCH /api/admin/service-categories/:id</p>
+<div id="cat-error" class="error-box" hidden></div>
+<table id="cat-table">
+  <thead><tr><th>ID</th><th>Название</th><th>Порядок</th></tr></thead>
+  <tbody id="cat-tbody"><tr><td colspan="3">—</td></tr></tbody>
+</table>
+
+<fieldset>
+  <legend>Создать категорию</legend>
+  <form id="cat-create-form">
+    <label>Название <input type="text" name="name" required maxlength="100"></label>
+    <label>Порядок сортировки <input type="number" name="sortOrder" min="0" value="0"></label>
+    <button type="submit">Создать</button>
+  </form>
+  <div id="cat-create-error" class="error-box" hidden></div>
+</fieldset>
+
+<fieldset>
+  <legend>Изменить категорию</legend>
+  <p class="hint">Оставьте поле пустым, чтобы не менять его.</p>
+  <form id="cat-edit-form">
+    <label>ID категории <input type="number" name="id" min="1" required></label>
+    <label>Новое название <input type="text" name="name" maxlength="100"></label>
+    <label>Новый порядок сортировки <input type="number" name="sortOrder" min="0"></label>
+    <button type="submit">Сохранить</button>
+  </form>
+  <div id="cat-edit-error" class="error-box" hidden></div>
+  <div id="cat-edit-ok" class="ok-box" hidden></div>
+</fieldset>
+
+<!-- ===================== УСЛУГИ ===================== -->
+<h2 id="services">Услуги</h2>
+<p class="hint">GET/POST /api/admin/services, PATCH /api/admin/services/:id</p>
+<div id="svc-error" class="error-box" hidden></div>
+<table id="svc-table">
+  <thead><tr><th>ID</th><th>Категория</th><th>Название</th><th>Длительность</th><th>Цена</th><th>Активна</th></tr></thead>
+  <tbody id="svc-tbody"><tr><td colspan="6">—</td></tr></tbody>
+</table>
+
+<fieldset>
+  <legend>Создать услугу</legend>
+  <form id="svc-create-form">
+    <label>ID категории <input type="number" name="categoryId" min="1" required></label>
+    <label>Название <input type="text" name="name" required maxlength="200"></label>
+    <label>Описание <textarea name="description" rows="2" maxlength="2000"></textarea></label>
+    <label>Длительность (мин) <input type="number" name="durationMinutes" min="1" max="1440" required></label>
+    <label>Цена (₽) <input type="number" name="priceRub" min="0" required></label>
+    <label class="checkbox-line"><input type="checkbox" name="isActive" checked> Активна</label>
+    <button type="submit">Создать</button>
+  </form>
+  <div id="svc-create-error" class="error-box" hidden></div>
+</fieldset>
+
+<fieldset>
+  <legend>Изменить услугу</legend>
+  <p class="hint">Оставьте текстовое/числовое поле пустым, чтобы не менять его. "Активность" — выберите "не менять", если не трогаете.</p>
+  <form id="svc-edit-form">
+    <label>ID услуги <input type="number" name="id" min="1" required></label>
+    <label>ID категории <input type="number" name="categoryId" min="1"></label>
+    <label>Название <input type="text" name="name" maxlength="200"></label>
+    <label>Описание <textarea name="description" rows="2" maxlength="2000"></textarea></label>
+    <label>Длительность (мин) <input type="number" name="durationMinutes" min="1" max="1440"></label>
+    <label>Цена (₽) <input type="number" name="priceRub" min="0"></label>
+    <label>Активность
+      <select name="isActive"><option value="">не менять</option><option value="true">да</option><option value="false">нет</option></select>
+    </label>
+    <button type="submit">Сохранить</button>
+  </form>
+  <div id="svc-edit-error" class="error-box" hidden></div>
+  <div id="svc-edit-ok" class="ok-box" hidden></div>
+</fieldset>
+
+<!-- ===================== МАСТЕРА ===================== -->
+<h2 id="masters">Мастера</h2>
+<p class="hint">GET/POST /api/admin/masters, GET/PATCH /api/admin/masters/:id</p>
+<div id="master-error" class="error-box" hidden></div>
+<table id="master-table">
+  <thead><tr><th>ID</th><th>Имя</th><th>Специализация</th><th>Активен</th><th>userId</th><th></th></tr></thead>
+  <tbody id="master-tbody"><tr><td colspan="6">—</td></tr></tbody>
+</table>
+
+<fieldset>
+  <legend>Создать мастера</legend>
+  <form id="master-create-form">
+    <label>Имя <input type="text" name="name" required maxlength="200"></label>
+    <label>Специализация <input type="text" name="specialization" maxlength="300"></label>
+    <label>URL фото <input type="text" name="photoUrl" maxlength="2000"></label>
+    <label class="checkbox-line"><input type="checkbox" name="isActive" checked> Активен</label>
+    <button type="submit">Создать</button>
+  </form>
+  <div id="master-create-error" class="error-box" hidden></div>
+</fieldset>
+
+<fieldset>
+  <legend>Изменить мастера</legend>
+  <p class="hint">Пустое поле = не менять. userId: число — привязать (и выдать роль master), слово <code>null</code> — отвязать.</p>
+  <form id="master-edit-form">
+    <label>ID мастера <input type="number" name="id" min="1" required></label>
+    <label>Имя <input type="text" name="name" maxlength="200"></label>
+    <label>Специализация <input type="text" name="specialization" maxlength="300"></label>
+    <label>URL фото <input type="text" name="photoUrl" maxlength="2000"></label>
+    <label>Активность
+      <select name="isActive"><option value="">не менять</option><option value="true">да</option><option value="false">нет</option></select>
+    </label>
+    <label>userId <input type="text" name="userId" placeholder="число, null, или пусто"></label>
+    <button type="submit">Сохранить</button>
+  </form>
+  <div id="master-edit-error" class="error-box" hidden></div>
+  <div id="master-edit-ok" class="ok-box" hidden></div>
+</fieldset>
+
+<fieldset>
+  <legend>Карточка мастера — услуги, график, исключения, блокировки</legend>
+  <form id="master-load-form">
+    <label>ID мастера <input type="number" name="id" min="1" required></label>
+    <button type="submit">Загрузить</button>
+  </form>
+  <div id="master-detail-error" class="error-box" hidden></div>
+  <div id="master-detail"></div>
+
+  <h3>Набор услуг мастера (полная замена)</h3>
+  <p class="hint">PUT /api/admin/masters/:id/services</p>
+  <form id="master-services-form">
+    <label>ID услуг через запятую (пусто = очистить) <input type="text" name="serviceIds"></label>
+    <button type="submit">Сохранить набор услуг</button>
+  </form>
+  <div id="master-services-error" class="error-box" hidden></div>
+  <div id="master-services-ok" class="ok-box" hidden></div>
+
+  <h3>Недельный график (полная замена)</h3>
+  <p class="hint">PUT /api/admin/masters/:id/schedule — отметьте рабочие дни и впишите время.</p>
+  <table id="schedule-table">
+    <thead><tr><th>Вкл.</th><th>День</th><th>С</th><th>По</th></tr></thead>
+    <tbody id="schedule-tbody"></tbody>
+  </table>
+  <button id="save-schedule-btn" type="button">Сохранить график</button>
+  <div id="schedule-error" class="error-box" hidden></div>
+  <div id="schedule-ok" class="ok-box" hidden></div>
+
+  <h3>Исключения графика (разовый выходной/другие часы)</h3>
+  <p class="hint">POST/DELETE /api/admin/masters/:id/schedule-exceptions</p>
+  <form id="exception-create-form">
+    <label>Дата <input type="date" name="date" required></label>
+    <label class="checkbox-line"><input type="checkbox" name="isDayOff"> Выходной день целиком</label>
+    <label>С (если не выходной) <input type="time" name="startTime"></label>
+    <label>По (если не выходной) <input type="time" name="endTime"></label>
+    <label>Причина <input type="text" name="reason" maxlength="300"></label>
+    <button type="submit">Добавить/заменить исключение на эту дату</button>
+  </form>
+  <div id="exception-error" class="error-box" hidden></div>
+  <form id="exception-delete-form">
+    <label>ID исключения для удаления <input type="number" name="exceptionId" min="1" required></label>
+    <button type="submit">Удалить исключение</button>
+  </form>
+
+  <h3>Ручные блокировки времени</h3>
+  <p class="hint">GET/POST/DELETE /api/admin/masters/:id/time-blocks</p>
+  <button id="load-blocks-btn" type="button">Показать все блокировки мастера</button>
+  <table id="blocks-table">
+    <thead><tr><th>ID</th><th>С</th><th>По</th><th>Причина</th></tr></thead>
+    <tbody id="blocks-tbody"><tr><td colspan="4">—</td></tr></tbody>
+  </table>
+  <form id="block-create-form">
+    <label>Начало (UTC ISO) <input type="text" name="startDatetime" required placeholder="2026-09-01T12:00:00Z"></label>
+    <label>Конец (UTC ISO) <input type="text" name="endDatetime" required placeholder="2026-09-01T13:00:00Z"></label>
+    <label>Причина <input type="text" name="reason" maxlength="300"></label>
+    <button type="submit">Добавить блокировку</button>
+  </form>
+  <div id="block-error" class="error-box" hidden></div>
+  <form id="block-delete-form">
+    <label>ID блокировки для удаления <input type="number" name="blockId" min="1" required></label>
+    <button type="submit">Удалить блокировку</button>
+  </form>
+</fieldset>
+
+<!-- ===================== ПОЛЬЗОВАТЕЛИ ===================== -->
+<h2 id="users">Пользователи и роли</h2>
+<p class="hint">GET /api/admin/users/:id, POST/DELETE /api/admin/users/:id/roles — назначаемые роли: admin, master (client выдаётся только при регистрации).</p>
+<form id="user-lookup-form">
+  <label>ID пользователя <input type="number" name="id" min="1" required></label>
+  <button type="submit">Показать</button>
+</form>
+<div id="user-error" class="error-box" hidden></div>
+<div id="user-detail"></div>
+
+<form id="role-grant-form">
+  <label>ID пользователя <input type="number" name="id" min="1" required></label>
+  <label>Роль <select name="role"><option value="admin">admin</option><option value="master">master</option></select></label>
+  <button type="submit">Выдать роль</button>
+</form>
+<form id="role-revoke-form">
+  <label>ID пользователя <input type="number" name="id" min="1" required></label>
+  <label>Роль <select name="role"><option value="admin">admin</option><option value="master">master</option></select></label>
+  <button type="submit">Отозвать роль</button>
+</form>
+<div id="role-error" class="error-box" hidden></div>
+<div id="role-ok" class="ok-box" hidden></div>
+
+<script type="module" src="js/admin.js"></script>
+<script type="module" src="js/nav.js"></script>
+</body>
+</html>

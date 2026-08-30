@@ -1,0 +1,11 @@
+{
+  "name": "booking-service-frontend-draft",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Черновой тестовый фронтенд поверх готового API (server/). Без сборки и фреймворков — статика + прокси на /api.",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {}
+}

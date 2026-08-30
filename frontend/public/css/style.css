@@ -1,0 +1,141 @@
+/* Минимум стилей — задача интерфейса проверить API, не показать дизайн. */
+
+* { box-sizing: border-box; }
+
+body {
+  font-family: system-ui, Arial, sans-serif;
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 0 16px 48px;
+  line-height: 1.4;
+  color: #111;
+}
+
+header.site-nav {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 16px;
+  padding: 12px 0;
+  border-bottom: 2px solid #333;
+  margin-bottom: 20px;
+}
+
+header.site-nav a { margin-right: 4px; }
+header.site-nav .spacer { flex: 1; }
+header.site-nav #nav-status { font-size: 14px; color: #333; }
+
+h1 { font-size: 22px; margin-top: 0; }
+h2 { font-size: 18px; border-top: 1px solid #ccc; padding-top: 20px; margin-top: 28px; }
+h3 { font-size: 15px; margin-bottom: 6px; }
+
+section { margin-bottom: 24px; }
+
+fieldset {
+  border: 1px solid #999;
+  padding: 12px;
+  margin-bottom: 12px;
+}
+legend { font-weight: bold; padding: 0 4px; }
+
+label { display: block; margin-top: 8px; font-size: 14px; }
+label span.hint { color: #666; font-weight: normal; font-size: 12px; }
+
+input[type=text], input[type=email], input[type=password], input[type=number],
+input[type=date], input[type=datetime-local], input[type=tel], input[type=time],
+select, textarea {
+  display: block;
+  width: 100%;
+  max-width: 420px;
+  padding: 6px 8px;
+  margin-top: 2px;
+  font-size: 14px;
+  border: 1px solid #888;
+}
+textarea { max-width: 600px; }
+
+label.checkbox-line {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+label.checkbox-line input { width: auto; margin: 0; }
+
+button, input[type=submit] {
+  cursor: pointer;
+  padding: 6px 14px;
+  margin-top: 10px;
+  font-size: 14px;
+  border: 1px solid #333;
+  background: #eee;
+}
+button:hover, input[type=submit]:hover { background: #ddd; }
+button.danger { border-color: #900; color: #900; }
+button.small { padding: 2px 8px; margin-top: 0; font-size: 12px; }
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 8px 0 16px;
+  font-size: 14px;
+}
+th, td {
+  border: 1px solid #ccc;
+  padding: 6px 8px;
+  text-align: left;
+  vertical-align: top;
+}
+th { background: #f2f2f2; }
+
+.error-box {
+  background: #ffe9e9;
+  border: 1px solid #c00;
+  color: #900;
+  padding: 8px 12px;
+  margin: 10px 0;
+  white-space: pre-wrap;
+}
+.error-box[hidden] { display: none; }
+
+.ok-box {
+  background: #e8f7e8;
+  border: 1px solid #2a2;
+  color: #163;
+  padding: 8px 12px;
+  margin: 10px 0;
+  white-space: pre-wrap;
+}
+.ok-box[hidden] { display: none; }
+
+.info-box {
+  background: #eef3fb;
+  border: 1px solid #567;
+  padding: 8px 12px;
+  margin: 10px 0;
+  font-size: 14px;
+}
+
+.slots {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 10px 0;
+}
+.slots button { margin-top: 0; }
+
+.hint { color: #666; font-size: 12px; }
+.status-badge {
+  display: inline-block;
+  padding: 1px 6px;
+  border-radius: 3px;
+  font-size: 12px;
+  border: 1px solid #999;
+  background: #f0f0f0;
+}
+.status-hold { background: #fff3cd; border-color: #cc9; }
+.status-confirmed { background: #d8f0d8; border-color: #6a6; }
+.status-completed { background: #dde; border-color: #669; }
+.status-cancelled { background: #eee; border-color: #999; color: #777; }
+.status-expired { background: #eee; border-color: #999; color: #777; }
+
+code { background: #f0f0f0; padding: 1px 4px; }

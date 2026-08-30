@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>Тон — тестовый фронтенд</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<header class="site-nav">
+  <a href="index.html">Главная</a>
+  <a href="register.html">Регистрация</a>
+  <a href="login.html">Вход</a>
+  <a href="catalog.html">Услуги и мастера</a>
+  <a href="availability.html">Свободное время</a>
+  <a href="booking.html">Создать запись</a>
+  <a href="account.html">Личный кабинет</a>
+  <a href="admin.html">Админ-панель</a>
+  <span class="spacer"></span>
+  <span id="nav-status">…</span>
+</header>
+
+<h1>Тон — черновой тестовый фронтенд</h1>
+<p>
+  Простой интерфейс поверх готового API сервиса записи (<code>server/</code>).
+  Без дизайна — задача только проверить, что API работает: обычные формы,
+  списки и кнопки. Ошибки API показываются текстом прямо на странице.
+</p>
+
+<h2>Как пользоваться</h2>
+<ol>
+  <li>Зарегистрируйтесь или войдите (<a href="register.html">регистрация</a> / <a href="login.html">вход</a>).</li>
+  <li>Посмотрите <a href="catalog.html">услуги и мастеров</a>, выберите услуги и мастера.</li>
+  <li>Посмотрите <a href="availability.html">свободное время</a> выбранного мастера на дату.</li>
+  <li><a href="booking.html">Создайте запись</a> на выбранный слот.</li>
+  <li>В <a href="account.html">личном кабинете</a> — список своих записей, перенос, отмена.</li>
+  <li><a href="admin.html">Админ-панель</a> — все записи, управление услугами/мастерами (нужна роль <code>admin</code>).</li>
+</ol>
+
+<div class="info-box">
+  Тестовые аккаунты (заведены <code>npm run seed</code> в <code>server/</code>):
+  <ul>
+    <li>админ — <code>admin@ton-salon.test</code> / <code>AdminDemo123!</code></li>
+    <li>клиент — <code>client@ton-salon.test</code> / <code>ClientDemo123!</code></li>
+    <li>мастер (Анна) — <code>anna.master@ton-salon.test</code> / <code>MasterDemo123!</code></li>
+    <li>мастер+админ (Полина) — <code>polina.masteradmin@ton-salon.test</code> / <code>MasterAdminDemo123!</code></li>
+  </ul>
+</div>
+
+<script type="module" src="js/nav.js"></script>
+</body>
+</html>

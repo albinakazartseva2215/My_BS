@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>Личный кабинет — Тон</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<header class="site-nav">
+  <a href="index.html">Главная</a>
+  <a href="register.html">Регистрация</a>
+  <a href="login.html">Вход</a>
+  <a href="catalog.html">Услуги и мастера</a>
+  <a href="availability.html">Свободное время</a>
+  <a href="booking.html">Создать запись</a>
+  <a href="account.html">Личный кабинет</a>
+  <a href="admin.html">Админ-панель</a>
+  <span class="spacer"></span>
+  <span id="nav-status">…</span>
+</header>
+
+<h1>Личный кабинет</h1>
+<div id="auth-warning" class="info-box" hidden></div>
+
+<h2>Мои записи</h2>
+<p class="hint">GET /api/appointments?status=...</p>
+<label>Фильтр по статусу
+  <select id="status-filter">
+    <option value="">все</option>
+    <option value="hold">hold</option>
+    <option value="confirmed">confirmed</option>
+    <option value="completed">completed</option>
+    <option value="cancelled">cancelled</option>
+    <option value="expired">expired</option>
+  </select>
+</label>
+<div id="list-error" class="error-box" hidden></div>
+<table id="list-table">
+  <thead><tr><th>ID</th><th>Статус</th><th>Мастер</th><th>Время</th><th>Сумма</th><th></th></tr></thead>
+  <tbody id="list-tbody"><tr><td colspan="6">Загрузка…</td></tr></tbody>
+</table>
+
+<h2>Открыть запись по ID</h2>
+<p class="hint">GET /api/appointments/:id — полезно, если ID известен заранее (например, из админ-панели).</p>
+<form id="lookup-form">
+  <label>ID записи
+    <input type="number" name="id" min="1" required>
+  </label>
+  <button type="submit">Открыть</button>
+</form>
+
+<h2>Детали записи</h2>
+<div id="detail-error" class="error-box" hidden></div>
+<div id="detail-ok" class="ok-box" hidden></div>
+<div id="detail" class="hint">Запись не выбрана.</div>
+
+<div id="detail-actions" hidden>
+  <h3>Перенести запись</h3>
+  <p class="hint">PATCH /api/appointments/:id/reschedule — смену мастера может выполнить только администратор.</p>
+  <form id="reschedule-form">
+    <label>Новое начало (UTC, ISO) <span class="hint">например 2026-09-02T10:00:00Z</span>
+      <input type="text" name="startDatetime" required placeholder="2026-09-02T10:00:00Z">
+    </label>
+    <label>Новый ID мастера <span class="hint">оставьте пустым, если не меняете; менять может только admin</span>
+      <input type="number" name="masterId" min="1">
+    </label>
+    <button type="submit">Перенести</button>
+  </form>
+
+  <h3>Отменить запись</h3>
+  <p class="hint">POST /api/appointments/:id/cancel</p>
+  <button id="cancel-btn" type="button" class="danger">Отменить запись</button>
+</div>
+
+<script type="module">
+import { apiFetch, showError, showOk } from './js/api.js';
+
+const authWarning = document.getElementById('auth-warning');
+const statusFilter = document.getElementById('status-filter');
+const listError = document.getElementById('list-error');
+const listTbody = document.getElementById('list-tbody');
+const lookupForm = document.getElementById('lookup-form');
+const detailError = document.getElementById('detail-error');
+const detailOk = document.getElementById('detail-ok');
+const detailEl = document.getElementById('detail');
+const detailActions = document.getElementById('detail-actions');
+const rescheduleForm = document.getElementById('reschedule-form');
+const cancelBtn = document.getElementById('cancel-btn');
+
+let currentId = null;
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+
+async function checkAuth() {
+  try {
+    await apiFetch('/auth/me');
+    authWarning.hidden = true;
+    return true;
+  } catch {
+    authWarning.hidden = false;
+    authWarning.innerHTML = `Вы не вошли — список и детали записей недоступны (401). <a href="login.html?next=account.html">Войти</a>`;
+    return false;
+  }
+}
+
+async function loadList() {
+  const status = statusFilter.value;
+  try {
+    const data = await apiFetch('/appointments' + (status ? `?status=${status}` : ''));
+    showError(listError, null);
+    if (data.appointments.length === 0) {
+      listTbody.innerHTML = '<tr><td colspan="6">Записей нет</td></tr>';
+      return;
+    }
+    listTbody.innerHTML = data.appointments.map((a) => `
+      <tr>
+        <td>${a.id}</td>
+        <td><span class="status-badge status-${a.status}">${a.status}</span></td>
+        <td>${escapeHtml(a.master?.name ?? '—')}</td>
+        <td>${a.startLocal}</td>
+        <td>${a.totalPriceRub} ₽</td>
+        <td><button type="button" class="small" data-open="${a.id}">Подробнее</button></td>
+      </tr>
+    `).join('');
+    listTbody.querySelectorAll('[data-open]').forEach((btn) => {
+      btn.addEventListener('click', () => loadDetail(Number(btn.dataset.open)));
+    });
+  } catch (err) {
+    showError(listError, err);
+    listTbody.innerHTML = '<tr><td colspan="6">—</td></tr>';
+  }
+}
+
+async function loadDetail(id) {
+  currentId = id;
+  history.replaceState(null, '', `account.html?id=${id}`);
+  showError(detailError, null);
+  showOk(detailOk, null);
+  detailEl.textContent = 'Загрузка…';
+  detailActions.hidden = true;
+  try {
+    const a = await apiFetch(`/appointments/${id}`);
+    detailEl.innerHTML = `
+      <table>
+        <tr><th>ID</th><td>${a.id}</td></tr>
+        <tr><th>Статус</th><td><span class="status-badge status-${a.status}">${a.status}</span></td></tr>
+        <tr><th>Мастер</th><td>${escapeHtml(a.master?.name ?? '—')} (id ${a.master?.id ?? '—'})</td></tr>
+        <tr><th>Время (местное)</th><td>${a.startLocal} — ${a.endLocal}</td></tr>
+        <tr><th>Время (UTC)</th><td>${a.startUtc} — ${a.endUtc}</td></tr>
+        <tr><th>Услуги</th><td>${a.services.map((s) => `${escapeHtml(s.name)} (${s.priceRub} ₽, ${s.durationMinutes} мин)`).join('<br>')}</td></tr>
+        <tr><th>Сумма</th><td>${a.totalPriceRub} ₽, ${a.totalDurationMinutes} мин</td></tr>
+        <tr><th>Комментарий</th><td>${escapeHtml(a.comment || '—')}</td></tr>
+        <tr><th>Напоминание</th><td>${a.remindEnabled ? 'включено' : 'выключено'}</td></tr>
+        <tr><th>Осознанное наложение</th><td>${a.overlapOverride ? 'да' : 'нет'}</td></tr>
+        ${a.holdExpiresAt ? `<tr><th>Удержание истекает</th><td>${a.holdExpiresAt}</td></tr>` : ''}
+        ${a.client ? `<tr><th>Клиент</th><td>${escapeHtml(a.client.name)}, ${escapeHtml(a.client.email)}, ${escapeHtml(a.client.phone)}</td></tr>` : ''}
+        <tr><th>Создана</th><td>${a.createdAt}</td></tr>
+        ${a.cancelledAt ? `<tr><th>Отменена</th><td>${a.cancelledAt}</td></tr>` : ''}
+      </table>
+    `;
+    rescheduleForm.startDatetime.value = '';
+    rescheduleForm.masterId.value = '';
+    detailActions.hidden = false;
+  } catch (err) {
+    detailEl.textContent = '';
+    showError(detailError, err);
+    detailActions.hidden = true;
+  }
+}
+
+statusFilter.addEventListener('change', loadList);
+
+lookupForm.addEventListener('submit', (e) => {
+  e.preventDefault();
+  const id = Number(new FormData(lookupForm).get('id'));
+  loadDetail(id);
+});
+
+rescheduleForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  showError(detailError, null);
+  showOk(detailOk, null);
+  if (currentId === null) return;
+  const fd = new FormData(rescheduleForm);
+  const body = { startDatetime: fd.get('startDatetime') };
+  if (fd.get('masterId')) body.masterId = Number(fd.get('masterId'));
+  try {
+    await apiFetch(`/appointments/${currentId}/reschedule`, { method: 'PATCH', body });
+    await loadDetail(currentId);
+    showOk(detailOk, 'Запись перенесена.');
+    await loadList();
+  } catch (err) {
+    showError(detailError, err);
+  }
+});
+
+cancelBtn.addEventListener('click', async () => {
+  if (currentId === null) return;
+  if (!window.confirm(`Точно отменить запись №${currentId}?`)) return;
+  showError(detailError, null);
+  showOk(detailOk, null);
+  try {
+    await apiFetch(`/appointments/${currentId}/cancel`, { method: 'POST' });
+    await loadDetail(currentId);
+    showOk(detailOk, 'Запись отменена.');
+    await loadList();
+  } catch (err) {
+    showError(detailError, err);
+  }
+});
+
+(async () => {
+  const ok = await checkAuth();
+  if (!ok) {
+    listTbody.innerHTML = '<tr><td colspan="6">—</td></tr>';
+    return;
+  }
+  await loadList();
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('id')) {
+    lookupForm.id.value = params.get('id');
+    loadDetail(Number(params.get('id')));
+  }
+})();
+</script>
+<script type="module" src="js/nav.js"></script>
+</body>
+</html>

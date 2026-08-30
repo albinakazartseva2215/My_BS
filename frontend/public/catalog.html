@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>Услуги и мастера — Тон</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<header class="site-nav">
+  <a href="index.html">Главная</a>
+  <a href="register.html">Регистрация</a>
+  <a href="login.html">Вход</a>
+  <a href="catalog.html">Услуги и мастера</a>
+  <a href="availability.html">Свободное время</a>
+  <a href="booking.html">Создать запись</a>
+  <a href="account.html">Личный кабинет</a>
+  <a href="admin.html">Админ-панель</a>
+  <span class="spacer"></span>
+  <span id="nav-status">…</span>
+</header>
+
+<h1>Услуги и мастера</h1>
+
+<h2>Услуги</h2>
+<p class="hint">GET /api/services</p>
+<div id="services-error" class="error-box" hidden></div>
+<form id="services-form">
+  <table id="services-table">
+    <thead><tr><th></th><th>Категория</th><th>Название</th><th>Длительность</th><th>Цена</th></tr></thead>
+    <tbody id="services-tbody"><tr><td colspan="5">Загрузка…</td></tr></tbody>
+  </table>
+  <button type="submit">Показать мастеров, выполняющих ВСЕ выбранные услуги</button>
+</form>
+
+<h2>Мастера</h2>
+<p class="hint">GET /api/masters (с ?serviceIds=... или без — все активные)</p>
+<div id="masters-error" class="error-box" hidden></div>
+<table id="masters-table">
+  <thead><tr><th>ID</th><th>Имя</th><th>Специализация</th><th>Рейтинг</th><th>Отзывов</th><th></th></tr></thead>
+  <tbody id="masters-tbody"><tr><td colspan="6">Загрузка…</td></tr></tbody>
+</table>
+<button id="show-all-masters" type="button">Показать всех активных мастеров</button>
+
+<script type="module">
+import { apiFetch, showError } from './js/api.js';
+
+const servicesError = document.getElementById('services-error');
+const mastersError = document.getElementById('masters-error');
+const servicesTbody = document.getElementById('services-tbody');
+const mastersTbody = document.getElementById('masters-tbody');
+
+async function loadServices() {
+  try {
+    const data = await apiFetch('/services');
+    showError(servicesError, null);
+    if (data.services.length === 0) {
+      servicesTbody.innerHTML = '<tr><td colspan="5">Услуг нет</td></tr>';
+      return;
+    }
+    servicesTbody.innerHTML = data.services.map((s) => `
+      <tr>
+        <td><input type="checkbox" name="serviceId" value="${s.id}"></td>
+        <td>${escapeHtml(s.categoryName)}</td>
+        <td>${escapeHtml(s.name)} <span class="hint">#${s.id}</span></td>
+        <td>${s.durationMinutes} мин</td>
+        <td>${s.priceRub} ₽</td>
+      </tr>
+    `).join('');
+  } catch (err) {
+    showError(servicesError, err);
+    servicesTbody.innerHTML = '<tr><td colspan="5">—</td></tr>';
+  }
+}
+
+function renderMasters(masters) {
+  if (masters.length === 0) {
+    mastersTbody.innerHTML = '<tr><td colspan="6">Мастеров, подходящих под условие, нет</td></tr>';
+    return;
+  }
+  mastersTbody.innerHTML = masters.map((m) => `
+    <tr>
+      <td>${m.id}</td>
+      <td>${escapeHtml(m.name)}</td>
+      <td>${escapeHtml(m.specialization || '—')}</td>
+      <td>${m.ratingAvg ?? '—'}</td>
+      <td>${m.reviewsCount}</td>
+      <td><a href="availability.html?masterId=${m.id}${currentServiceIdsQuery()}">Свободное время →</a></td>
+    </tr>
+  `).join('');
+}
+
+function currentServiceIdsQuery() {
+  const ids = getCheckedServiceIds();
+  return ids.length ? `&serviceIds=${ids.join(',')}` : '';
+}
+
+function getCheckedServiceIds() {
+  return [...document.querySelectorAll('input[name=serviceId]:checked')].map((el) => Number(el.value));
+}
+
+async function loadMasters(serviceIds) {
+  try {
+    const qs = serviceIds && serviceIds.length ? `?serviceIds=${serviceIds.join(',')}` : '';
+    const data = await apiFetch('/masters' + qs);
+    showError(mastersError, null);
+    renderMasters(data.masters);
+  } catch (err) {
+    showError(mastersError, err);
+    mastersTbody.innerHTML = '<tr><td colspan="6">—</td></tr>';
+  }
+}
+
+document.getElementById('services-form').addEventListener('submit', (e) => {
+  e.preventDefault();
+  const ids = getCheckedServiceIds();
+  if (ids.length === 0) {
+    showError(mastersError, { message: 'Отметьте хотя бы одну услугу, иначе используйте кнопку "Показать всех активных мастеров" ниже.' });
+    return;
+  }
+  loadMasters(ids);
+});
+
+document.getElementById('show-all-masters').addEventListener('click', () => loadMasters([]));
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+
+loadServices();
+loadMasters([]);
+</script>
+<script type="module" src="js/nav.js"></script>
+</body>
+</html>

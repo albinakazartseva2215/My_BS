@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>Создание записи — Тон</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<header class="site-nav">
+  <a href="index.html">Главная</a>
+  <a href="register.html">Регистрация</a>
+  <a href="login.html">Вход</a>
+  <a href="catalog.html">Услуги и мастера</a>
+  <a href="availability.html">Свободное время</a>
+  <a href="booking.html">Создать запись</a>
+  <a href="account.html">Личный кабинет</a>
+  <a href="admin.html">Админ-панель</a>
+  <span class="spacer"></span>
+  <span id="nav-status">…</span>
+</header>
+
+<h1>Создание записи</h1>
+<p class="hint">POST /api/appointments — требует входа. masterId/serviceIds/startDatetime обычно приходят с предыдущего шага (availability.html), но их можно вписать и вручную.</p>
+
+<div id="auth-warning" class="info-box" hidden></div>
+
+<form id="booking-form">
+  <label>ID мастера
+    <input type="number" name="masterId" min="1" required>
+  </label>
+  <label>ID услуг <span class="hint">через запятую</span>
+    <input type="text" name="serviceIds" required placeholder="1,3">
+  </label>
+  <label>Начало (UTC, ISO) <span class="hint">например 2026-09-01T11:00:00Z — взять слот проще на странице "Свободное время"</span>
+    <input type="text" name="startDatetime" required placeholder="2026-09-01T11:00:00Z">
+  </label>
+  <label>Комментарий
+    <textarea name="comment" maxlength="200" rows="2"></textarea>
+  </label>
+  <label class="checkbox-line">
+    <input type="checkbox" name="remindEnabled" checked>
+    Напоминание включено
+  </label>
+  <button type="submit">Создать запись</button>
+</form>
+
+<div id="error-box" class="error-box" hidden></div>
+<div id="ok-box" class="ok-box" hidden></div>
+<div id="result"></div>
+
+<script type="module">
+import { apiFetch, showError, showOk } from './js/api.js';
+
+const form = document.getElementById('booking-form');
+const errorBox = document.getElementById('error-box');
+const okBox = document.getElementById('ok-box');
+const resultEl = document.getElementById('result');
+const authWarning = document.getElementById('auth-warning');
+
+const params = new URLSearchParams(window.location.search);
+if (params.get('masterId')) form.masterId.value = params.get('masterId');
+if (params.get('serviceIds')) form.serviceIds.value = params.get('serviceIds');
+if (params.get('startDatetime')) form.startDatetime.value = params.get('startDatetime');
+
+async function checkAuth() {
+  try {
+    await apiFetch('/auth/me');
+    authWarning.hidden = true;
+  } catch {
+    authWarning.hidden = false;
+    const next = encodeURIComponent(window.location.pathname + window.location.search);
+    authWarning.innerHTML =
+      `Вы не вошли — запись создать не получится (сервер ответит 401). ` +
+      `<a href="login.html?next=${next}">Войти</a> или <a href="register.html?next=${next}">зарегистрироваться</a>, ` +
+      `не потеряв введённые выше поля.`;
+  }
+}
+checkAuth();
+
+form.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  showError(errorBox, null);
+  showOk(okBox, null);
+  resultEl.innerHTML = '';
+
+  const fd = new FormData(form);
+  let serviceIds;
+  try {
+    serviceIds = fd.get('serviceIds').split(',').map((s) => s.trim()).filter(Boolean).map((s) => {
+      const n = Number(s);
+      if (!Number.isInteger(n)) throw new Error(`"${s}" — не целое число`);
+      return n;
+    });
+  } catch (err) {
+    showError(errorBox, { message: 'ID услуг: ' + err.message });
+    return;
+  }
+
+  const body = {
+    masterId: Number(fd.get('masterId')),
+    startDatetime: fd.get('startDatetime'),
+    serviceIds,
+    comment: fd.get('comment') || undefined,
+    remindEnabled: fd.get('remindEnabled') === 'on',
+  };
+
+  try {
+    const appt = await apiFetch('/appointments', { method: 'POST', body });
+    showOk(okBox, `Запись создана, статус ${appt.status}.`);
+    resultEl.innerHTML = renderAppointment(appt);
+  } catch (err) {
+    showError(errorBox, err);
+    if (err.status === 409) {
+      resultEl.innerHTML =
+        `<p><a href="availability.html?masterId=${encodeURIComponent(form.masterId.value)}&serviceIds=${encodeURIComponent(form.serviceIds.value)}">
+          Выбрать другое свободное время →</a></p>`;
+    }
+  }
+});
+
+function renderAppointment(a) {
+  return `
+    <table>
+      <tr><th>Статус</th><td><span class="status-badge status-${a.status}">${a.status}</span></td></tr>
+      <tr><th>Мастер</th><td>${escapeHtml(a.master?.name ?? '—')}</td></tr>
+      <tr><th>Время (местное)</th><td>${a.startLocal} — ${a.endLocal}</td></tr>
+      <tr><th>Услуги</th><td>${a.services.map((s) => escapeHtml(s.name)).join(', ')}</td></tr>
+      <tr><th>Сумма</th><td>${a.totalPriceRub} ₽, ${a.totalDurationMinutes} мин</td></tr>
+    </table>
+    <p><a href="account.html?id=${a.id}">Открыть в личном кабинете →</a></p>
+  `;
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+</script>
+<script type="module" src="js/nav.js"></script>
+</body>
+</html>

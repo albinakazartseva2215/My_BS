@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>Свободное время — Тон</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<header class="site-nav">
+  <a href="index.html">Главная</a>
+  <a href="register.html">Регистрация</a>
+  <a href="login.html">Вход</a>
+  <a href="catalog.html">Услуги и мастера</a>
+  <a href="availability.html">Свободное время</a>
+  <a href="booking.html">Создать запись</a>
+  <a href="account.html">Личный кабинет</a>
+  <a href="admin.html">Админ-панель</a>
+  <span class="spacer"></span>
+  <span id="nav-status">…</span>
+</header>
+
+<h1>Свободное время мастера на дату</h1>
+<p class="hint">GET /api/masters/:masterId/availability?date=YYYY-MM-DD&amp;serviceIds=1,2,3</p>
+
+<form id="avail-form">
+  <label>ID мастера
+    <input type="number" name="masterId" min="1" required>
+  </label>
+  <label>ID услуг <span class="hint">через запятую, минимум одна</span>
+    <input type="text" name="serviceIds" required placeholder="1,3">
+  </label>
+  <label>Дата
+    <input type="date" name="date" required>
+  </label>
+  <button type="submit">Показать свободное время</button>
+</form>
+
+<div id="error-box" class="error-box" hidden></div>
+
+<div id="summary" class="info-box" hidden></div>
+
+<h2>Слоты</h2>
+<div id="slots" class="slots"></div>
+<p id="no-slots" class="hint" hidden></p>
+
+<script type="module">
+import { apiFetch, showError, parseIdList } from './js/api.js';
+
+const form = document.getElementById('avail-form');
+const errorBox = document.getElementById('error-box');
+const summary = document.getElementById('summary');
+const slotsEl = document.getElementById('slots');
+const noSlots = document.getElementById('no-slots');
+
+const params = new URLSearchParams(window.location.search);
+if (params.get('masterId')) form.masterId.value = params.get('masterId');
+if (params.get('serviceIds')) form.serviceIds.value = params.get('serviceIds');
+if (params.get('date')) form.date.value = params.get('date');
+else form.date.value = new Date().toISOString().slice(0, 10);
+
+form.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  showError(errorBox, null);
+  summary.hidden = true;
+  noSlots.hidden = true;
+  slotsEl.innerHTML = '';
+
+  const masterId = form.masterId.value;
+  const date = form.date.value;
+  let serviceIds;
+  try {
+    serviceIds = parseIdList(form.serviceIds.value);
+  } catch (err) {
+    showError(errorBox, { message: 'ID услуг: ' + err.message });
+    return;
+  }
+  if (serviceIds.length === 0) {
+    showError(errorBox, { message: 'Укажите хотя бы одну услугу' });
+    return;
+  }
+
+  try {
+    const data = await apiFetch(`/masters/${masterId}/availability?date=${date}&serviceIds=${serviceIds.join(',')}`);
+    summary.hidden = false;
+    summary.textContent =
+      `Суммарная длительность: ${data.totalDurationMinutes} мин, суммарная цена: ${data.totalPriceRub} ₽. ` +
+      (data.reason ? `Причина отсутствия слотов: ${data.reason}.` : `Найдено слотов: ${data.slots.length}.`);
+
+    if (data.slots.length === 0) {
+      noSlots.hidden = false;
+      noSlots.textContent = 'Свободных слотов на эту дату нет.';
+      return;
+    }
+
+    slotsEl.innerHTML = '';
+    for (const slot of data.slots) {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      const localStart = slot.startLocal.slice(11, 16);
+      const localEnd = slot.endLocal.slice(11, 16);
+      btn.textContent = `${localStart}–${localEnd}`;
+      btn.title = `UTC: ${slot.startUtc} — ${slot.endUtc}`;
+      btn.addEventListener('click', () => {
+        const bookingUrl =
+          `booking.html?masterId=${masterId}&serviceIds=${serviceIds.join(',')}` +
+          `&startDatetime=${encodeURIComponent(slot.startUtc)}&date=${date}`;
+        window.location.href = bookingUrl;
+      });
+      slotsEl.appendChild(btn);
+    }
+  } catch (err) {
+    showError(errorBox, err);
+  }
+});
+
+if (form.masterId.value && form.serviceIds.value) {
+  form.requestSubmit();
+}
+</script>
+<script type="module" src="js/nav.js"></script>
+</body>
+</html>
