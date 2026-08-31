@@ -1,0 +1,239 @@
+/*
+ * Токены дизайн-системы.
+ *
+ * Источник: "Прототип" → Full style guide DC/export/src/design-system.dc.html
+ *   - цвета, тени, скругления, гарнитуры — перенесены дословно из
+ *     собственной секции дизайн-системы "CSS-переменные" (#css-export,
+ *     блоки :root и [data-theme="dark"]);
+ *   - размеры текста — из секции "Типографика", таблица "Шкала";
+ *   - отступы — из секции "Сетка, отступы, форма", группа "Спейсинг".
+ *
+ * Названия — по смыслу использования (текст/фон/граница/кнопка/ошибка/
+ * успех), а не по названию цвета — так они уже названы в самой
+ * дизайн-системе ("Семантические имена, не сырые оттенки").
+ *
+ * Ничего не добавлено и не подобрано "похоже": то, чего в дизайн-системе
+ * нет, отмечено пунктом в CSS-комментарии, а не значением.
+ */
+
+:root {
+  /* ---- Цвет: фон ---- */
+  --color-background: #fbf4eb;         /* фон страницы целиком */
+  --color-surface: #fef9f3;            /* карточки, поля, панели */
+  --color-surface-raised: #fffffb;     /* всплывающие элементы, тултипы */
+  --color-surface-sunken: #f2eae0;     /* занятые слоты, disabled-поля */
+  --color-overlay: rgba(41, 28, 21, 0.5); /* подложка модалок */
+
+  /* ---- Цвет: текст ---- */
+  --color-text-primary: #291c15;       /* заголовки, ключевой текст */
+  --color-text-secondary: #594941;     /* подписи, описания */
+  --color-text-muted: #796c65;         /* второстепенные метаданные */
+  --color-text-on-accent: #fdf8f1;     /* текст на тёмных заливках (на кнопке) */
+  --color-text-disabled: #a59c98;      /* недоступные элементы */
+
+  /* ---- Цвет: кнопка / основное действие (primary) ---- */
+  --color-primary: #482a1d;
+  --color-primary-hover: #361c11;
+  --color-primary-active: #271208;
+  --color-primary-subtle: #f4e4dd;     /* фон-подложка под акцентные блоки */
+
+  /* ---- Цвет: акцент (не кнопка — выделение: выбранный слот и т.п.) ---- */
+  --color-accent: #8d671d;
+  --color-accent-hover: #785300;
+  --color-accent-subtle: #f5e2c4;
+
+  /* ---- Цвет: граница ---- */
+  --color-border: #d6ccc4;             /* разделители, обычные рамки */
+  --color-border-strong: #a4958c;      /* обводки инпутов, свободные слоты */
+  --color-border-focus: #8d671d;       /* видимый фокус-ринг */
+
+  /* ---- Цвет: успех ---- */
+  --color-success: #426f4c;
+  --color-success-subtle: #dbeede;
+  --color-success-text: #133c1f;
+
+  /* ---- Цвет: предупреждение ---- */
+  --color-warning: #ad7b3d;
+  --color-warning-subtle: #fde7cf;
+  --color-warning-text: #582f02;
+
+  /* ---- Цвет: ошибка ---- */
+  --color-danger: #9c433f;
+  --color-danger-subtle: #ffddd9;
+  --color-danger-text: #5f1a19;
+
+  /* ---- Цвет: информация ---- */
+  --color-info: #516d81;
+  --color-info-subtle: #dceaf4;
+  --color-info-text: #1b394c;
+
+  /* ---- Цвет: слоты записи (доменные токены — ядро продукта) ---- */
+  --color-slot-free-bg: #fef9f3;
+  --color-slot-free-border: #a4958c;
+  --color-slot-free-text: #291c15;
+  --color-slot-selected-bg: #8d671d;
+  --color-slot-selected-border: #8d671d;
+  --color-slot-selected-text: #fdf8f1;
+  --color-slot-busy-bg: #f2eae0;
+  --color-slot-busy-border: #d6ccc4;
+  --color-slot-busy-text: #a59c98;
+  --color-slot-past-bg: #f2eae0;
+  --color-slot-past-border: #e4dcd3;
+  --color-slot-past-text: #c2b8b1;
+  --color-slot-mine-bg: #f4e4dd;
+  --color-slot-mine-border: #482a1d;
+  --color-slot-mine-text: #482a1d;
+
+  /* ---- Тени (в дизайн-системе идут в том же экспорте, что и цвета/радиусы) ---- */
+  --shadow-sm: 0 1px 2px rgba(72, 42, 29, 0.08);
+  --shadow-md: 0 4px 12px rgba(72, 42, 29, 0.10), 0 1px 2px rgba(72, 42, 29, 0.06);
+  --shadow-lg: 0 12px 24px rgba(72, 42, 29, 0.14), 0 2px 6px rgba(72, 42, 29, 0.08);
+  --shadow-xl: 0 24px 48px rgba(41, 28, 21, 0.28), 0 4px 12px rgba(41, 28, 21, 0.12);
+
+  /* ---- Скругления ---- */
+  --radius-sm: 8px;    /* чипы, мелкие бейджи */
+  --radius-md: 14px;   /* поля ввода, кнопки sm/md */
+  --radius-lg: 20px;   /* карточки, модалки */
+  --radius-xl: 28px;   /* крупные секции, промо-блоки */
+  --radius-full: 999px; /* pill-кнопки, аватары */
+
+  /* ---- Шрифт: гарнитуры ---- */
+  --font-display: 'Playfair Display', serif; /* крупные заголовки витрины */
+  --font-body: 'Manrope', sans-serif;        /* интерфейс и данные */
+
+  /* ---- Шрифт: насыщенность ----
+     Подключены в дизайн-системе через Google Fonts:
+     Playfair Display — 500/600/700; Manrope — 400/500/600/700/800.
+     У Playfair Display начертаний 400 и 800 нет — не использовать
+     --font-weight-regular и --font-weight-extrabold с --font-display. */
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  --font-weight-extrabold: 800;
+
+  /* ---- Размер текста: шкала ----
+     Для display/h1/h2 дизайн-система даёт пару значений
+     "десктоп → мобильный" (например, "64/72 → 40/48") — сохранены
+     обе стороны отдельными токенами, ничего не усреднялось и не
+     выбиралось "на глаз". */
+  --font-size-display: 64px;
+  --line-height-display: 72px;
+  --font-size-display-mobile: 40px;
+  --line-height-display-mobile: 48px;
+
+  --font-size-h1: 48px;
+  --line-height-h1: 56px;
+  --font-size-h1-mobile: 32px;
+  --line-height-h1-mobile: 40px;
+
+  --font-size-h2: 36px;
+  --line-height-h2: 44px;
+  --font-size-h2-mobile: 28px;
+  --line-height-h2-mobile: 36px;
+
+  --font-size-h3: 24px;
+  --line-height-h3: 32px;
+
+  --font-size-body-lg: 18px;
+  --line-height-body-lg: 28px;
+
+  --font-size-body: 16px;
+  --line-height-body: 24px;
+
+  --font-size-body-sm: 14px;
+  --line-height-body-sm: 20px;
+
+  --font-size-caption: 12px;
+  --line-height-caption: 16px;
+
+  --font-size-overline: 12px;
+  --line-height-overline: 16px;
+  --letter-spacing-overline: 0.08em;
+
+  --font-size-button: 15px;
+  --line-height-button: 20px;
+  --letter-spacing-button: 0.01em;
+
+  /* ---- Отступы: шаг 4px ----
+     Названы по значению в пикселях — у самой дизайн-системы это
+     безымянная шкала (нет подписей вроде "маленький/средний"),
+     придумывать такие имена не стал. */
+  --space-2: 2px;
+  --space-4: 4px;
+  --space-8: 8px;
+  --space-12: 12px;
+  --space-16: 16px;
+  --space-24: 24px;
+  --space-32: 32px;
+  --space-48: 48px;
+  --space-64: 64px;
+  --space-96: 96px;
+}
+
+/* Тёмная тема — переопределяет только цвета и тени, ровно как в
+   исходном экспорте дизайн-системы (шрифты, размеры, отступы и
+   радиусы в дизайн-системе одинаковы для обеих тем). */
+[data-theme="dark"] {
+  --color-background: #1a120d;
+  --color-surface: #241b16;
+  --color-surface-raised: #2e241e;
+  --color-surface-sunken: #100906;
+  --color-overlay: rgba(0, 0, 0, 0.6);
+
+  --color-text-primary: #f3ede6;
+  --color-text-secondary: #c1b9b0;
+  --color-text-muted: #92877d;
+  --color-text-on-accent: #1f130b;
+  --color-text-disabled: #5f564f;
+
+  --color-primary: #c39b81;
+  --color-primary-hover: #d6ae93;
+  --color-primary-active: #a7846c;
+  --color-primary-subtle: #3a2a20;
+
+  --color-accent: #d3aa64;
+  --color-accent-hover: #e6bd77;
+  --color-accent-subtle: #3b2b0d;
+
+  --color-border: #40352e;
+  --color-border-strong: #64554b;
+  --color-border-focus: #d9b06b;
+
+  --color-success: #75b683;
+  --color-success-subtle: #152d1a;
+  --color-success-text: #ace0b6;
+
+  --color-warning: #ddae6c;
+  --color-warning-subtle: #382409;
+  --color-warning-text: #facf9e;
+
+  --color-danger: #eb8373;
+  --color-danger-subtle: #401d1b;
+  --color-danger-text: #ffb7b0;
+
+  --color-info: #8cb0ca;
+  --color-info-subtle: #192834;
+  --color-info-text: #b4d2e9;
+
+  --color-slot-free-bg: #241b16;
+  --color-slot-free-border: #64554b;
+  --color-slot-free-text: #f3ede6;
+  --color-slot-selected-bg: #d3aa64;
+  --color-slot-selected-border: #d3aa64;
+  --color-slot-selected-text: #1f130b;
+  --color-slot-busy-bg: #100906;
+  --color-slot-busy-border: #40352e;
+  --color-slot-busy-text: #5f564f;
+  --color-slot-past-bg: #100906;
+  --color-slot-past-border: #40352e;
+  --color-slot-past-text: #5f564f;
+  --color-slot-mine-bg: #3a2a20;
+  --color-slot-mine-border: #c39b81;
+  --color-slot-mine-text: #c39b81;
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 14px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 14px 28px rgba(0, 0, 0, 0.5);
+  --shadow-xl: 0 28px 56px rgba(0, 0, 0, 0.6);
+}
