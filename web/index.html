@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Тон — запись в салон красоты</title>
+<meta name="description" content="Запишитесь к своему мастеру за 30 секунд: выберите услугу, мастера и время — без звонков и переписки.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/landing.css">
+</head>
+<body>
+
+<!-- ШАПКА — общая для всех страниц, разметку вставляет js/header.js -->
+<div id="site-header-root"></div>
+
+<main>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="container hero-grid">
+      <div>
+        <h1 class="hero-title">Запишитесь к своему мастеру за 30 секунд</h1>
+        <p class="hero-subtitle">Выбираете мастера, видите свободное время, подтверждаете. Без звонков и переписки.</p>
+        <div class="hero-actions">
+          <a href="#" class="btn btn-primary js-booking-link">Записаться</a>
+          <a href="#masters" class="btn btn-outline">Посмотреть мастеров</a>
+        </div>
+        <div class="hero-meta">Более 2 400 записей · 12 мастеров · Оплата в салоне</div>
+      </div>
+      <div class="hero-media">
+        <div class="hero-photo photo-placeholder">фото интерьера / клиента в кресле</div>
+        <div class="hero-badge">
+          <div class="hero-badge-avatar" aria-hidden="true">АС</div>
+          <div>
+            <div class="hero-badge-name">Анна Соколова</div>
+            <div class="hero-badge-service">Окрашивание</div>
+            <div class="hero-badge-slot">Ближайшее время: сегодня, 15:30</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TRUST STRIP — рейтинг и число мастеров из GET /api/masters
+       (js/landing.js:updateTrustStrip), а не текстом в разметке.
+       Плашку "2 400+ Записей оформлено" убрал совсем — публичного
+       эндпоинта со счётчиком записей нет (только админский
+       GET /api/admin/appointments), а показывать здесь захардкоженное
+       число значило бы выдавать текст за данные. "Мгновенно" оставил —
+       это не данные, а оценочный текст ("подтверждение приходит сразу",
+       а не сколько-то секунд), тут нечего брать из API. -->
+  <section class="trust-strip">
+    <div class="container trust-grid">
+      <div><div class="trust-value" id="trustRating"><span class="skeleton-line" style="display:inline-block;width:52px;height:28px;vertical-align:middle" aria-hidden="true"></span></div><div class="trust-label">Средняя оценка</div></div>
+      <div><div class="trust-value" id="trustMastersCount"><span class="skeleton-line" style="display:inline-block;width:32px;height:28px;vertical-align:middle" aria-hidden="true"></span></div><div class="trust-label">Мастеров в салоне</div></div>
+      <div><div class="trust-value">Мгновенно</div><div class="trust-label">Подтверждение записи</div></div>
+    </div>
+  </section>
+
+  <!-- HOW IT WORKS -->
+  <section id="how" class="section section-center">
+    <div class="container">
+      <div class="eyebrow" style="justify-content:center;display:flex">Как это работает</div>
+      <h2 class="section-title">Три шага до записи</h2>
+      <div class="steps">
+        <div>
+          <div class="step-index">01</div>
+          <div class="step-title">Выберите мастера и услугу</div>
+          <div class="step-text">Витрина показывает специализацию, рейтинг и цены каждого мастера.</div>
+        </div>
+        <div>
+          <div class="step-index">02</div>
+          <div class="step-title">Откройте календарь и выберите время</div>
+          <div class="step-text">Свободные слоты видны сразу — без ожидания ответа.</div>
+        </div>
+        <div>
+          <div class="step-index">03</div>
+          <div class="step-title">Подтвердите запись</div>
+          <div class="step-text">Мастер сразу увидит новую запись в своём расписании.</div>
+        </div>
+      </div>
+      <a href="#" class="btn btn-outline js-booking-link">Начать запись</a>
+    </div>
+  </section>
+
+  <!-- SERVICES (из GET /api/services) -->
+  <section id="services" class="section">
+    <div class="container">
+      <div class="eyebrow">Услуги</div>
+      <h2 class="section-title">Чем мы можем помочь</h2>
+      <div class="card-grid" id="servicesGrid" aria-live="polite">
+        <!-- заполняется js/landing.js: сначала заглушки, затем карточки из API -->
+      </div>
+      <div class="services-note">Цены указаны справочно и могут отличаться после консультации мастера. Оплата — в салоне.</div>
+    </div>
+  </section>
+
+  <!-- MASTERS (из GET /api/masters) -->
+  <section id="masters" class="section masters-section">
+    <div class="container">
+      <div class="eyebrow">Мастера</div>
+      <h2 class="section-title">Выберите своего мастера</h2>
+      <div class="card-grid" id="mastersGrid" aria-live="polite">
+        <!-- заполняется js/landing.js: сначала заглушки, затем карточки из API -->
+      </div>
+      <div class="masters-link"><a href="#masters">Все мастера →</a></div>
+    </div>
+  </section>
+
+  <!-- DEMO SLOTS — иллюстрация, не связана с реальными данными
+       (docs/ui-map.md, раздел «Лендинг»: «полностью статичный хардкод
+       в коде компонента... только иллюстрация для лендинга»). -->
+  <section id="slots-demo" class="section">
+    <div class="container">
+      <div class="section-head">
+        <div class="eyebrow" style="justify-content:center;display:flex">Демо</div>
+        <h2 class="section-title">Свободное время — прямо сейчас</h2>
+      </div>
+
+      <div class="demo-panel">
+        <div class="demo-ribbon" id="demoRibbon"></div>
+
+        <div class="demo-period-label">Утро</div>
+        <div class="demo-slots">
+          <button type="button" class="demo-slot" data-slot="09:00">09:00</button>
+          <button type="button" class="demo-slot" data-slot="09:30" disabled>09:30</button>
+          <button type="button" class="demo-slot" data-slot="10:00">10:00</button>
+          <button type="button" class="demo-slot" data-slot="10:30">10:30</button>
+        </div>
+        <div class="demo-period-label">День</div>
+        <div class="demo-slots">
+          <button type="button" class="demo-slot" data-slot="13:00">13:00</button>
+          <button type="button" class="demo-slot" data-slot="13:30">13:30</button>
+          <button type="button" class="demo-slot" data-slot="14:00" disabled>14:00</button>
+          <button type="button" class="demo-slot" data-slot="14:30">14:30</button>
+          <button type="button" class="demo-slot" data-slot="15:00">15:00</button>
+          <button type="button" class="demo-slot" data-slot="15:30" disabled>15:30</button>
+        </div>
+        <div class="demo-period-label">Вечер</div>
+        <div class="demo-slots">
+          <button type="button" class="demo-slot" data-slot="18:00">18:00</button>
+          <button type="button" class="demo-slot" data-slot="18:30">18:30</button>
+          <button type="button" class="demo-slot" data-slot="19:00" disabled>19:00</button>
+        </div>
+
+        <a href="#" class="btn btn-primary btn-block demo-cta js-booking-link" id="demoCta" aria-disabled="true">Записаться на выбранное время</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- BEFORE / AFTER -->
+  <section class="section">
+    <div class="container">
+      <div class="eyebrow">Работы</div>
+      <h2 class="section-title">До и после</h2>
+      <div class="gallery-grid">
+        <div class="gallery-item"><div class="gallery-photo photo-placeholder">до / после — окрашивание</div></div>
+        <div class="gallery-item"><div class="gallery-photo photo-placeholder">до / после — стрижка</div></div>
+        <div class="gallery-item"><div class="gallery-photo photo-placeholder">до / после — маникюр</div></div>
+        <div class="gallery-item"><div class="gallery-photo photo-placeholder">до / после — укладка</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- REVIEWS — декоративный контент, как и было в прототипе. В схеме БД
+       нет таблицы отзывов вообще (docs/db-schema.md), поэтому имена,
+       оценки и тексты клиентов ниже — не данные из API, взять их оттуда
+       нечем. Решение подтверждено явно: делать это "из БД" значило бы
+       заводить новую таблицу и эндпоинт в server/, чего без отдельного
+       разрешения делать нельзя (docs/frontend-rules.md, правило 5). -->
+  <section id="reviews" class="section">
+    <div class="container">
+      <div class="eyebrow">Отзывы</div>
+      <h2 class="section-title">Что говорят клиенты</h2>
+      <div class="card-grid">
+        <div class="review-card">
+          <div class="review-head">
+            <div class="review-avatar" aria-hidden="true">ЕВ</div>
+            <div><div class="review-name">Елена В.</div><div class="review-service">Окрашивание</div></div>
+          </div>
+          <div class="review-stars" aria-label="Оценка 5 из 5">★★★★★</div>
+          <div class="review-text">Записалась поздно вечером, а на следующий день уже сидела в кресле. Очень удобно, что видно расписание сразу.</div>
+        </div>
+        <div class="review-card">
+          <div class="review-head">
+            <div class="review-avatar" aria-hidden="true">ПР</div>
+            <div><div class="review-name">Павел Р.</div><div class="review-service">Стрижка</div></div>
+          </div>
+          <div class="review-stars" aria-label="Оценка 4 из 5">★★★★☆</div>
+          <div class="review-text">Не люблю звонить в салоны. Тут просто выбрал время в календаре и всё — никаких лишних разговоров.</div>
+        </div>
+        <div class="review-card">
+          <div class="review-head">
+            <div class="review-avatar" aria-hidden="true">ОД</div>
+            <div><div class="review-name">Ольга Д.</div><div class="review-service">Маникюр</div></div>
+          </div>
+          <div class="review-stars" aria-label="Оценка 5 из 5">★★★★★</div>
+          <div class="review-text">Отменила запись прямо в кабинете, когда заболела. Быстро и без неловких звонков с объяснениями.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section id="faq" class="section">
+    <div class="container">
+      <div class="section-head">
+        <div class="eyebrow" style="justify-content:center;display:flex">Вопросы</div>
+        <h2 class="section-title">Частые вопросы</h2>
+      </div>
+      <div class="faq-list" id="faqList"></div>
+    </div>
+  </section>
+
+  <!-- FINAL CTA -->
+  <section class="final-cta">
+    <div class="container" style="position:relative;z-index:1">
+      <h2 class="final-cta-title">Готово? Записаться можно прямо сейчас</h2>
+      <p class="final-cta-text">Меньше минуты — и время у мастера ваше</p>
+      <a href="#" class="btn btn-primary js-booking-link">Записаться</a>
+    </div>
+  </section>
+
+</main>
+
+<!-- FOOTER -->
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div>
+        <div class="footer-brand">
+          <span class="footer-brand-mark" aria-hidden="true">Т</span>
+          <span class="footer-brand-name">Тон</span>
+        </div>
+        <div class="footer-address">г. Москва, ул. Тверская, 12<br>Ежедневно, 10:00–21:00<br>+7 999 123-45-67</div>
+      </div>
+      <div>
+        <div class="footer-heading">Навигация</div>
+        <div class="footer-links"><a href="#services">Услуги</a><a href="#masters">Мастера</a><a href="#reviews">Отзывы</a></div>
+      </div>
+      <div>
+        <div class="footer-heading">Документы</div>
+        <div class="footer-links"><a href="#">Политика конфиденциальности</a><a href="#">Публичная оферта</a></div>
+      </div>
+      <div>
+        <div class="footer-heading">Соцсети</div>
+        <div class="footer-links"><a href="#">ВКонтакте</a><a href="#">Telegram-канал</a></div>
+      </div>
+    </div>
+    <div class="footer-bottom">© 2026 Салон красоты «Тон». Все права защищены.</div>
+  </div>
+</footer>
+
+<script type="module" src="js/landing.js"></script>
+</body>
+</html>

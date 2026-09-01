@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Тон — вход</title>
+<meta name="description" content="Войдите в аккаунт, чтобы управлять своими записями.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/landing.css">
+<link rel="stylesheet" href="css/auth.css">
+</head>
+<body>
+
+<!-- ШАПКА — общая для всех страниц, разметку вставляет js/header.js -->
+<div id="site-header-root"></div>
+
+<main class="auth-main">
+  <div class="auth-container">
+    <div class="auth-head">
+      <div class="eyebrow">Вход</div>
+      <h1 class="section-title">С возвращением</h1>
+      <p>Войдите, чтобы управлять своими записями</p>
+    </div>
+
+    <div class="auth-card">
+      <div class="form-alert is-error" id="formAlert" role="alert" hidden></div>
+
+      <form id="loginForm" novalidate>
+        <div class="form-field">
+          <label class="form-label" for="loginEmail">E-mail</label>
+          <input class="form-input" type="email" id="loginEmail" name="email" placeholder="you@mail.ru" autocomplete="email" required>
+          <span class="field-error" data-for="email"></span>
+        </div>
+
+        <div class="form-field password-field">
+          <label class="form-label" for="loginPassword">Пароль</label>
+          <input class="form-input" type="password" id="loginPassword" name="password" placeholder="••••••••" autocomplete="current-password" required>
+          <button type="button" class="password-toggle" id="loginPasswordToggle" aria-label="Показать пароль">👁</button>
+          <span class="field-error" data-for="password"></span>
+        </div>
+
+        <div class="form-hint-link"><a href="password-reset.html">Забыли пароль?</a></div>
+
+        <button type="submit" class="btn btn-primary btn-block" id="loginSubmit">Войти</button>
+      </form>
+    </div>
+
+    <div class="auth-switch">Нет аккаунта? <a href="register.html">Создать</a></div>
+  </div>
+</main>
+
+<!-- FOOTER — тот же, что на лендинге -->
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div>
+        <div class="footer-brand">
+          <span class="footer-brand-mark" aria-hidden="true">Т</span>
+          <span class="footer-brand-name">Тон</span>
+        </div>
+        <div class="footer-address">г. Москва, ул. Тверская, 12<br>Ежедневно, 10:00–21:00<br>+7 999 123-45-67</div>
+      </div>
+      <div>
+        <div class="footer-heading">Навигация</div>
+        <div class="footer-links"><a href="index.html#services">Услуги</a><a href="index.html#masters">Мастера</a><a href="index.html#reviews">Отзывы</a></div>
+      </div>
+      <div>
+        <div class="footer-heading">Документы</div>
+        <div class="footer-links"><a href="#">Политика конфиденциальности</a><a href="#">Публичная оферта</a></div>
+      </div>
+      <div>
+        <div class="footer-heading">Соцсети</div>
+        <div class="footer-links"><a href="#">ВКонтакте</a><a href="#">Telegram-канал</a></div>
+      </div>
+    </div>
+    <div class="footer-bottom">© 2026 Салон красоты «Тон». Все права защищены.</div>
+  </div>
+</footer>
+
+<script type="module" src="js/login.js"></script>
+</body>
+</html>

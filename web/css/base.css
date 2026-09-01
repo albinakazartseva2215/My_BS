@@ -1,0 +1,392 @@
+/*
+ * Общая база для всех страниц web/: сброс, типографика, кнопки, контейнер.
+ * Цвета, шрифты, размеры текста, отступы и скругления — только переменные
+ * из tokens.css (docs/frontend-rules.md, правило 4). Этот файл сам новых
+ * значений не заводит.
+ *
+ * Прототип (Full style guide DC/export/src/landing.dc.html) местами
+ * использует размеры текста и отступы, которых нет в шкале tokens.css
+ * (например, заголовок hero — 56px, а в шкале есть только 48 и 64).
+ * Такие значения округлены до ближайшего токена шкалы (при равном
+ * расстоянии — в меньшую сторону), а не введены заново. Это касается
+ * только цвета/шрифта/размера текста/отступов — токенов на такие вещи,
+ * как диаметр аватара, размер иконки или ширина рамки, в tokens.css нет
+ * вообще, поэтому они оставлены как в прототипе.
+ */
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--color-background);
+  color: var(--color-text-primary);
+  font-family: var(--font-body);
+  font-size: var(--font-size-body);
+  line-height: var(--line-height-body);
+}
+
+h1, h2, h3, p, ul, figure {
+  margin: 0;
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+a {
+  color: var(--color-accent);
+  text-decoration: none;
+}
+a:hover {
+  color: var(--color-accent-hover);
+}
+
+button {
+  font-family: inherit;
+}
+
+.container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 var(--space-24);
+}
+
+/* ---- Кнопки ----
+   min-height:44px — минимальный размер цели касания (как в прототипе);
+   это не токен из шкалы размеров, а фиксированная accessibility-величина,
+   в tokens.css такой сущности нет. */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-8);
+  min-height: 44px;
+  padding: var(--space-12) var(--space-24);
+  border-radius: var(--radius-full);
+  border: none;
+  font-family: var(--font-body);
+  font-size: var(--font-size-button);
+  line-height: var(--line-height-button);
+  letter-spacing: var(--letter-spacing-button);
+  font-weight: var(--font-weight-bold);
+  cursor: pointer;
+  white-space: nowrap;
+}
+.btn:disabled {
+  cursor: not-allowed;
+}
+
+.btn-primary {
+  background: var(--color-primary);
+  color: var(--color-text-on-accent);
+}
+.btn-primary:hover:not(:disabled) {
+  background: var(--color-primary-hover);
+}
+.btn-primary:active:not(:disabled) {
+  background: var(--color-primary-active);
+}
+.btn-primary:disabled {
+  background: var(--color-surface-sunken);
+  color: var(--color-text-disabled);
+}
+
+.btn-outline {
+  background: transparent;
+  color: var(--color-text-primary);
+  border: 1.5px solid var(--color-border-strong);
+}
+.btn-outline:hover {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--color-primary);
+  padding-left: var(--space-16);
+  padding-right: var(--space-16);
+}
+.btn-ghost:hover {
+  color: var(--color-primary-hover);
+}
+
+.btn-block {
+  width: 100%;
+}
+
+/* ---- Типографика секций ---- */
+
+.eyebrow {
+  font-size: var(--font-size-overline);
+  line-height: var(--line-height-overline);
+  letter-spacing: var(--letter-spacing-overline);
+  text-transform: uppercase;
+  color: var(--color-accent);
+  font-weight: var(--font-weight-bold);
+  margin-bottom: var(--space-12);
+}
+
+.section-title {
+  font-family: var(--font-display);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  font-size: var(--font-size-h2);
+  line-height: var(--line-height-h2);
+  margin: 0 0 var(--space-32);
+}
+@media (max-width: 900px) {
+  .section-title {
+    font-size: var(--font-size-h2-mobile);
+    line-height: var(--line-height-h2-mobile);
+  }
+}
+
+.section-head {
+  text-align: center;
+  margin-bottom: var(--space-32);
+}
+.section-head .eyebrow {
+  justify-content: center;
+}
+.section-head .section-title {
+  margin-bottom: 0;
+}
+
+/* ---- Заглушки-скелетоны на время загрузки списков из API ----
+   (docs/frontend-rules.md — раздел про экраны; задание: "пока данные
+   грузятся, показывай заглушку, а не пустое место"). Пульсация — через
+   смену между двумя цветами-токенами, а не через opacity: у opacity нет
+   переменной в tokens.css, а через смену background-color пульсация
+   получается из готовых цветов, без придуманной прозрачности. */
+.skeleton-line {
+  background: var(--color-surface-sunken);
+  border-radius: var(--radius-sm);
+  animation: skeleton-pulse 1.4s ease-in-out infinite;
+}
+@keyframes skeleton-pulse {
+  0%, 100% { background-color: var(--color-surface-sunken); }
+  50% { background-color: var(--color-border); }
+}
+
+/* ---- Текстовое сообщение об ошибке API (правило 7: не только в консоль) ---- */
+.api-error {
+  grid-column: 1 / -1;
+  background: var(--color-danger-subtle);
+  color: var(--color-danger-text);
+  border: 1px solid var(--color-danger);
+  border-radius: var(--radius-lg);
+  padding: var(--space-24);
+  font-size: var(--font-size-body-sm);
+  line-height: var(--line-height-body-sm);
+}
+.api-error .btn {
+  margin-top: var(--space-12);
+}
+
+/* ---- Плейсхолдер "здесь будет фото" ----
+   Прототип красит такие плашки полосатым узором с цветом (#e4d7c9),
+   которого в tokens.css нет — здесь та же идея, но собранная из двух
+   реальных токенов (surface-sunken + border), как уже сделано для
+   "занятых" слотов записи в этом же прототипе. */
+.photo-placeholder {
+  background: repeating-linear-gradient(
+    135deg,
+    var(--color-surface-sunken),
+    var(--color-surface-sunken) 10px,
+    var(--color-border) 10px,
+    var(--color-border) 11px
+  );
+  color: var(--color-text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-size: var(--font-size-caption);
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* ===== ШАПКА (общая для всех страниц, см. web/js/header.js) =====
+   Перенесено из landing.css — раньше шапка на всех страницах, кроме
+   лендинга, была статичной разметкой; теперь единственный источник —
+   header.js, а сюда переехали её стили, потому что она общая, а не
+   специфичная для лендинга.
+   В прототипе шапка полупрозрачная (rgba с альфой 0.92) поверх
+   backdrop-filter: blur. Готового цвета с прозрачностью в tokens.css нет,
+   а добавлять новый — против правила 4, поэтому фон сплошной, из токена
+   поверхности, без блюра. */
+/* #site-header-root — точка вставки шапки (js/header.js рисует в него
+   разметку). display:contents убирает сам div из раскладки: без этого
+   даже пустой, ничем не стилизованный блочный див-обёртка вокруг
+   position:sticky-элемента ломает прилипание при скролле — нашёл именно
+   так, минимальным повтором. Со display:contents всё, что внутри, ведёт
+   себя как прямые дети body — то, ради чего этот див и был нужен. */
+#site-header-root {
+  display: contents;
+}
+
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-16);
+  padding: var(--space-12) var(--space-24);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: var(--space-8);
+  color: var(--color-text-primary);
+}
+.brand-mark {
+  width: 38px;
+  height: 38px;
+  border-radius: var(--radius-full);
+  background: var(--color-primary);
+  color: var(--color-text-on-accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-weight: var(--font-weight-bold);
+  font-size: var(--font-size-body);
+}
+.brand-name {
+  font-family: var(--font-display);
+  font-size: var(--font-size-h3);
+  font-weight: var(--font-weight-semibold);
+}
+
+.nav-links {
+  display: flex;
+  gap: var(--space-24);
+  font-size: var(--font-size-body-sm);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-secondary);
+}
+.nav-links a {
+  color: inherit;
+}
+.nav-links a:hover {
+  color: var(--color-accent);
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-12);
+}
+
+/* ---- Слот "кто вошёл" — кнопки входа/регистрации или аватар ----
+   Задание: "если клиент не вошёл, показывай кнопки входа и регистрации
+   вместо аватара". Пока идёт GET /api/auth/me — заглушка (header.js), не
+   пустое место. */
+.header-identity {
+  display: flex;
+  align-items: center;
+  gap: var(--space-8);
+}
+.header-identity-skeleton {
+  width: 92px;
+  height: 36px;
+  border-radius: var(--radius-full);
+}
+.header-avatar-link {
+  display: flex;
+  align-items: center;
+  gap: var(--space-8);
+  color: var(--color-text-primary);
+  text-decoration: none;
+}
+.header-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-full);
+  background: var(--color-primary-subtle);
+  color: var(--color-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-bold);
+  flex-shrink: 0;
+}
+.header-avatar-name {
+  font-size: var(--font-size-body-sm);
+  font-weight: var(--font-weight-bold);
+}
+
+/* #mobileHeaderIdentity в мобильном меню — просто точка вставки для
+   header.js (span, а не готовые ссылки в разметке, содержимое известно
+   только после ответа API). display:contents убирает сам span из
+   раскладки, чтобы вложенные ссылки вели себя как обычные прямые дети
+   .mobile-nav — каждая на своей строке, с тем же отступом, что и у
+   Услуги/Мастера/... — а не слипались в одну строку внутри span. */
+#mobileHeaderIdentity {
+  display: contents;
+}
+
+.burger {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  display: none;
+  align-items: center;
+  justify-content: center;
+}
+
+.mobile-nav {
+  display: none;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: var(--space-12) var(--space-24) var(--space-16);
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
+}
+.mobile-nav a {
+  padding: var(--space-8) 0;
+  font-size: var(--font-size-body);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+}
+.mobile-nav.is-open {
+  display: flex;
+}
+
+@media (max-width: 900px) {
+  .nav-links,
+  .header-identity {
+    display: none;
+  }
+  .burger {
+    display: flex;
+  }
+}
+@media (min-width: 901px) {
+  .burger {
+    display: none;
+  }
+}
