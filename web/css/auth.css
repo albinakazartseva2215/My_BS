@@ -1,0 +1,172 @@
+/*
+ * Общие стили экранов входа/регистрации/восстановления пароля — карточка
+ * по центру страницы, поверх той же base.css (шапка/футер/кнопки), что и
+ * лендинг (docs/ui-map.md образец — форма из "Booking · 4 · Вход в
+ * потоке" прототипа, но здесь как отдельный экран, а не шаг визарда).
+ * Цвета/шрифты/размеры — только из tokens.css, как и везде в web/.
+ */
+
+.auth-main {
+  padding: var(--space-64) var(--space-24);
+}
+
+.auth-container {
+  max-width: 440px;
+  margin: 0 auto;
+}
+
+.auth-head {
+  text-align: center;
+  margin-bottom: var(--space-24);
+}
+.auth-head .eyebrow {
+  justify-content: center;
+  display: flex;
+}
+.auth-head .section-title {
+  margin-bottom: var(--space-8);
+  font-size: var(--font-size-h3);
+  line-height: var(--line-height-h3);
+}
+.auth-head p {
+  font-size: var(--font-size-body-sm);
+  color: var(--color-text-muted);
+}
+
+.auth-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-24);
+  margin-bottom: var(--space-16);
+}
+
+.auth-switch {
+  text-align: center;
+  font-size: var(--font-size-body-sm);
+  color: var(--color-text-muted);
+}
+
+/* ---- Поля формы ---- */
+.form-field {
+  margin-bottom: var(--space-16);
+}
+.form-label {
+  display: block;
+  font-size: var(--font-size-body-sm);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+  margin-bottom: var(--space-8);
+}
+.form-input {
+  width: 100%;
+  padding: var(--space-12) var(--space-16);
+  border-radius: var(--radius-md);
+  border: 1.5px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text-primary);
+  font-family: var(--font-body);
+  font-size: var(--font-size-body-sm);
+}
+.form-input:focus {
+  outline: none;
+  border-color: var(--color-border-focus);
+}
+.form-input.is-invalid {
+  border-color: var(--color-danger);
+}
+.form-input:disabled {
+  background: var(--color-surface-sunken);
+  color: var(--color-text-disabled);
+}
+.field-error {
+  display: block;
+  font-size: var(--font-size-caption);
+  color: var(--color-danger-text);
+  margin-top: var(--space-4);
+  min-height: var(--line-height-caption);
+}
+
+.password-field {
+  position: relative;
+}
+.password-field .form-input {
+  padding-right: 44px;
+}
+.password-toggle {
+  position: absolute;
+  right: var(--space-8);
+  top: 32px;
+  width: 32px;
+  height: 32px;
+  background: none;
+  border: none;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  font-size: var(--font-size-body);
+}
+
+.form-hint-link {
+  text-align: right;
+  margin-bottom: var(--space-16);
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-bold);
+}
+
+/* ---- Индикатор сложности пароля (Booking · 4, декоративная подсказка,
+   не блокирует отправку — единственное реальное правило пароля, длина
+   ≥ 8, проверяется отдельно и на клиенте, и на сервере) ---- */
+.password-strength {
+  display: flex;
+  gap: var(--space-4);
+  margin-top: var(--space-8);
+}
+.password-strength-bar {
+  height: 4px;
+  flex: 1;
+  border-radius: var(--radius-sm);
+  background: var(--color-border);
+}
+.password-strength-bar.is-filled-weak { background: var(--color-danger); }
+.password-strength-bar.is-filled-medium { background: var(--color-warning); }
+.password-strength-bar.is-filled-strong { background: var(--color-success); }
+.password-strength-label {
+  font-size: var(--font-size-caption);
+  color: var(--color-text-muted);
+  margin-top: var(--space-4);
+}
+
+/* ---- Алерты формы ---- */
+.form-alert {
+  border-radius: var(--radius-md);
+  padding: var(--space-12) var(--space-16);
+  font-size: var(--font-size-body-sm);
+  margin-bottom: var(--space-16);
+}
+.form-alert.is-error {
+  background: var(--color-danger-subtle);
+  color: var(--color-danger-text);
+  border: 1px solid var(--color-danger);
+}
+.form-alert.is-success {
+  background: var(--color-success-subtle);
+  color: var(--color-success-text);
+  border: 1px solid var(--color-success);
+}
+/* Токен восстановления пароля виден только в деве (server/src/routes/auth.routes.js) —
+   подсказка "только для теста", не то, как это будет работать в проде. */
+.form-alert.is-note {
+  background: var(--color-info-subtle);
+  color: var(--color-info-text);
+  border: 1px solid var(--color-info);
+}
+
+.auth-step + .auth-step {
+  margin-top: var(--space-16);
+}
+.auth-step-toggle {
+  text-align: center;
+  font-size: var(--font-size-caption);
+  color: var(--color-text-muted);
+  margin-top: var(--space-8);
+}

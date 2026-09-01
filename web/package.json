@@ -1,0 +1,11 @@
+{
+  "name": "booking-service-web",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Клиентские экраны сервиса записи поверх готового API (server/). Без сборки и фреймворков — статика + прокси на /api, по образцу frontend/.",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {}
+}

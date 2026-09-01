@@ -1,0 +1,127 @@
+/*
+ * Личный кабинет — минимальная заглушка, цель редиректа после входа и
+ * регистрации (задание: "после успешного входа веди в личный кабинет,
+ * после регистрации — в пустой кабинет"). Экрана-образца в прототипе нет
+ * (docs/ui-map.md, «Нерешённые случаи», №2) — оформление собрано в стиле
+ * остальных страниц web/, только из tokens.css.
+ */
+
+.account-main {
+  padding: var(--space-64) var(--space-24);
+}
+.account-container {
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+.account-greeting {
+  display: flex;
+  align-items: center;
+  gap: var(--space-16);
+  margin-bottom: var(--space-32);
+}
+.account-avatar {
+  width: 56px;
+  height: 56px;
+  border-radius: var(--radius-full);
+  background: var(--color-primary-subtle);
+  color: var(--color-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-weight: var(--font-weight-bold);
+  font-size: var(--font-size-h3);
+  flex-shrink: 0;
+}
+.account-name {
+  font-family: var(--font-display);
+  font-size: var(--font-size-h3);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+}
+.account-contacts {
+  font-size: var(--font-size-body-sm);
+  color: var(--color-text-muted);
+}
+.account-logout {
+  margin-left: auto;
+}
+
+.account-section-title {
+  font-size: var(--font-size-body-lg);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+  margin-bottom: var(--space-16);
+}
+
+.appointment-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-12);
+  margin-bottom: var(--space-32);
+}
+.appointment-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-16) var(--space-24);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-16);
+  flex-wrap: wrap;
+}
+.appointment-when {
+  font-size: var(--font-size-body-sm);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+  font-variant-numeric: tabular-nums;
+}
+.appointment-details {
+  font-size: var(--font-size-caption);
+  color: var(--color-text-muted);
+}
+.appointment-status {
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-bold);
+  padding: var(--space-4) var(--space-12);
+  border-radius: var(--radius-full);
+  background: var(--color-surface-sunken);
+  color: var(--color-text-secondary);
+  white-space: nowrap;
+}
+.appointment-status.is-confirmed {
+  background: var(--color-success-subtle);
+  color: var(--color-success-text);
+}
+.appointment-status.is-cancelled {
+  background: var(--color-danger-subtle);
+  color: var(--color-danger-text);
+}
+.appointment-price {
+  font-size: var(--font-size-body-sm);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.account-empty {
+  background: var(--color-surface);
+  border: 1px dashed var(--color-border-strong);
+  border-radius: var(--radius-lg);
+  padding: var(--space-32);
+  text-align: center;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-body-sm);
+  margin-bottom: var(--space-32);
+}
+.account-empty .btn {
+  margin-top: var(--space-16);
+}
+
+.account-note {
+  font-size: var(--font-size-caption);
+  color: var(--color-text-muted);
+  text-align: center;
+}

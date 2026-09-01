@@ -1,0 +1,665 @@
+/*
+ * Стили лендинга — структура и порядок блоков взяты из прототипа
+ * (Full style guide DC/export/src/landing.dc.html) один в один. Цвета,
+ * шрифты, размеры текста, отступы и скругления — только из tokens.css
+ * (см. пояснение об округлении нестандартных размеров в base.css).
+ */
+
+/* overflow-x (не overflow-x:hidden!) — hidden на body молча ломает
+   position:sticky у шапки (base.css, .site-header): по спецификации
+   overflow-x:non-visible без явного overflow-y считает overflow-y:auto,
+   body становится скролл-контейнером, и дальше стики в некоторых браузерах
+   перестаёт прилипать к вьюпорту при скролле — нашёл именно так, скроллом
+   вниз. clip даёт то же обрезание декоративного пятна в hero за края
+   экрана, но не создаёт скролл-контейнер и это не ломает. */
+body {
+  overflow-x: clip;
+}
+
+/* Шапка (.site-header, .brand*, .nav-links, .header-actions, .burger,
+   .mobile-nav) переехала в base.css — она общая для всех страниц, а не
+   только лендинга, см. web/js/header.js. */
+
+/* ===== HERO ===== */
+.hero {
+  padding: var(--space-64) var(--space-24) var(--space-48);
+}
+.hero-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-48);
+  align-items: center;
+}
+@media (max-width: 900px) {
+  .hero-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Заголовок hero — крупнейший в прототипе (56px), в шкале токенов такого
+   размера нет; ближайший по смыслу — display (он и предназначен именно
+   для "крупных заголовков витрины", см. комментарий в tokens.css). */
+.hero-title {
+  font-family: var(--font-display);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  font-size: var(--font-size-display);
+  line-height: var(--line-height-display);
+  margin: 0 0 var(--space-24);
+}
+@media (max-width: 900px) {
+  .hero-title {
+    font-size: var(--font-size-display-mobile);
+    line-height: var(--line-height-display-mobile);
+  }
+}
+
+.hero-subtitle {
+  font-size: var(--font-size-body-lg);
+  line-height: var(--line-height-body-lg);
+  color: var(--color-text-secondary);
+  margin: 0 0 var(--space-32);
+  max-width: 480px;
+}
+
+.hero-actions {
+  display: flex;
+  gap: var(--space-12);
+  flex-wrap: wrap;
+  margin-bottom: var(--space-16);
+}
+
+.hero-meta {
+  font-size: var(--font-size-caption);
+  color: var(--color-text-muted);
+}
+
+.hero-media {
+  position: relative;
+}
+.hero-photo {
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  border-radius: var(--radius-xl);
+}
+.hero-badge {
+  position: absolute;
+  bottom: -24px;
+  left: -24px;
+  background: var(--color-surface-raised);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-16);
+  box-shadow: var(--shadow-lg);
+  display: flex;
+  align-items: center;
+  gap: var(--space-12);
+  max-width: 280px;
+}
+@media (max-width: 900px) {
+  .hero-badge {
+    position: static;
+    margin-top: var(--space-24);
+  }
+}
+.hero-badge-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-full);
+  background: var(--color-primary-subtle);
+  color: var(--color-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: var(--font-weight-bold);
+  flex-shrink: 0;
+}
+.hero-badge-name {
+  font-size: var(--font-size-body-sm);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+}
+.hero-badge-service {
+  font-size: var(--font-size-caption);
+  color: var(--color-text-muted);
+  margin-bottom: var(--space-4);
+}
+.hero-badge-slot {
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-accent);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ===== TRUST STRIP ===== */
+.trust-strip {
+  border-top: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-surface);
+}
+.trust-grid {
+  padding: var(--space-24) 0;
+  display: grid;
+  /* Было 4 колонки — стало 3 после того, как убрали плашку "Записей
+     оформлено" (для неё нет публичного эндпоинта, см. комментарий в
+     index.html). */
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-24);
+  text-align: center;
+}
+@media (max-width: 900px) {
+  .trust-grid {
+    grid-template-columns: 1fr;
+  }
+}
+.trust-value {
+  font-family: var(--font-display);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  font-size: var(--font-size-h3);
+  font-variant-numeric: tabular-nums;
+}
+.trust-label {
+  font-size: var(--font-size-caption);
+  color: var(--color-text-muted);
+  margin-top: var(--space-4);
+}
+
+/* ===== ОБЩЕЕ ДЛЯ СЕКЦИЙ ===== */
+.section {
+  padding: var(--space-64) 0;
+}
+.section-center {
+  text-align: center;
+}
+
+/* ===== HOW IT WORKS ===== */
+.steps {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-32);
+  text-align: left;
+  margin-bottom: var(--space-32);
+}
+@media (max-width: 900px) {
+  .steps {
+    grid-template-columns: 1fr;
+  }
+}
+.step-index {
+  font-family: var(--font-display);
+  font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-h1);
+  color: var(--color-accent-subtle);
+  -webkit-text-stroke: 1.5px var(--color-accent);
+  margin-bottom: var(--space-12);
+}
+.step-title {
+  font-size: var(--font-size-body);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+  margin-bottom: var(--space-4);
+}
+.step-text {
+  font-size: var(--font-size-body-sm);
+  line-height: var(--line-height-body-sm);
+  color: var(--color-text-muted);
+}
+
+/* ===== CARD GRIDS (услуги / мастера / скелетоны) ===== */
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-16);
+}
+@media (max-width: 900px) {
+  .card-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.service-card,
+.master-card {
+  background: var(--color-surface);
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-24);
+}
+
+.service-icon {
+  width: 22px;
+  height: 22px;
+  margin-bottom: var(--space-12);
+  color: var(--color-accent);
+}
+
+.service-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--space-8);
+  margin-bottom: var(--space-4);
+}
+.service-name {
+  font-size: var(--font-size-body);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+}
+.service-price {
+  font-size: var(--font-size-body);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.service-description {
+  font-size: var(--font-size-body-sm);
+  line-height: var(--line-height-body-sm);
+  color: var(--color-text-muted);
+  margin-bottom: var(--space-12);
+}
+.service-duration {
+  font-size: var(--font-size-caption);
+  color: var(--color-text-muted);
+  font-variant-numeric: tabular-nums;
+  margin-bottom: var(--space-16);
+}
+
+.services-note {
+  font-size: var(--font-size-caption);
+  color: var(--color-text-muted);
+  margin-top: var(--space-16);
+  text-align: center;
+}
+
+/* ===== MASTERS ===== */
+.masters-section {
+  background: var(--color-surface-sunken);
+  border-radius: var(--radius-xl);
+  padding: var(--space-64) var(--space-24);
+}
+.masters-section .container {
+  padding: 0;
+}
+
+.master-card {
+  text-align: center;
+}
+.master-photo {
+  width: 88px;
+  height: 88px;
+  border-radius: var(--radius-full);
+  margin: 0 auto var(--space-12);
+  font-size: var(--font-size-caption);
+}
+.master-name {
+  font-family: var(--font-display);
+  font-size: var(--font-size-body-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+}
+.master-specialization {
+  font-size: var(--font-size-body-sm);
+  color: var(--color-text-muted);
+  margin-bottom: var(--space-8);
+}
+.master-rating {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-4);
+  margin-bottom: var(--space-12);
+}
+.master-rating-value {
+  font-size: var(--font-size-body-sm);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+  font-variant-numeric: tabular-nums;
+}
+.master-rating-count {
+  font-size: var(--font-size-caption);
+  color: var(--color-text-muted);
+}
+/* Декоративная плашка "ближайшее окно" — не данные API, см. комментарий
+   в landing.js рядом с местом, где она собирается. */
+.master-next-slot {
+  background: var(--color-primary-subtle);
+  border-radius: var(--radius-md);
+  padding: var(--space-8);
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-primary);
+  margin-bottom: var(--space-12);
+  font-variant-numeric: tabular-nums;
+}
+
+.masters-link {
+  text-align: center;
+  font-size: var(--font-size-body-sm);
+  font-weight: var(--font-weight-bold);
+}
+
+/* ===== DEMO SLOTS (полностью статичная иллюстрация, docs/ui-map.md) ===== */
+.demo-panel {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-32);
+}
+.demo-ribbon {
+  display: flex;
+  gap: var(--space-8);
+  overflow-x: auto;
+  padding-bottom: var(--space-16);
+  margin-bottom: var(--space-24);
+  border-bottom: 1px solid var(--color-border);
+}
+.demo-day {
+  flex-shrink: 0;
+  min-width: 56px;
+  min-height: 44px;
+  padding: var(--space-8);
+  border-radius: var(--radius-lg);
+  text-align: center;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text-primary);
+  cursor: pointer;
+  font-family: var(--font-body);
+}
+.demo-day-dow {
+  font-size: var(--font-size-caption);
+  color: var(--color-text-muted);
+}
+.demo-day-num {
+  font-size: var(--font-size-body);
+  font-weight: var(--font-weight-bold);
+  font-variant-numeric: tabular-nums;
+}
+.demo-day.is-active {
+  border-color: var(--color-primary);
+  background: var(--color-primary);
+  color: var(--color-text-on-accent);
+}
+/* На активном (тёмном) фоне --color-text-muted нечитаем — в tokens.css нет
+   отдельного "приглушённого текста на акцентной заливке", поэтому здесь
+   день недели просто того же цвета, что и число, без затемнения. */
+.demo-day.is-active .demo-day-dow {
+  color: var(--color-text-on-accent);
+}
+
+.demo-period-label {
+  font-size: var(--font-size-caption);
+  text-transform: uppercase;
+  letter-spacing: var(--letter-spacing-overline);
+  color: var(--color-text-muted);
+  font-weight: var(--font-weight-bold);
+  margin-bottom: var(--space-12);
+}
+.demo-slots {
+  display: flex;
+  gap: var(--space-8);
+  flex-wrap: wrap;
+  margin-bottom: var(--space-24);
+}
+.demo-slot {
+  padding: var(--space-12) var(--space-16);
+  border-radius: var(--radius-md);
+  font-family: var(--font-body);
+  font-size: var(--font-size-body-sm);
+  font-weight: var(--font-weight-bold);
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+  min-height: 44px;
+  background: var(--color-slot-free-bg);
+  border: 1.5px solid var(--color-slot-free-border);
+  color: var(--color-slot-free-text);
+}
+.demo-slot.is-selected {
+  background: var(--color-slot-selected-bg);
+  border-color: var(--color-slot-selected-border);
+  color: var(--color-slot-selected-text);
+}
+.demo-slot:disabled {
+  background: repeating-linear-gradient(
+    135deg,
+    var(--color-slot-busy-bg),
+    var(--color-slot-busy-bg) 6px,
+    var(--color-border) 6px,
+    var(--color-border) 7px
+  );
+  border: 1.5px solid var(--color-slot-busy-border);
+  color: var(--color-slot-busy-text);
+  cursor: not-allowed;
+}
+
+.demo-cta {
+  width: 100%;
+}
+
+/* ===== GALLERY ===== */
+.gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-16);
+}
+@media (max-width: 900px) {
+  .gallery-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+.gallery-item {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background: var(--color-surface);
+  padding: var(--space-8);
+}
+.gallery-photo {
+  aspect-ratio: 1;
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-caption);
+}
+
+/* ===== REVIEWS ===== */
+.review-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-24);
+}
+.review-head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-12);
+  margin-bottom: var(--space-12);
+}
+.review-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-full);
+  background: var(--color-primary-subtle);
+  color: var(--color-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: var(--font-weight-bold);
+  font-size: var(--font-size-body-sm);
+  flex-shrink: 0;
+}
+.review-name {
+  font-size: var(--font-size-body-sm);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+}
+.review-service {
+  font-size: var(--font-size-caption);
+  color: var(--color-text-muted);
+}
+.review-stars {
+  display: flex;
+  gap: var(--space-2);
+  margin-bottom: var(--space-8);
+  color: var(--color-accent);
+}
+.review-text {
+  font-size: var(--font-size-body-sm);
+  line-height: var(--line-height-body-sm);
+  color: var(--color-text-secondary);
+}
+
+/* ===== FAQ ===== */
+.faq-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+  max-width: 900px;
+  margin: 0 auto;
+}
+.faq-item {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+.faq-question {
+  width: 100%;
+  padding: var(--space-16);
+  background: none;
+  border: none;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-16);
+  text-align: left;
+  cursor: pointer;
+  font-family: var(--font-body);
+  font-size: var(--font-size-body-sm);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+}
+.faq-icon {
+  font-size: var(--font-size-h3);
+  color: var(--color-accent);
+  transition: transform 0.2s ease;
+  flex-shrink: 0;
+}
+.faq-item.is-open .faq-icon {
+  transform: rotate(45deg);
+}
+.faq-answer {
+  padding: 0 var(--space-16) var(--space-16);
+  font-size: var(--font-size-body-sm);
+  line-height: var(--line-height-body-sm);
+  color: var(--color-text-secondary);
+}
+
+/* ===== FINAL CTA =====
+   Прототип красит эту кнопку парой значений, которых нет в светлой части
+   tokens.css (#d3aa64 / #1f130b — это дословно тёмная тема, а страница
+   тему не переключает). Вместо того чтобы зашивать эти hex как новые
+   локальные переменные, кнопка перекрашена в пару токенов светлой темы:
+   --color-accent как фон (даёт контраст с --color-primary фоном секции)
+   и --color-text-on-accent как текст — оба уже используются для той же
+   роли "текст на акцентной заливке" в остальной вёрстке. */
+.final-cta {
+  position: relative;
+  overflow: hidden;
+  background: var(--color-primary);
+  padding: var(--space-64) var(--space-24);
+  text-align: center;
+}
+.final-cta-title {
+  font-family: var(--font-display);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-on-accent);
+  font-size: var(--font-size-h1);
+  line-height: var(--line-height-h1);
+  margin: 0 0 var(--space-16);
+}
+@media (max-width: 900px) {
+  .final-cta-title {
+    font-size: var(--font-size-h1-mobile);
+    line-height: var(--line-height-h1-mobile);
+  }
+}
+.final-cta-text {
+  font-size: var(--font-size-body);
+  color: var(--color-accent-subtle);
+  margin: 0 0 var(--space-32);
+}
+.final-cta .btn-primary {
+  background: var(--color-accent);
+  color: var(--color-text-on-accent);
+}
+.final-cta .btn-primary:hover {
+  background: var(--color-accent-hover);
+}
+
+/* ===== FOOTER ===== */
+.site-footer {
+  background: var(--color-surface-sunken);
+  padding: var(--space-48) var(--space-24) var(--space-24);
+}
+.footer-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr;
+  gap: var(--space-32);
+  margin-bottom: var(--space-32);
+}
+@media (max-width: 900px) {
+  .footer-grid {
+    grid-template-columns: 1fr;
+  }
+}
+.footer-brand {
+  display: flex;
+  align-items: center;
+  gap: var(--space-8);
+  margin-bottom: var(--space-12);
+}
+.footer-brand-mark {
+  width: 34px;
+  height: 34px;
+  border-radius: var(--radius-full);
+  background: var(--color-primary);
+  color: var(--color-text-on-accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-weight: var(--font-weight-bold);
+  font-size: var(--font-size-body-sm);
+}
+.footer-brand-name {
+  font-family: var(--font-display);
+  font-size: var(--font-size-body-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+}
+.footer-address {
+  font-size: var(--font-size-body-sm);
+  line-height: var(--line-height-body-sm);
+  color: var(--color-text-muted);
+}
+.footer-heading {
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+  margin-bottom: var(--space-12);
+}
+.footer-links {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+  font-size: var(--font-size-body-sm);
+}
+.footer-links a {
+  color: var(--color-text-muted);
+}
+.footer-bottom {
+  padding-top: var(--space-16);
+  border-top: 1px solid var(--color-border);
+  font-size: var(--font-size-caption);
+  color: var(--color-text-disabled);
+}
