@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Тон — выберите услуги</title>
+<meta name="description" content="Шаг 1 из 4: выберите одну или несколько услуг для записи.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/booking.css">
+</head>
+<body>
+
+<!-- Мини-шапка визарда + степпер — вставляет js/booking-flow.js -->
+<div id="booking-flow-root"></div>
+
+<main class="booking-shell">
+  <h1 class="booking-title">Выберите услуги</h1>
+  <p class="booking-subtitle">Можно выбрать несколько — мы подберём время с запасом</p>
+
+  <div id="servicesError" class="api-error" hidden></div>
+
+  <div class="category-tabs" id="categoryTabs" aria-label="Категории услуг" hidden></div>
+  <div class="service-select-grid" id="serviceGrid" aria-live="polite"></div>
+
+  <div class="booking-payment-note">Оплата в салоне</div>
+</main>
+
+<div class="booking-footer-bar">
+  <div class="booking-footer-inner">
+    <a href="index.html" class="btn btn-outline">Назад</a>
+    <div class="booking-footer-right" id="footerRight"></div>
+  </div>
+</div>
+
+<script type="module" src="js/booking-1.js"></script>
+</body>
+</html>

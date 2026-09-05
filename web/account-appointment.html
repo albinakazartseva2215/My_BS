@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Тон — детали записи</title>
+<meta name="description" content="Детали записи: отмена и перенос.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/landing.css">
+<link rel="stylesheet" href="css/account.css">
+<link rel="stylesheet" href="css/booking.css">
+</head>
+<body>
+
+<!-- ШАПКА — общая для всех страниц, разметку вставляет js/header.js -->
+<div id="site-header-root"></div>
+
+<main class="account-main">
+  <div class="account-container" style="max-width:560px">
+
+    <a href="account.html" class="visit-summary-change" style="display:inline-block;margin-bottom:var(--space-16)">← К списку записей</a>
+
+    <div id="detailsError" class="api-error" hidden></div>
+
+    <div id="detailsContent" aria-live="polite">
+      <div class="skeleton-line" style="height:280px;border-radius:var(--radius-lg)"></div>
+    </div>
+
+  </div>
+</main>
+
+<div id="modalRoot"></div>
+
+<script type="module" src="js/account-appointment.js"></script>
+</body>
+</html>

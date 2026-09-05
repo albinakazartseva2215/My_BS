@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Тон — подтверждение записи</title>
+<meta name="description" content="Шаг 4 из 4: подтвердите данные и оформите запись.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/auth.css">
+<link rel="stylesheet" href="css/booking.css">
+</head>
+<body>
+
+<!-- Мини-шапка визарда + степпер — вставляет js/booking-flow.js -->
+<div id="booking-flow-root"></div>
+
+<main class="booking-shell">
+  <div id="confirmError" class="api-error" hidden></div>
+
+  <div id="confirmScreen">
+    <!-- Заполняется js/booking-4.js: скелетон → баннер удержания + форма/сводка,
+         либо состояние "время истекло", либо состояние "время заняли" (Booking 04b) -->
+  </div>
+</main>
+
+<script type="module" src="js/booking-4.js"></script>
+</body>
+</html>

@@ -1,0 +1,1232 @@
+/*
+ * Общие стили визарда записи (Booking · 1–5) — узкая
+ * колонка по образцу Full style guide DC/export/src/booking-*.dc.html
+ * (max-width в самом прототипе — не 1280px, как на лендинге). Ширина
+ * колонки — 680px: у booking-1/2.dc.html в прототипе 640px, у
+ * booking-3.dc.html — 680px (нужнее места сетке слотов на 5 колонок).
+ * Общий контейнер один на весь визард, поэтому взята большая из двух
+ * величин — на шагах 1–2 разница в 40px незаметна. Цвета/шрифты/размеры/
+ * отступы — только tokens.css (docs/frontend-rules.md, правило 4).
+ *
+ * Заголовок шага в прототипе — 26px, которого нет в шкале tokens.css
+ * (есть только 24 и 28) — округлено до ближайшего меньшего при равном
+ * расстоянии, тем же правилом, что уже описано в base.css.
+ */
+
+.booking-shell {
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 0 var(--space-24) 140px;
+}
+
+/* ---- Мини-шапка визарда (лого + крестик "закрыть") ----
+   .brand/.brand-mark/.brand-name — те же классы, что и в обычной шапке
+   сайта (base.css, использует js/header.js) — лого одно и то же, повторно
+   определять его здесь незачем. */
+.flow-header {
+  max-width: 680px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-16) var(--space-24) 0;
+}
+
+.flow-close {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.flow-close:hover {
+  color: var(--color-text-primary);
+  border-color: var(--color-border-strong);
+}
+
+/* ---- Степпер ---- */
+.stepper {
+  display: flex;
+  align-items: flex-start;
+  list-style: none;
+  margin: 0 0 var(--space-24);
+  padding: var(--space-24) var(--space-24) 0;
+  max-width: 680px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.stepper-item {
+  flex: 1;
+  display: flex;
+  align-items: center;
+}
+.stepper-item:last-child {
+  flex: 0 0 auto;
+}
+/* Соединительная линия между узлами — цвет зависит от того, пройден ли
+   узел ПЕРЕД линией (см. js/booking-flow.js: класс is-done/is-current/
+   is-future ставится и на сам <li>, не только на ссылку/span внутри). */
+.stepper-item:not(:last-child)::after {
+  content: '';
+  flex: 1;
+  height: 2px;
+  background: var(--color-border);
+  margin: 0 var(--space-8);
+  transform: translateY(-14px); /* выравнивание по центру кружка, подпись — строкой ниже */
+}
+.stepper-item.is-done:not(:last-child)::after {
+  background: var(--color-primary);
+}
+
+.stepper-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-8);
+  text-decoration: none;
+}
+.stepper-circle {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--font-size-body-sm);
+  font-weight: var(--font-weight-bold);
+}
+.stepper-label {
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-bold);
+}
+
+.stepper-step.is-done .stepper-circle {
+  background: var(--color-primary);
+  color: var(--color-text-on-accent);
+}
+.stepper-step.is-done .stepper-label {
+  color: var(--color-text-primary);
+}
+.stepper-step.is-current .stepper-circle {
+  background: var(--color-accent);
+  color: var(--color-text-on-accent);
+  box-shadow: 0 0 0 4px var(--color-accent-subtle);
+}
+.stepper-step.is-current .stepper-label {
+  color: var(--color-text-primary);
+}
+.stepper-step.is-future .stepper-circle {
+  background: var(--color-surface-sunken);
+  color: var(--color-text-disabled);
+  border: 1.5px solid var(--color-border);
+}
+.stepper-step.is-future .stepper-label {
+  color: var(--color-text-disabled);
+}
+
+/* ---- Заголовок шага ---- */
+.booking-title {
+  font-family: var(--font-display);
+  font-size: var(--font-size-h3);
+  line-height: var(--line-height-h3);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  margin: 0 0 var(--space-8);
+}
+.booking-subtitle {
+  font-size: var(--font-size-body-sm);
+  color: var(--color-text-muted);
+  margin: 0 0 var(--space-24);
+  line-height: var(--line-height-body-sm);
+}
+
+/* ---- Табы категорий (Booking · 1) ---- */
+.category-tabs {
+  display: flex;
+  gap: var(--space-4);
+  background: var(--color-surface-sunken);
+  border-radius: var(--radius-full);
+  padding: var(--space-4);
+  margin-bottom: var(--space-24);
+  width: fit-content;
+  max-width: 100%;
+  overflow-x: auto;
+}
+.category-tab {
+  padding: var(--space-8) var(--space-16);
+  border-radius: var(--radius-full);
+  border: none;
+  background: transparent;
+  color: var(--color-text-muted);
+  font-family: var(--font-body);
+  font-size: var(--font-size-body-sm);
+  font-weight: var(--font-weight-bold);
+  cursor: pointer;
+  white-space: nowrap;
+}
+.category-tab.is-active {
+  background: var(--color-surface);
+  color: var(--color-text-primary);
+}
+
+/* ---- Сетка услуг с мультивыбором (Booking · 1) ---- */
+.service-select-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-16);
+  margin-bottom: var(--space-24);
+}
+@media (max-width: 640px) {
+  .service-select-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.service-select-card {
+  background: var(--color-surface);
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-16);
+  cursor: pointer;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  text-align: left;
+  font-family: var(--font-body);
+  width: 100%;
+}
+.service-select-card:hover {
+  border-color: var(--color-border-strong);
+  box-shadow: var(--shadow-lg);
+}
+.service-select-card.is-selected {
+  border: 2px solid var(--color-accent);
+  box-shadow: 0 0 0 3px var(--color-accent-subtle);
+}
+.service-select-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--space-8);
+  margin-bottom: var(--space-4);
+}
+.service-select-name {
+  font-size: var(--font-size-body);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+}
+.service-select-check {
+  width: 22px;
+  height: 22px;
+  border-radius: var(--radius-full);
+  border: 1.5px solid var(--color-border-strong);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--font-size-caption);
+  color: transparent;
+}
+.service-select-card.is-selected .service-select-check {
+  border-color: var(--color-accent);
+  background: var(--color-accent);
+  color: var(--color-text-on-accent);
+  font-weight: var(--font-weight-bold);
+}
+.service-select-description {
+  font-size: var(--font-size-body-sm);
+  color: var(--color-text-muted);
+  margin-bottom: var(--space-12);
+  line-height: var(--line-height-body-sm);
+}
+.service-select-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.service-select-duration {
+  font-size: var(--font-size-caption);
+  color: var(--color-text-muted);
+  font-variant-numeric: tabular-nums;
+}
+.service-select-price {
+  font-size: var(--font-size-body);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.booking-payment-note {
+  font-size: var(--font-size-caption);
+  color: var(--color-text-muted);
+  text-align: center;
+  margin-bottom: var(--space-16);
+}
+
+/* ---- Баннер выбранных услуг (Booking · 2) ---- */
+.selected-services-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-16);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-12) var(--space-16);
+  margin-bottom: var(--space-24);
+  flex-wrap: wrap;
+}
+.selected-services-text {
+  font-size: var(--font-size-body-sm);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+  font-variant-numeric: tabular-nums;
+}
+.selected-services-change {
+  background: none;
+  border: none;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-4);
+  font-family: var(--font-body);
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-bold);
+  padding: var(--space-4);
+  text-decoration: none;
+}
+.selected-services-change:hover {
+  color: var(--color-accent);
+}
+
+/* ---- Список мастеров (Booking · 2) ---- */
+.master-option-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-16);
+  margin-bottom: var(--space-24);
+}
+
+.master-option-card {
+  display: flex;
+  gap: var(--space-16);
+  align-items: flex-start;
+  background: var(--color-surface);
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-16);
+  cursor: pointer;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  text-align: left;
+  font-family: var(--font-body);
+  width: 100%;
+}
+.master-option-card:hover:not(.is-disabled) {
+  border-color: var(--color-border-strong);
+  box-shadow: var(--shadow-lg);
+}
+.master-option-card.is-selected {
+  border: 2px solid var(--color-accent);
+  box-shadow: 0 0 0 3px var(--color-accent-subtle);
+}
+/* Мастер, который не выполняет весь набор выбранных услуг — задание:
+   "показывай неактивными с пояснением", а не скрывай совсем. */
+.master-option-card.is-disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.master-option-avatar,
+.master-option-any-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: var(--radius-full);
+  flex-shrink: 0;
+  font-size: var(--font-size-caption);
+}
+.master-option-any-icon {
+  background: var(--color-accent-subtle);
+  color: var(--color-accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.master-option-body {
+  flex: 1;
+  min-width: 0;
+}
+.master-option-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--space-8);
+}
+.master-option-name {
+  font-family: var(--font-display);
+  font-size: var(--font-size-body-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+}
+.master-option-spec {
+  font-size: var(--font-size-body-sm);
+  color: var(--color-text-muted);
+}
+.master-option-rating {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  margin-top: var(--space-8);
+  font-size: var(--font-size-caption);
+}
+.master-option-rating-value {
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+  font-variant-numeric: tabular-nums;
+}
+.master-option-rating-count {
+  color: var(--color-text-muted);
+}
+.master-option-check {
+  width: 22px;
+  height: 22px;
+  border-radius: var(--radius-full);
+  border: 1.5px solid var(--color-border-strong);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--font-size-caption);
+  color: transparent;
+}
+.master-option-card.is-selected .master-option-check {
+  border-color: var(--color-accent);
+  background: var(--color-accent);
+  color: var(--color-text-on-accent);
+  font-weight: var(--font-weight-bold);
+}
+
+.master-any-title {
+  font-size: var(--font-size-body);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+}
+.master-any-subtitle {
+  font-size: var(--font-size-caption);
+  color: var(--color-accent);
+  font-weight: var(--font-weight-bold);
+  margin-top: var(--space-2);
+}
+
+/* Пояснение у неактивного мастера — почему нельзя выбрать (задание:
+   "неактивными с пояснением"). */
+.master-option-reason {
+  display: inline-block;
+  margin-top: var(--space-8);
+  padding: var(--space-4) var(--space-8);
+  border-radius: var(--radius-sm);
+  background: var(--color-warning-subtle);
+  color: var(--color-warning-text);
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-bold);
+}
+
+/* ---- "Никто не подходит" (Booking · 2, пустой список подходящих мастеров) ---- */
+.booking-empty-state {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  padding: var(--space-32) var(--space-24);
+  text-align: center;
+  margin-bottom: var(--space-24);
+}
+.booking-empty-title {
+  font-size: var(--font-size-body);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+  margin-bottom: var(--space-8);
+}
+.booking-empty-text {
+  font-size: var(--font-size-body-sm);
+  color: var(--color-text-muted);
+  margin-bottom: var(--space-16);
+}
+
+/* ---- Нижняя закреплённая панель "Назад / Далее" (Booking · 1 и · 2) ---- */
+.booking-footer-bar {
+  position: sticky;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--color-surface);
+  border-top: 1px solid var(--color-border);
+  padding: var(--space-16) var(--space-24);
+  box-shadow: var(--shadow-lg);
+}
+.booking-footer-inner {
+  max-width: 680px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-16);
+  flex-wrap: wrap;
+}
+.booking-footer-right {
+  display: flex;
+  align-items: center;
+  gap: var(--space-16);
+  flex: 1;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+}
+.booking-summary-text {
+  text-align: right;
+}
+.booking-summary-count {
+  font-size: var(--font-size-body-sm);
+  color: var(--color-text-muted);
+}
+.booking-summary-total {
+  font-family: var(--font-display);
+  font-size: var(--font-size-h3);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  font-variant-numeric: tabular-nums;
+}
+/* Требование задания: "пока ничего не выбрано, кнопка недоступна и рядом
+   написано, чего не хватает" — вместо суммы показываем эту подсказку. */
+.booking-missing-hint {
+  font-size: var(--font-size-body-sm);
+  color: var(--color-text-muted);
+  text-align: right;
+}
+
+/* ==================== Booking · 3 · Дата и время ==================== */
+
+/* ---- Баннер-напоминание (мастер + услуги + длительность) ----
+   В прототипе он информационный, без ссылки "Изменить" — в отличие от
+   баннера на Booking · 2 (docs/ui-map.md, раздел 4: назад ведут только
+   иконки шагов в степпере, отдельной ссылки на баннере нет). */
+.reminder-banner {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-12) var(--space-16);
+  margin-bottom: var(--space-24);
+  font-size: var(--font-size-body-sm);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+  font-variant-numeric: tabular-nums;
+}
+/* Режим переноса (Booking · 3 с ?reschedule=) — старое время показываем
+   отдельной строкой внутри баннера (задание: "старое время видно
+   отдельным состоянием"), не сливая его со сводкой мастера/услуг. */
+.reschedule-old-time {
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-regular);
+  color: var(--color-text-muted);
+  margin-top: var(--space-4);
+}
+/* Тот же день, что и текущее время записи — кольцо поверх обычного
+   статуса дня (свободно/занято и то, и другое возможно: слот заняла же
+   сама эта запись). */
+.dt-day.is-old-time {
+  box-shadow: inset 0 0 0 2px var(--color-info);
+}
+
+/* ---- Календарь ---- */
+.calendar-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-16);
+  margin-bottom: var(--space-16);
+}
+.calendar-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-16);
+}
+.calendar-nav-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text-primary);
+  font-size: var(--font-size-body-lg);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.calendar-nav-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+.calendar-month-label {
+  font-family: var(--font-display);
+  font-size: var(--font-size-body-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+}
+.calendar-horizon-note {
+  font-size: var(--font-size-caption);
+  color: var(--color-text-muted);
+  text-align: center;
+  margin-bottom: var(--space-12);
+}
+.calendar-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: var(--space-4);
+  font-size: var(--font-size-caption);
+  color: var(--color-text-muted);
+  text-align: center;
+  margin-bottom: var(--space-8);
+}
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: var(--space-4);
+}
+.dt-day {
+  aspect-ratio: 1;
+  min-height: 38px;
+  border-radius: var(--radius-sm);
+  border: none;
+  font-family: var(--font-body);
+  font-size: var(--font-size-body-sm);
+  font-weight: var(--font-weight-semibold);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  background: transparent;
+  color: var(--color-text-primary);
+}
+.dt-day:hover:not(:disabled) {
+  background: var(--color-surface-sunken);
+}
+.dt-day-marker {
+  font-size: 6px;
+  line-height: 1;
+  height: 6px;
+}
+/* Свободно — точка-маркер акцентом; сегодня без выбора — лёгкая подложка,
+   чтобы отличить "сегодня" от прочих свободных дней, как в прототипе. */
+.dt-day.is-free {
+  background: var(--color-surface-sunken);
+  cursor: pointer;
+}
+.dt-day.is-free.is-today {
+  background: var(--color-accent-subtle);
+}
+.dt-day.is-free .dt-day-marker {
+  color: var(--color-accent);
+}
+/* Окон нет — светлый квадрат с рамкой, без маркера-точки (легенда:
+   "Окон нет"). */
+.dt-day.is-none {
+  background: var(--color-surface-sunken);
+  border: 1px solid var(--color-border);
+  color: var(--color-text-disabled);
+  cursor: not-allowed;
+}
+/* Выходной — перечёркнутый номер, крестик-маркер. */
+.dt-day.is-closed {
+  color: var(--color-text-muted);
+  text-decoration: line-through;
+  cursor: not-allowed;
+}
+.dt-day.is-closed .dt-day-marker {
+  color: var(--color-text-muted);
+  font-size: 9px;
+}
+/* Прошедшая дата и "вне горизонта записи" выглядят одинаково приглушённо —
+   разница между ними неважна клиенту, обе одинаково недоступны. */
+.dt-day.is-past,
+.dt-day.is-beyond {
+  color: var(--color-text-disabled);
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.dt-day.is-selected {
+  background: var(--color-primary) !important;
+  color: var(--color-text-on-accent) !important;
+  cursor: pointer;
+}
+.dt-day.is-selected .dt-day-marker {
+  color: var(--color-text-on-accent) !important;
+}
+
+.calendar-legend {
+  display: flex;
+  gap: var(--space-16);
+  flex-wrap: wrap;
+  margin-top: var(--space-16);
+  padding-top: var(--space-12);
+  border-top: 1px solid var(--color-border);
+  font-size: var(--font-size-caption);
+  color: var(--color-text-muted);
+}
+.calendar-legend-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+.calendar-legend-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: var(--radius-full);
+  background: var(--color-accent);
+  display: inline-block;
+}
+.calendar-legend-square {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  background: var(--color-surface-sunken);
+  border: 1px solid var(--color-border);
+  display: inline-block;
+}
+
+/* ---- Сетка слотов на выбранный день ---- */
+.slots-group-label {
+  font-size: var(--font-size-caption);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-text-muted);
+  font-weight: var(--font-weight-bold);
+  margin: var(--space-16) 0 var(--space-8);
+}
+.slots-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: var(--space-8);
+  margin-bottom: var(--space-16);
+}
+@media (max-width: 640px) {
+  .slots-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.slot-btn {
+  padding: var(--space-8) var(--space-4);
+  border-radius: var(--radius-md);
+  font-family: var(--font-body);
+  font-size: var(--font-size-body-sm);
+  font-weight: var(--font-weight-bold);
+  font-variant-numeric: tabular-nums;
+  min-height: 44px;
+  text-align: center;
+  background: var(--color-slot-free-bg);
+  border: 1.5px solid var(--color-slot-free-border);
+  color: var(--color-slot-free-text);
+  cursor: pointer;
+}
+.slot-btn.is-selected {
+  background: var(--color-slot-selected-bg);
+  border-color: var(--color-slot-selected-border);
+  color: var(--color-slot-selected-text);
+}
+/* Занятое время — видно и неактивно, а не спрятано (задание). Полосатая
+   заливка — тот же приём, что и у "фото"-плейсхолдера (base.css), собран
+   из двух реальных токенов, а не нового цвета. */
+.slot-btn.is-busy {
+  background: repeating-linear-gradient(
+    135deg,
+    var(--color-slot-busy-bg),
+    var(--color-slot-busy-bg) 6px,
+    var(--color-slot-busy-border) 6px,
+    var(--color-slot-busy-border) 7px
+  );
+  border: 1.5px solid var(--color-slot-busy-border);
+  color: var(--color-slot-busy-text);
+  cursor: not-allowed;
+}
+.slot-btn.is-past {
+  background: var(--color-slot-past-bg);
+  border: 1px dashed var(--color-slot-past-border);
+  color: var(--color-slot-past-text);
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.slots-skeleton-pill {
+  height: 44px;
+  border-radius: var(--radius-md);
+}
+
+.slots-note {
+  font-size: var(--font-size-caption);
+  color: var(--color-text-muted);
+  margin-bottom: var(--space-8);
+}
+.slots-hold-note {
+  font-size: var(--font-size-caption);
+  color: var(--color-accent);
+  font-weight: var(--font-weight-bold);
+  margin-bottom: var(--space-8);
+}
+/* Требование: "под сеткой пиши, во сколько закончится визит". */
+.visit-end-note {
+  font-size: var(--font-size-body-sm);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+  margin-bottom: var(--space-8);
+}
+
+/* ---- "Окон нет в этот день" (Booking 03a — состояние этого же экрана) ---- */
+.slots-empty-state {
+  background: var(--color-surface);
+  border: 1px dashed var(--color-border-strong);
+  border-radius: var(--radius-lg);
+  padding: var(--space-32) var(--space-24);
+  text-align: center;
+  margin-top: var(--space-8);
+}
+.slots-empty-icon {
+  font-size: var(--font-size-h2);
+  color: var(--color-text-muted);
+  margin-bottom: var(--space-8);
+}
+.slots-empty-title {
+  font-size: var(--font-size-body-sm);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+  margin: 0 auto var(--space-16);
+  max-width: 340px;
+}
+.slots-empty-nearest {
+  background: var(--color-accent-subtle);
+  border-radius: var(--radius-md);
+  padding: var(--space-12) var(--space-16);
+  margin: 0 auto var(--space-16);
+  max-width: 340px;
+  font-size: var(--font-size-body-sm);
+  color: var(--color-text-primary);
+}
+.slots-empty-nearest strong {
+  font-variant-numeric: tabular-nums;
+}
+.slots-empty-actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+  align-items: center;
+}
+
+/* ==================== Booking · 4 · Подтверждение (+ вход) ==================== */
+/* Общий контейнер визарда (.booking-shell, 680px) переиспользован и здесь —
+   у прототипа этот экран шире (900px, из-за двух колонок), но заводить
+   отдельную ширину контейнера ради одного экрана визарда не стал: колонки
+   ниже просто чуть theснее, чем в прототипе. */
+
+.hold-banner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-16);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-12) var(--space-16);
+  margin-bottom: var(--space-24);
+}
+/* Явный display здесь перебивает браузерное [hidden]{display:none} (та же
+   специфичность, но правило автора всегда выше правила user-agent) — без
+   этой строчки js/booking-4.js:onHoldExpired() прячет баннер атрибутом
+   hidden, а он всё равно виден. Найдено вживую при проверке истечения
+   удержания. */
+.hold-banner[hidden] {
+  display: none;
+}
+.hold-banner-text {
+  display: flex;
+  align-items: center;
+  gap: var(--space-8);
+  font-size: var(--font-size-body-sm);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+}
+.hold-banner-timer {
+  font-size: var(--font-size-body-lg);
+  font-weight: var(--font-weight-bold);
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text-primary);
+}
+/* Требование: "когда остаётся меньше минуты, таймер меняет вид". */
+.hold-banner.is-warning {
+  background: var(--color-warning-subtle);
+  border-color: var(--color-warning);
+}
+.hold-banner.is-warning .hold-banner-text,
+.hold-banner.is-warning .hold-banner-timer {
+  color: var(--color-warning-text);
+}
+
+.confirm-layout {
+  display: grid;
+  grid-template-columns: 1fr 260px;
+  gap: var(--space-24);
+  align-items: start;
+  margin-bottom: var(--space-24);
+}
+@media (max-width: 700px) {
+  .confirm-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ---- Левая колонка: данные клиента ---- */
+.identity-panel {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-24);
+}
+.identity-tabs {
+  display: flex;
+  gap: var(--space-4);
+  background: var(--color-surface-sunken);
+  border-radius: var(--radius-full);
+  padding: var(--space-4);
+  margin-bottom: var(--space-16);
+  width: fit-content;
+}
+.identity-tab {
+  padding: var(--space-8) var(--space-16);
+  border-radius: var(--radius-full);
+  border: none;
+  background: transparent;
+  color: var(--color-text-muted);
+  font-family: var(--font-body);
+  font-size: var(--font-size-body-sm);
+  font-weight: var(--font-weight-bold);
+  cursor: pointer;
+}
+.identity-tab.is-active {
+  background: var(--color-surface);
+  color: var(--color-text-primary);
+}
+.identity-tab-panel[hidden] {
+  display: none;
+}
+.identity-footnote {
+  font-size: var(--font-size-caption);
+  color: var(--color-text-muted);
+  text-align: center;
+  margin-top: var(--space-16);
+  line-height: var(--line-height-caption);
+}
+
+/* Клиент уже вошёл — вместо формы короткая заметка (js/booking-4.js). */
+.identity-logged-in {
+  display: flex;
+  align-items: center;
+  gap: var(--space-12);
+}
+/* Без min-width:0 длинный e-mail не переносится, а раздвигает флекс-строку
+   шире контейнера — и вместе с ней всю узкую колонку целиком (найдено
+   вживую с длинным сгенерированным e-mail при проверке). */
+.identity-logged-in-info {
+  min-width: 0;
+}
+.identity-logged-in-name {
+  font-size: var(--font-size-body-sm);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+}
+.identity-logged-in-email {
+  font-size: var(--font-size-caption);
+  color: var(--color-text-muted);
+  overflow-wrap: anywhere;
+}
+
+.avatar-circle {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-full);
+  background: var(--color-primary-subtle);
+  color: var(--color-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: var(--font-weight-bold);
+  font-size: var(--font-size-caption);
+  flex-shrink: 0;
+}
+
+/* ---- Правая колонка: сводка визита ---- */
+.visit-summary-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-16);
+}
+.visit-summary-title {
+  font-size: var(--font-size-caption);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-text-muted);
+  font-weight: var(--font-weight-bold);
+  margin-bottom: var(--space-16);
+}
+.visit-summary-master {
+  display: flex;
+  align-items: center;
+  gap: var(--space-12);
+  margin-bottom: var(--space-16);
+  padding-bottom: var(--space-16);
+  border-bottom: 1px solid var(--color-border);
+}
+.visit-summary-master-info {
+  flex: 1;
+  min-width: 0;
+}
+.visit-summary-master-name {
+  font-size: var(--font-size-body-sm);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+}
+.visit-summary-datetime {
+  font-family: var(--font-display);
+  font-size: var(--font-size-h3);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  font-variant-numeric: tabular-nums;
+}
+/* Строка-заголовок раздела сводки со ссылкой "Изменить" справа (дата/
+   время, услуги) — задание: "ссылки «Изменить» ведут на нужные шаги". */
+.visit-summary-row-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--space-8);
+  margin-bottom: var(--space-16);
+}
+.visit-summary-row-head .visit-summary-title,
+.visit-summary-row-head .visit-summary-datetime {
+  margin-bottom: 0;
+}
+.visit-summary-services {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+  font-size: var(--font-size-body-sm);
+  color: var(--color-text-primary);
+  padding-bottom: var(--space-16);
+  border-bottom: 1px solid var(--color-border);
+  margin-bottom: var(--space-16);
+}
+.visit-summary-service-row {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-8);
+}
+.visit-summary-service-row span:last-child {
+  font-weight: var(--font-weight-bold);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.visit-summary-total {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: var(--font-size-body);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+  margin-bottom: var(--space-16);
+}
+.visit-summary-total span:last-child {
+  font-variant-numeric: tabular-nums;
+}
+.visit-summary-note {
+  font-size: var(--font-size-caption);
+  color: var(--color-text-muted);
+  margin-bottom: var(--space-4);
+}
+.visit-summary-change {
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-bold);
+}
+
+/* ---- Комментарий/напоминание/CTA (во всю ширину, под колонками) ---- */
+.comment-counter {
+  font-size: var(--font-size-caption);
+  color: var(--color-text-muted);
+  text-align: right;
+  margin-top: var(--space-4);
+  font-variant-numeric: tabular-nums;
+}
+
+.checkbox-row {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-8);
+  cursor: pointer;
+  margin: var(--space-16) 0 var(--space-24);
+  font-size: var(--font-size-body-sm);
+  color: var(--color-text-primary);
+}
+.checkbox-box {
+  width: 20px;
+  height: 20px;
+  border-radius: 6px;
+  border: 2px solid var(--color-border-strong);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-on-accent);
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-bold);
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+.checkbox-row.is-checked .checkbox-box {
+  border-color: var(--color-primary);
+  background: var(--color-primary);
+}
+.checkbox-hint {
+  color: var(--color-text-muted);
+}
+
+.confirm-cta-note {
+  font-size: var(--font-size-caption);
+  color: var(--color-text-muted);
+  text-align: center;
+  margin-top: var(--space-12);
+}
+
+/* ---- "Это время только что заняли" (Booking 04b — состояние этого же
+   экрана: полноэкранный вариант из error-slot-taken.dc.html; модальный
+   вариант поверх подтверждения не воспроизводился — по содержанию он тот
+   же самый, разница только в обрамлении) ---- */
+.conflict-panel {
+  background: var(--color-warning-subtle);
+  border: 1px solid var(--color-warning);
+  border-radius: var(--radius-xl);
+  padding: var(--space-32) var(--space-24);
+  text-align: center;
+  max-width: 440px;
+  margin: 0 auto;
+}
+.conflict-icon {
+  width: 64px;
+  height: 64px;
+  border-radius: var(--radius-full);
+  background: var(--color-surface);
+  color: var(--color-warning);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto var(--space-16);
+}
+.conflict-title {
+  font-family: var(--font-display);
+  font-size: var(--font-size-h3);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-warning-text);
+  margin-bottom: var(--space-8);
+}
+.conflict-text {
+  font-size: var(--font-size-body-sm);
+  color: var(--color-warning-text);
+  line-height: var(--line-height-body-sm);
+  margin-bottom: var(--space-16);
+}
+.conflict-alt-slots {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+  margin-bottom: var(--space-16);
+}
+.conflict-actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+  align-items: center;
+}
+.conflict-note {
+  background: var(--color-surface);
+  border-radius: var(--radius-md);
+  padding: var(--space-12) var(--space-16);
+  font-size: var(--font-size-caption);
+  color: var(--color-text-secondary);
+  margin-top: var(--space-16);
+}
+
+/* ==================== Booking · 5 · Успех ==================== */
+/* Отдельный, самостоятельный экран вне визарда — ни шапки визарда, ни
+   степпера у него в прototype нет (Full style guide DC/export/src/
+   booking-6.dc.html), только лого. */
+
+.success-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-64) var(--space-24);
+}
+.success-shell {
+  max-width: 440px;
+  width: 100%;
+  text-align: center;
+}
+.success-brand {
+  display: flex;
+  justify-content: center;
+  margin-bottom: var(--space-32);
+}
+.success-badge {
+  width: 72px;
+  height: 72px;
+  border-radius: var(--radius-full);
+  background: var(--color-accent);
+  color: var(--color-text-on-accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto var(--space-24);
+}
+.success-title {
+  font-family: var(--font-display);
+  font-size: var(--font-size-h2-mobile);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  margin-bottom: var(--space-24);
+}
+.success-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-24);
+  margin-bottom: var(--space-24);
+  text-align: left;
+}
+.success-card-datetime {
+  font-family: var(--font-display);
+  font-size: var(--font-size-h3);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  font-variant-numeric: tabular-nums;
+  margin-bottom: var(--space-16);
+}
+.success-actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+  margin-bottom: var(--space-16);
+}
+.success-secondary-link {
+  font-size: var(--font-size-body-sm);
+  font-weight: var(--font-weight-bold);
+}

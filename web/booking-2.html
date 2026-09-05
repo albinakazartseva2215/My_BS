@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Тон — выберите мастера</title>
+<meta name="description" content="Шаг 2 из 4: выберите мастера для записи.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/booking.css">
+</head>
+<body>
+
+<!-- Мини-шапка визарда + степпер — вставляет js/booking-flow.js -->
+<div id="booking-flow-root"></div>
+
+<main class="booking-shell">
+  <div id="mastersError" class="api-error" hidden></div>
+
+  <div class="selected-services-banner" id="selectedServicesBanner" hidden></div>
+
+  <h1 class="booking-title">Выберите мастера</h1>
+
+  <div id="mastersContent" aria-live="polite"></div>
+</main>
+
+<div class="booking-footer-bar">
+  <div class="booking-footer-inner">
+    <a href="booking-1.html" class="btn btn-outline">Назад</a>
+    <div class="booking-footer-right" id="footerRight"></div>
+  </div>
+</div>
+
+<script type="module" src="js/booking-2.js"></script>
+</body>
+</html>

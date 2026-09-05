@@ -122,6 +122,20 @@ button {
   width: 100%;
 }
 
+/* ---- Опасное действие (необратимое) — личный кабинет: отмена записи.
+   Источник — Full style guide DC/Design my B.S..dc.html, секция "07 ·
+   Обратная связь" (btnDanger): там текст кнопки белый по хардкоду
+   (color:#fff), которого нет в tokens.css — здесь тот же смысл ("текст на
+   тёмной заливке") через уже существующий токен --color-text-on-accent,
+   а не через новый сырой цвет (правило 4). */
+.btn-danger {
+  background: var(--color-danger);
+  color: var(--color-text-on-accent);
+}
+.btn-danger:hover {
+  background: var(--color-danger-text);
+}
+
 /* ---- Типографика секций ---- */
 
 .eyebrow {
@@ -219,6 +233,68 @@ button {
   overflow: hidden;
   clip: rect(0 0 0 0);
   white-space: nowrap;
+}
+
+/* ---- Модальное окно подтверждения ----
+   Источник — Full style guide DC/Design my B.S..dc.html, секция "07 ·
+   Обратная связь" (#modals: modalCard). Общий примитив, а не часть
+   личного кабинета — реализован здесь, а не в css/account.css, чтобы
+   любой будущий экран мог позвать его тем же классом. padding в образце —
+   28px, которого нет в шкале tokens.css (16/24/32) — округлено до 24
+   (расстояние до 24 и до 32 одинаковое — в меньшую сторону, то же
+   правило, что и везде в проекте). */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: var(--color-overlay);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-16);
+  z-index: 100;
+}
+.modal-card {
+  background: var(--color-surface-raised);
+  border-radius: var(--radius-xl);
+  padding: var(--space-24);
+  box-shadow: var(--shadow-xl);
+  max-width: 400px;
+  width: 100%;
+}
+.modal-title {
+  font-family: var(--font-display);
+  font-size: var(--font-size-h3);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  margin-bottom: var(--space-12);
+}
+.modal-text {
+  font-size: var(--font-size-body-sm);
+  line-height: var(--line-height-body-sm);
+  color: var(--color-text-secondary);
+  margin-bottom: var(--space-16);
+}
+.modal-text:last-of-type {
+  margin-bottom: var(--space-24);
+}
+.modal-actions {
+  display: flex;
+  gap: var(--space-12);
+  justify-content: flex-end;
+  flex-wrap: wrap;
+}
+
+/* ---- Инлайн-предупреждение — та же секция "07 · Обратная связь"
+   (#alerts: alertBase), фон-акцент из уже существующего цвета
+   предупреждения. ---- */
+.inline-alert {
+  padding: var(--space-16);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-body-sm);
+  line-height: var(--line-height-body-sm);
+  background: var(--color-warning-subtle);
+  color: var(--color-warning-text);
+  margin-bottom: var(--space-16);
 }
 
 /* ===== ШАПКА (общая для всех страниц, см. web/js/header.js) =====

@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Тон — выберите дату и время</title>
+<meta name="description" content="Шаг 3 из 4: выберите дату и время визита.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/booking.css">
+</head>
+<body>
+
+<!-- Мини-шапка визарда + степпер — вставляет js/booking-flow.js -->
+<div id="booking-flow-root"></div>
+
+<main class="booking-shell">
+  <div id="datetimeError" class="api-error" hidden></div>
+
+  <div class="reminder-banner" id="reminderBanner" hidden></div>
+
+  <h1 class="booking-title" id="pageTitle">Выберите дату и время</h1>
+
+  <!-- КАЛЕНДАРЬ -->
+  <div class="calendar-card">
+    <div class="calendar-head">
+      <button type="button" class="calendar-nav-btn" id="calPrev" aria-label="Предыдущий месяц">‹</button>
+      <div class="calendar-month-label" id="calMonthLabel"></div>
+      <button type="button" class="calendar-nav-btn" id="calNext" aria-label="Следующий месяц">›</button>
+    </div>
+    <div class="calendar-horizon-note" id="calHorizonNote" hidden></div>
+    <div class="calendar-weekdays">
+      <div>Пн</div><div>Вт</div><div>Ср</div><div>Чт</div><div>Пт</div><div>Сб</div><div>Вс</div>
+    </div>
+    <div class="calendar-grid" id="calGrid" aria-live="polite"></div>
+    <div class="calendar-legend">
+      <span class="calendar-legend-item"><span class="calendar-legend-dot" aria-hidden="true"></span>Есть окно</span>
+      <span class="calendar-legend-item"><span class="calendar-legend-square" aria-hidden="true"></span>Окон нет</span>
+      <span class="calendar-legend-item"><span aria-hidden="true">×</span>Выходной</span>
+      <span class="calendar-legend-item" style="opacity:.6">Серый — недоступная дата</span>
+    </div>
+  </div>
+
+  <!-- СЛОТЫ НА ВЫБРАННЫЙ ДЕНЬ -->
+  <div id="slotsSection" aria-live="polite"></div>
+</main>
+
+<div class="booking-footer-bar">
+  <div class="booking-footer-inner">
+    <a href="booking-2.html" class="btn btn-outline" id="backLink">Назад</a>
+    <div class="booking-footer-right" id="footerRight"></div>
+  </div>
+</div>
+
+<script type="module" src="js/booking-3.js"></script>
+</body>
+</html>

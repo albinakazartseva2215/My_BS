@@ -19,11 +19,18 @@ export function registerRoutes(router) {
     const { totalDurationMinutes, totalPriceRub } = resolveServicesOrThrow(serviceIds, masterId);
     const salon = getSalonProfile();
 
-    const { slots, reason } = computeAvailableSlots({
+    const { slots, allSlots, reason } = computeAvailableSlots({
       masterId,
       dateStr,
       durationMinutes: totalDurationMinutes,
       salon,
+    });
+
+    const toPublicSlot = (slot) => ({
+      startUtc: toIsoUtc(slot.startUtc),
+      endUtc: toIsoUtc(slot.endUtc),
+      startLocal: formatLocalIso(slot.startUtc, salon.timezone),
+      endLocal: formatLocalIso(slot.endUtc, salon.timezone),
     });
 
     return {
@@ -34,12 +41,13 @@ export function registerRoutes(router) {
         totalDurationMinutes,
         totalPriceRub,
         reason,
-        slots: slots.map((slot) => ({
-          startUtc: toIsoUtc(slot.startUtc),
-          endUtc: toIsoUtc(slot.endUtc),
-          startLocal: formatLocalIso(slot.startUtc, salon.timezone),
-          endLocal: formatLocalIso(slot.endUtc, salon.timezone),
-        })),
+        slots: slots.map(toPublicSlot),
+        // Все кандидаты сетки на день (свободные/занятые/прошедшие) — для
+        // Booking · 3, где занятое время нужно показать видимым и
+        // неактивным, а не спрятанным (см. комментарий у
+        // computeAvailableSlots в domain/availability.js). `slots` выше не
+        // трогали и не убирали — только добавили это поле.
+        allSlots: allSlots.map((slot) => ({ ...toPublicSlot(slot), status: slot.status })),
       },
     };
   });

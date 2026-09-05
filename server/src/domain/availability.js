@@ -106,14 +106,30 @@ function listBusyIntervals(masterId, workStartUtc, workEndUtc, excludeAppointmen
 
 // Ядро расчёта: список свободных стартов записи на дату для мастера при
 // заданной суммарной длительности выбранных услуг.
+//
+// Помимо `slots` (только свободные — как было всегда, ради обратной
+// совместимости с уже существующими потребителями, см. ниже) считает ещё
+// `allSlots` — те же кандидаты старта, но ВСЕ, что вообще попадают в
+// рабочее окно (включая занятые и уже прошедшие), с пометкой `status`.
+// Понадобилось для Booking · 3 (docs/ui-map.md): экран должен показывать
+// занятое время в сетке видимым и неактивным, а не молча его прятать —
+// но публичный API до этого отдавал только свободные старты, и фронт не
+// мог отличить «мастер занят в это время» от «мастер просто не работает
+// в это время» (оба случая выглядели одинаково — отсутствием в списке).
+// Без границ рабочего окна и шага сетки на клиенте это не восстановить
+// (см. запись в server/README.md рядом с этой функцией про то, что шаг
+// сетки не совпадает с длительностью услуги). `slots` при этом продолжает
+// содержать ровно то же самое, что и раньше — только свободные, не
+// прошедшие старты; `frontend/public/availability.html` как читал
+// `data.slots`, так и продолжит.
 export function computeAvailableSlots({ masterId, dateStr, durationMinutes, salon, now = new Date() }) {
   releaseExpiredHolds(now);
 
   const windowCheck = checkDateWithinBookingWindow(salon, dateStr, now);
-  if (!windowCheck.ok) return { slots: [], reason: windowCheck.reason };
+  if (!windowCheck.ok) return { slots: [], allSlots: [], reason: windowCheck.reason };
 
   const window = getWorkingWindowUtc(masterId, dateStr, salon.timezone);
-  if (!window) return { slots: [], reason: 'day_off' };
+  if (!window) return { slots: [], allSlots: [], reason: 'day_off' };
   const { workStartUtc, workEndUtc } = window;
 
   const busy = listBusyIntervals(masterId, workStartUtc, workEndUtc);
@@ -121,18 +137,21 @@ export function computeAvailableSlots({ masterId, dateStr, durationMinutes, salo
   const stepMs = salon.booking_step_minutes * 60_000;
   const durationMs = durationMinutes * 60_000;
   const slots = [];
+  const allSlots = [];
   for (
     let startMs = workStartUtc.getTime();
     startMs + durationMs <= workEndUtc.getTime();
     startMs += stepMs
   ) {
-    if (startMs <= now.getTime()) continue; // прошедшее и текущее время не предлагаем
     const slotStart = new Date(startMs);
     const slotEnd = new Date(startMs + durationMs);
-    const overlaps = busy.some(([bs, be]) => slotStart.getTime() < be.getTime() && slotEnd.getTime() > bs.getTime());
-    if (!overlaps) slots.push({ startUtc: slotStart, endUtc: slotEnd });
+    const isPast = startMs <= now.getTime(); // прошедшее и текущее время не предлагаем
+    const overlaps = !isPast && busy.some(([bs, be]) => slotStart.getTime() < be.getTime() && slotEnd.getTime() > bs.getTime());
+    const status = isPast ? 'past' : overlaps ? 'busy' : 'free';
+    allSlots.push({ startUtc: slotStart, endUtc: slotEnd, status });
+    if (status === 'free') slots.push({ startUtc: slotStart, endUtc: slotEnd });
   }
-  return { slots, reason: slots.length ? null : 'fully_booked' };
+  return { slots, allSlots, reason: slots.length ? null : 'fully_booked' };
 }
 
 // Проверка на конкретный произвольный интервал (используется при создании
