@@ -1,0 +1,148 @@
+/*
+ * Административный раздел (/admin) — общий каркас: шапка и меню разделов
+ * (web/js/admin-shell.js) плюс базовые отступы для трёх пустых страниц
+ * (web/admin/index.html, services.html, masters.html) и страницы отказа
+ * (web/admin/403.html).
+ *
+ * Шапка нарочно переиспользует .site-header/.brand/.header-actions/
+ * .header-identity из css/base.css — тот же класс, тот же вид, что и на
+ * клиентских страницах (задание: "должна выглядеть как часть существующего
+ * сервиса"), только без клиентской навигации и кнопки «Записаться» (это не
+ * то же самое дерево, что рисует js/header.js, — там ссылки записи/входа,
+ * здесь — идентичность администратора и кнопка «Выйти»).
+ *
+ * Источник состава меню — docs/ui-map.md, раздел «Административные
+ * экраны», разделы 9/12/13 (там же оговорено, что первоисточник —
+ * frontend/public/admin.html, черновой тестовый фронт, а не дизайн-
+ * прототип: готового визуального образца для меню там нет, только список
+ * разделов текстом).
+ *
+ * Цвета, шрифты, размеры текста и отступы — только переменные из
+ * tokens.css (docs/frontend-rules.md, правило 4), новых значений не
+ * добавлено.
+ */
+
+/* #admin-shell-root — точка вставки шапки+меню (js/admin-shell.js).
+   display:contents по той же причине, что и #site-header-root в base.css:
+   без этого блочная обёртка вокруг position:sticky-шапки ломает прилипание
+   при скролле. */
+#admin-shell-root {
+  display: contents;
+}
+
+.admin-header .header-identity {
+  gap: var(--space-12);
+}
+.admin-identity-name {
+  font-size: var(--font-size-body-sm);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+  white-space: nowrap;
+}
+
+.admin-menu {
+  display: flex;
+  gap: var(--space-24);
+  padding: 0 var(--space-24);
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
+  overflow-x: auto;
+}
+.admin-menu-link {
+  padding: var(--space-16) 0;
+  font-size: var(--font-size-body-sm);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-secondary);
+  border-bottom: 2px solid transparent;
+  white-space: nowrap;
+}
+.admin-menu-link:hover {
+  color: var(--color-accent);
+}
+.admin-menu-link.is-active {
+  color: var(--color-text-primary);
+  border-bottom-color: var(--color-accent);
+}
+
+.admin-main {
+  padding: var(--space-48) var(--space-24);
+}
+.admin-container {
+  max-width: 1280px;
+  margin: 0 auto;
+}
+.admin-page-title {
+  font-family: var(--font-display);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  font-size: var(--font-size-h2);
+  line-height: var(--line-height-h2);
+  margin-bottom: var(--space-24);
+}
+
+/* Пустое состояние раздела — пока страницы без данных (задание: "пока не
+   наполняй страницы данными"). Пунктирная рамка — как черновик, который
+   ещё предстоит заполнить, а не готовое состояние "записей нет". */
+.admin-empty-state {
+  background: var(--color-surface);
+  border: 1px dashed var(--color-border-strong);
+  border-radius: var(--radius-lg);
+  padding: var(--space-48) var(--space-24);
+  text-align: center;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-body-sm);
+}
+
+/* ---- Страница отказа (web/admin/403.html) ----
+   Отдаётся сервером (web/server.js) с HTTP 403 вместо любой страницы
+   /admin, /admin/services, /admin/masters, если у вошедшего нет роли admin
+   (или он не вошёл вовсе) — задание: "интерфейс должен показать страницу с
+   сообщением «Этот раздел только для администраторов»". Пути до её
+   собственных ассетов (tokens.css/base.css/admin.css) — абсолютные
+   ("/tokens.css", не "tokens.css"): страница физически лежит в web/admin/,
+   но адрес в браузере в момент показа может быть и "/admin", и
+   "/admin/services" — относительные ссылки на разных этих адресах
+   резолвились бы в разные, местами несуществующие пути. */
+.admin-forbidden-main {
+  min-height: 60vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-24);
+}
+.admin-forbidden-card {
+  max-width: 420px;
+  text-align: center;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-md);
+  padding: var(--space-48) var(--space-32);
+}
+.admin-forbidden-mark {
+  width: 56px;
+  height: 56px;
+  margin: 0 auto var(--space-24);
+  border-radius: var(--radius-full);
+  background: var(--color-primary);
+  color: var(--color-text-on-accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-weight: var(--font-weight-bold);
+  font-size: var(--font-size-h3);
+}
+.admin-forbidden-title {
+  font-family: var(--font-display);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  font-size: var(--font-size-h3);
+  margin-bottom: var(--space-12);
+}
+.admin-forbidden-text {
+  font-size: var(--font-size-body-sm);
+  line-height: var(--line-height-body-sm);
+  color: var(--color-text-secondary);
+  margin-bottom: var(--space-24);
+}

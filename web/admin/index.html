@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Тон — админ-панель · Записи</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/tokens.css">
+<link rel="stylesheet" href="/css/base.css">
+<link rel="stylesheet" href="/css/admin.css">
+</head>
+<body>
+
+<!-- Шапка и меню разделов — общие для всего /admin, разметку вставляет
+     js/admin-shell.js (тот же приём, что и клиентская шапка, см.
+     web/js/header.js). -->
+<div id="admin-shell-root"></div>
+
+<main class="admin-main">
+  <div class="admin-container">
+    <h1 class="admin-page-title">Записи</h1>
+    <div class="admin-empty-state">Раздел пока без данных — здесь появится список записей администратора.</div>
+  </div>
+</main>
+
+<script type="module" src="/js/admin-appointments.js"></script>
+</body>
+</html>

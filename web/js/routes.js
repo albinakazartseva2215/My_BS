@@ -63,3 +63,21 @@ export const ACCOUNT_URL = 'account.html';
 // состояния из Full style guide DC/Design my B.S..dc.html, секции "06 ·
 // Домен" и "07 · Обратная связь" (см. комментарий в начале js/account.js).
 export const ACCOUNT_APPOINTMENT_URL = 'account-appointment.html';
+
+// ---- Административный раздел (/admin) ----
+//
+// Адреса — с ведущим "/", в отличие от остальных ссылок этого файла: сами
+// страницы (web/admin/*.html) лежат на разной "видимой" глубине URL
+// (/admin, /admin/services, /admin/masters), поэтому относительные ссылки
+// вида "services.html" вели бы себя по-разному в зависимости от того, с
+// какой из них перешли. Абсолютный путь одинаково работает с любой.
+// Соответствие адрес → файл на диске и сама раздача — web/server.js.
+//
+// Источник состава пунктов меню — docs/ui-map.md, раздел «Административные
+// экраны»: из шести разделов черновика (frontend/public/admin.html) в этот
+// заход взяты три, прямо перечисленные в задании, — «Записи», «Услуги»,
+// «Мастера». «Профиль салона», «Категории услуг» и «Пользователи и роли»
+// сюда не входят, это будет отдельный заход.
+export const ADMIN_APPOINTMENTS_URL = '/admin';
+export const ADMIN_SERVICES_URL = '/admin/services';
+export const ADMIN_MASTERS_URL = '/admin/masters';

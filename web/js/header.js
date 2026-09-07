@@ -21,7 +21,7 @@
 // клиенте не было вообще).
 
 import { fetchMe } from './api.js';
-import { BOOKING_START_URL, LOGIN_URL, REGISTER_URL, ACCOUNT_URL } from './routes.js';
+import { BOOKING_START_URL, LOGIN_URL, REGISTER_URL, ACCOUNT_URL, ADMIN_APPOINTMENTS_URL } from './routes.js';
 import { initials } from './format.js';
 import { wireMobileMenu } from './nav.js';
 
@@ -63,8 +63,22 @@ function loggedOutMobileHtml() {
   return `<a href="${LOGIN_URL}">Войти</a><a href="${REGISTER_URL}">Регистрация</a>`;
 }
 
+// Ссылка на /admin — только у администратора (роль проверяется по списку
+// ролей, includes, не равенством — как и на сервере, см. requireRole в
+// server/src/middleware/auth.js). Это украшение шапки, а не защита: сам
+// раздел /admin закрыт на сервере независимо от того, видна тут ссылка или
+// нет (web/server.js — проверка при раздаче страницы; server/src/routes/
+// admin.routes.js — проверка на каждом административном эндпоинте).
+function isAdmin(user) {
+  return Array.isArray(user.roles) && user.roles.includes('admin');
+}
+
 function loggedInIdentityHtml(user) {
+  const adminLink = isAdmin(user)
+    ? `<a href="${ADMIN_APPOINTMENTS_URL}" class="btn btn-ghost">Админ-панель</a>`
+    : '';
   return `
+    ${adminLink}
     <a href="${ACCOUNT_URL}" class="header-avatar-link" title="Личный кабинет — ${escapeHtml(user.name)}">
       <span class="header-avatar" aria-hidden="true">${escapeHtml(initials(user.name))}</span>
       <span class="header-avatar-name">${escapeHtml(user.name)}</span>
@@ -73,7 +87,8 @@ function loggedInIdentityHtml(user) {
 }
 
 function loggedInMobileHtml(user) {
-  return `<a href="${ACCOUNT_URL}">Личный кабинет · ${escapeHtml(user.name)}</a>`;
+  const adminLink = isAdmin(user) ? `<a href="${ADMIN_APPOINTMENTS_URL}">Админ-панель</a>` : '';
+  return `${adminLink}<a href="${ACCOUNT_URL}">Личный кабинет · ${escapeHtml(user.name)}</a>`;
 }
 
 // Пока не знаем, вошёл ли клиент, — заглушка (тот же приём, что и на

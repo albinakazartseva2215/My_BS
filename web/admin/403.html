@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Тон — доступ закрыт</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<!-- Абсолютные пути (не относительные) — см. пояснение в css/admin.css,
+     раздел "Страница отказа": адрес в браузере в момент показа этой
+     страницы может быть /admin, /admin/services или /admin/masters. -->
+<link rel="stylesheet" href="/tokens.css">
+<link rel="stylesheet" href="/css/base.css">
+<link rel="stylesheet" href="/css/admin.css">
+</head>
+<body>
+
+<main class="admin-forbidden-main">
+  <div class="admin-forbidden-card">
+    <div class="admin-forbidden-mark" aria-hidden="true">Т</div>
+    <h1 class="admin-forbidden-title">Этот раздел только для администраторов</h1>
+    <p class="admin-forbidden-text">У вашей учётной записи нет прав для просмотра этой страницы. Если это ошибка — обратитесь к администратору салона.</p>
+    <a href="/" class="btn btn-primary">На главную</a>
+  </div>
+</main>
+
+</body>
+</html>
