@@ -33,6 +33,8 @@ import {
   insertService,
   updateService,
   toAdminService,
+  countAppointmentServicesForService,
+  deleteServiceById,
 } from '../db/repositories/services.js';
 import {
   listAllMastersForAdmin,
@@ -53,6 +55,8 @@ import {
   insertTimeBlock,
   deleteTimeBlock,
   toPublicTimeBlock,
+  countAppointmentsForMaster,
+  deleteMasterById,
 } from '../db/repositories/masters.js';
 import { findServicesByIds } from '../db/repositories/services.js';
 import { listAppointmentsForAdmin } from '../db/repositories/appointments.js';
@@ -311,8 +315,14 @@ export function registerRoutes(router) {
     const categoryId = requireInt(body.categoryId, 'categoryId', { min: 1 });
     const name = requireString(body.name, 'name', { max: 200 });
     const description = optionalString(body.description, 'description', { max: 2000 });
+    // min: 1, не 0 — цена и длительность должны быть положительными
+    // (явное требование задачи на эту форму); docs/db-schema.md сам по себе
+    // допускает price_rub = 0 (CHECK >= 0, раздел 3.5) — это более старое,
+    // более свободное ограничение уровня БД. Здесь сознательно уже: 0 ₽ —
+    // не цена, а фактически "бесплатно", отдельная функция, которую никто
+    // не запрашивал, и приказ явно просит именно "положительна".
     const durationMinutes = requireInt(body.durationMinutes, 'durationMinutes', { min: 1, max: 24 * 60 });
-    const priceRub = requireInt(body.priceRub, 'priceRub', { min: 0 });
+    const priceRub = requireInt(body.priceRub, 'priceRub', { min: 1 });
     const isActive = optionalBoolean(body.isActive, 'isActive', true);
 
     if (!findCategoryById(categoryId)) throw badRequest('Категория услуг не найдена', { field: 'categoryId' });
@@ -338,11 +348,40 @@ export function registerRoutes(router) {
     if (body.durationMinutes !== undefined) {
       fields.durationMinutes = requireInt(body.durationMinutes, 'durationMinutes', { min: 1, max: 24 * 60 });
     }
-    if (body.priceRub !== undefined) fields.priceRub = requireInt(body.priceRub, 'priceRub', { min: 0 });
+    if (body.priceRub !== undefined) fields.priceRub = requireInt(body.priceRub, 'priceRub', { min: 1 });
     if (body.isActive !== undefined) fields.isActive = requireBoolean(body.isActive, 'isActive');
 
     const service = updateService(id, fields, nowSql());
     return { status: 200, body: toAdminService(service) };
+  });
+
+  // Удаление услуги — решение принимает сервер, не интерфейс: если на
+  // услугу нет ни одной ссылки из appointment_services (снапшот состава
+  // записей, docs/db-schema.md, 3.12 — но FK у неё всё равно есть), строку
+  // можно стереть физически. Если ссылки есть — удалить нельзя (и не нужно:
+  // это была бы попытка переписать историю уже оформленных визитов), вместо
+  // этого услуга отключается (is_active=0, если ещё не была) и в ответе
+  // явно объясняется, почему кнопка "Удалить" не удалила.
+  router.delete('/api/admin/services/:id', async (ctx) => {
+    requireRole(ctx, 'admin');
+    const id = requireInt(ctx.params.id, 'id', { min: 1 });
+    const existing = findServiceById(id);
+    if (!existing) throw notFound('Услуга не найдена');
+
+    if (countAppointmentServicesForService(id) > 0) {
+      const service = existing.is_active === 1 ? updateService(id, { isActive: false }, nowSql()) : existing;
+      return {
+        status: 200,
+        body: {
+          outcome: 'disabled',
+          message: 'У услуги есть записи, поэтому она отключена, а не удалена.',
+          service: toAdminService(service),
+        },
+      };
+    }
+
+    deleteServiceById(id);
+    return { status: 200, body: { outcome: 'deleted' } };
   });
 
   // ---- Мастера --------------------------------------------------------------
@@ -445,6 +484,35 @@ export function registerRoutes(router) {
 
     const master = updateMaster(id, fields, nowSql());
     return { status: 200, body: toAdminMaster(master) };
+  });
+
+  // Удаление мастера — тем же правилом, что и удаление услуги выше: если
+  // на профиль нет ни одной записи (appointments.master_id — не снапшот, а
+  // прямая, живая ссылка), строку можно стереть физически, вместе с её
+  // собственными графиком/исключениями/блокировками/набором услуг — они
+  // каскадно удалятся сами (ON DELETE CASCADE, docs/db-schema.md, 3.7–3.10),
+  // это настройки самого профиля, а не чужая история. Если записи есть —
+  // мастер отключается (is_active=0, если ещё не был) вместо удаления, и
+  // ответ объясняет почему.
+  router.delete('/api/admin/masters/:id', async (ctx) => {
+    requireRole(ctx, 'admin');
+    const id = requireInt(ctx.params.id, 'id', { min: 1 });
+    const existing = requireExistingMaster(id);
+
+    if (countAppointmentsForMaster(id) > 0) {
+      const master = existing.is_active === 1 ? updateMaster(id, { isActive: false }, nowSql()) : existing;
+      return {
+        status: 200,
+        body: {
+          outcome: 'disabled',
+          message: 'У мастера есть записи, поэтому он отключён, а не удалён.',
+          master: toAdminMaster(master),
+        },
+      };
+    }
+
+    deleteMasterById(id);
+    return { status: 200, body: { outcome: 'deleted' } };
   });
 
   // Полная замена набора услуг, которые мастер выполняет.

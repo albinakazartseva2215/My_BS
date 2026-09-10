@@ -105,6 +105,28 @@ export function updateService(id, fields, now) {
   return findServiceById(id);
 }
 
+// Сколько раз услуга уже встречается в оформленных записях (appointment_services,
+// docs/db-schema.md, 3.12 — снапшот, а не живая ссылка, но FK на service_id
+// у неё всё равно есть и никуда не делся). Нужно, чтобы решить: услугу
+// можно физически удалить, или у неё уже есть история и её нужно только
+// отключить (см. DELETE /api/admin/services/:id, routes/admin.routes.js).
+export function countAppointmentServicesForService(serviceId) {
+  const row = db
+    .prepare('SELECT COUNT(*) AS cnt FROM appointment_services WHERE service_id = ?')
+    .get(serviceId);
+  return row.cnt;
+}
+
+// Вызывать только когда countAppointmentServicesForService(id) === 0 —
+// иначе упадёт с ошибкой внешнего ключа (appointment_services.service_id
+// REFERENCES services(id) без ON DELETE, PRAGMA foreign_keys = ON в
+// db/connection.js). master_services на этот же id удалится сама, каскадом
+// (ON DELETE CASCADE) — это не история, а просто список "кто это умеет
+// делать", терять его вместе с самой услугой корректно.
+export function deleteServiceById(id) {
+  db.prepare('DELETE FROM services WHERE id = ?').run(id);
+}
+
 export function toPublicService(row) {
   return {
     id: row.id,

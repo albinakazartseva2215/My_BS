@@ -9,6 +9,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/tokens.css">
 <link rel="stylesheet" href="/css/base.css">
+<link rel="stylesheet" href="/css/auth.css">
 <link rel="stylesheet" href="/css/admin.css">
 </head>
 <body>
@@ -17,10 +18,76 @@
 
 <main class="admin-main">
   <div class="admin-container">
-    <h1 class="admin-page-title">Мастера</h1>
-    <div class="admin-empty-state">Раздел пока без данных — здесь появится список мастеров и их карточки.</div>
+    <div class="admin-page-head">
+      <h1 class="admin-page-title">Мастера</h1>
+    </div>
+
+    <div id="pageError" class="api-error" hidden></div>
+    <div id="pageNotice" class="form-alert is-note" hidden></div>
+
+    <div class="admin-table-wrap">
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>Имя</th>
+            <th>Специализация</th>
+            <th>Услуги</th>
+            <th>Статус</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="mastersTbody">
+          <tr><td colspan="5">Загрузка…</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <section class="admin-form-card">
+      <h2 class="admin-form-title" id="masterFormTitle">Добавить мастера</h2>
+      <div id="formError" class="form-alert is-error" hidden></div>
+      <form id="masterForm" novalidate>
+        <div class="form-field">
+          <label class="form-label" for="masterName">Имя</label>
+          <input class="form-input" id="masterName" name="name" maxlength="200" required>
+        </div>
+        <div class="form-field">
+          <label class="form-label" for="masterSpecialization">Специализация</label>
+          <input class="form-input" id="masterSpecialization" name="specialization" maxlength="300" placeholder="например, Окрашивание, стрижка">
+        </div>
+        <div class="form-field">
+          <label class="form-label" for="masterPhotoUrl">URL фото</label>
+          <input class="form-input" id="masterPhotoUrl" name="photoUrl" maxlength="2000" placeholder="необязательно">
+        </div>
+        <label class="admin-checkbox-line">
+          <input type="checkbox" id="masterActive" name="isActive" checked>
+          Активен (виден клиентам при записи)
+        </label>
+        <div class="admin-form-actions">
+          <button type="submit" class="btn btn-primary" id="masterSubmitBtn">Добавить</button>
+          <button type="button" class="btn btn-ghost" id="masterCancelBtn" hidden>Отменить редактирование</button>
+        </div>
+      </form>
+    </section>
+
+    <!-- Показывается только для уже существующего мастера (задание: "на
+         странице мастера добавь отметки, показывающие, какие услуги он
+         выполняет") — у ещё не сохранённого мастера нет id, привязывать
+         услуги пока не к чему. -->
+    <section class="admin-form-card" id="masterServicesSection" hidden>
+      <h2 class="admin-form-title">Какие услуги выполняет: <span id="masterServicesName"></span></h2>
+      <div id="masterServicesError" class="form-alert is-error" hidden></div>
+      <div id="masterServicesNotice" class="form-alert is-note" hidden></div>
+      <div class="admin-checkbox-grid" id="masterServicesGrid"></div>
+      <div class="admin-form-actions">
+        <button type="button" class="btn btn-primary" id="saveMasterServicesBtn">Сохранить услуги мастера</button>
+      </div>
+    </section>
   </div>
 </main>
+
+<!-- См. пояснение в web/admin/services.html — разметку модалки вставляет
+     сам JS, только когда она открыта, не атрибут hidden на статичном узле. -->
+<div id="deleteModalRoot"></div>
 
 <script type="module" src="/js/admin-masters.js"></script>
 </body>

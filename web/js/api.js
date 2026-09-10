@@ -192,3 +192,70 @@ export async function releaseHold(holdToken) {
 export async function confirmAppointment({ holdToken, comment, remindEnabled }) {
   return apiFetch('/appointments', { method: 'POST', body: { holdToken, comment, remindEnabled } });
 }
+
+// ---- Админ: услуги и мастера (server/src/routes/admin.routes.js) ----
+//
+// Все запросы ниже требуют роль admin — сервер уже проверяет её сам
+// (requireRole в каждом маршруте), здесь никакой отдельной проверки нет и
+// не должно быть (docs/frontend-rules.md, правило 3: страницы не решают,
+// можно им ходить в API или нет, — решает сервер, ответом 401/403).
+
+// Услуги — в отличие от fetchServices() выше (публичный каталог, только
+// активные), возвращает ВСЕ услуги, включая отключённые: админ должен
+// видеть их с пометкой, а не как будто их не существует.
+export async function fetchAdminServices() {
+  const data = await apiFetch('/admin/services');
+  return data.services;
+}
+
+// Категории нужны только чтобы заполнить список выбора в форме услуги —
+// управления самими категориями на этой странице нет (отдельный будущий
+// экран, docs/ui-map.md, раздел 11 «Категории услуг»).
+export async function fetchAdminCategories() {
+  const data = await apiFetch('/admin/service-categories');
+  return data.categories;
+}
+
+export async function createAdminService(fields) {
+  return apiFetch('/admin/services', { method: 'POST', body: fields });
+}
+
+export async function updateAdminService(id, fields) {
+  return apiFetch(`/admin/services/${id}`, { method: 'PATCH', body: fields });
+}
+
+// Решение "удалить физически или отключить и объяснить почему" принимает
+// сервер (задание: "решение должен принимать сервер") — ответ содержит
+// { outcome: 'deleted' } либо { outcome: 'disabled', message, service }.
+export async function deleteAdminService(id) {
+  return apiFetch(`/admin/services/${id}`, { method: 'DELETE' });
+}
+
+// Мастера — тем же принципом, что и услуги: все, включая отключённых.
+// Ответ уже включает serviceIds на каждого мастера (admin.routes.js,
+// GET /api/admin/masters) — отдельного запроса карточки мастера
+// (GET /api/admin/masters/:id) для чекбоксов "какие услуги выполняет" не
+// нужно, тот эндпоинт отдаёт ещё и график/исключения — вне охвата этой
+// страницы (docs/ui-map.md, раздел 14, "Карточка мастера" — будущий заход).
+export async function fetchAdminMasters() {
+  const data = await apiFetch('/admin/masters');
+  return data.masters;
+}
+
+export async function createAdminMaster(fields) {
+  return apiFetch('/admin/masters', { method: 'POST', body: fields });
+}
+
+export async function updateAdminMaster(id, fields) {
+  return apiFetch(`/admin/masters/${id}`, { method: 'PATCH', body: fields });
+}
+
+export async function deleteAdminMaster(id) {
+  return apiFetch(`/admin/masters/${id}`, { method: 'DELETE' });
+}
+
+// Полная замена набора услуг мастера (не частичные add/remove) — ровно так
+// же, как уже сделано на сервере (PUT, не PATCH).
+export async function replaceAdminMasterServices(id, serviceIds) {
+  return apiFetch(`/admin/masters/${id}/services`, { method: 'PUT', body: { serviceIds } });
+}

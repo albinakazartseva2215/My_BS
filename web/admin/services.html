@@ -9,6 +9,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/tokens.css">
 <link rel="stylesheet" href="/css/base.css">
+<link rel="stylesheet" href="/css/auth.css">
 <link rel="stylesheet" href="/css/admin.css">
 </head>
 <body>
@@ -17,10 +18,78 @@
 
 <main class="admin-main">
   <div class="admin-container">
-    <h1 class="admin-page-title">Услуги</h1>
-    <div class="admin-empty-state">Раздел пока без данных — здесь появится управление категориями и услугами.</div>
+    <div class="admin-page-head">
+      <h1 class="admin-page-title">Услуги</h1>
+    </div>
+
+    <div id="pageError" class="api-error" hidden></div>
+    <div id="pageNotice" class="form-alert is-note" hidden></div>
+
+    <div class="admin-table-wrap">
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>Название</th>
+            <th>Категория</th>
+            <th>Длительность</th>
+            <th>Цена</th>
+            <th>Статус</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="servicesTbody">
+          <tr><td colspan="6">Загрузка…</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <section class="admin-form-card">
+      <h2 class="admin-form-title" id="serviceFormTitle">Добавить услугу</h2>
+      <div id="formError" class="form-alert is-error" hidden></div>
+      <form id="serviceForm" novalidate>
+        <div class="form-field">
+          <label class="form-label" for="svcCategory">Категория</label>
+          <select class="form-input" id="svcCategory" name="categoryId" required></select>
+        </div>
+        <div class="form-field">
+          <label class="form-label" for="svcName">Название</label>
+          <input class="form-input" id="svcName" name="name" maxlength="200" required>
+        </div>
+        <div class="form-field">
+          <label class="form-label" for="svcDescription">Описание</label>
+          <textarea class="form-input" id="svcDescription" name="description" rows="2" maxlength="2000"></textarea>
+        </div>
+        <div class="admin-form-row">
+          <div class="form-field">
+            <label class="form-label" for="svcDuration">Длительность, мин</label>
+            <input class="form-input" type="number" id="svcDuration" name="durationMinutes" min="1" max="1440" step="1" required>
+          </div>
+          <div class="form-field">
+            <label class="form-label" for="svcPrice">Цена, ₽</label>
+            <input class="form-input" type="number" id="svcPrice" name="priceRub" min="1" step="1" required>
+          </div>
+        </div>
+        <label class="admin-checkbox-line">
+          <input type="checkbox" id="svcActive" name="isActive" checked>
+          Активна (видна клиентам при записи)
+        </label>
+        <div class="admin-form-actions">
+          <button type="submit" class="btn btn-primary" id="serviceSubmitBtn">Добавить</button>
+          <button type="button" class="btn btn-ghost" id="serviceCancelBtn" hidden>Отменить редактирование</button>
+        </div>
+      </form>
+    </section>
   </div>
 </main>
+
+<!-- Подтверждение удаления — решение "удалить или отключить" всё равно
+     принимает сервер (web/js/api.js:deleteAdminService), модалка только
+     подтверждает намерение перед действием. Разметку вставляет сам JS
+     (только когда модалка открыта) — .modal-overlay в css/base.css всегда
+     display:flex, поэтому статичный элемент с атрибутом hidden не
+     скрылся бы (та же специфичность CSS); тот же приём уже в
+     js/account-appointment.js. -->
+<div id="deleteModalRoot"></div>
 
 <script type="module" src="/js/admin-services.js"></script>
 </body>

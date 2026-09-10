@@ -175,6 +175,26 @@ export function deleteTimeBlock(masterId, blockId) {
   return info.changes > 0;
 }
 
+// Сколько записей (appointments, любого статуса — история тоже считается)
+// ссылается на этого мастера. Нужно, чтобы решить: профиль можно физически
+// удалить, или у него уже есть история и его нужно только отключить (см.
+// DELETE /api/admin/masters/:id, routes/admin.routes.js).
+export function countAppointmentsForMaster(masterId) {
+  const row = db.prepare('SELECT COUNT(*) AS cnt FROM appointments WHERE master_id = ?').get(masterId);
+  return row.cnt;
+}
+
+// Вызывать только когда countAppointmentsForMaster(id) === 0 — иначе
+// упадёт с ошибкой внешнего ключа (appointments.master_id REFERENCES
+// masters(id) без ON DELETE, PRAGMA foreign_keys = ON в db/connection.js).
+// master_services/master_weekly_schedule/schedule_exceptions/time_blocks на
+// этот id удалятся сами, каскадом (ON DELETE CASCADE у всех четырёх) — это
+// собственные настройки профиля, а не чужая история, терять их вместе с
+// самим профилем корректно.
+export function deleteMasterById(id) {
+  db.prepare('DELETE FROM masters WHERE id = ?').run(id);
+}
+
 export function toPublicMaster(row) {
   return {
     id: row.id,

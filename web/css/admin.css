@@ -93,6 +93,167 @@
   font-size: var(--font-size-body-sm);
 }
 
+/* ---- Разделы «Услуги» и «Мастера» (web/admin/services.html, masters.html) ----
+   Список + форма добавления/редактирования на одной странице (задание:
+   список, добавление, редактирование, включение/отключение — без
+   отдельных модалок под каждое действие, кроме удаления, которое
+   подтверждается модалкой ниже, потому что необратимо чаще, чем нет).
+   Источник состава — docs/ui-map.md, разделы 12–14 (там же: физический
+   образец — не дизайн-прототип, а черновой тестовый фронт, поэтому здесь
+   не копия его вёрстки, а свой макет на тех же данных/эндпоинтах). */
+
+.admin-page-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-16);
+  margin-bottom: var(--space-24);
+  flex-wrap: wrap;
+}
+.admin-page-head .admin-page-title {
+  margin-bottom: 0;
+}
+
+.admin-table-wrap {
+  overflow-x: auto;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  margin-bottom: var(--space-32);
+}
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--font-size-body-sm);
+}
+.admin-table th,
+.admin-table td {
+  text-align: left;
+  padding: var(--space-12) var(--space-16);
+  border-bottom: 1px solid var(--color-border);
+  white-space: nowrap;
+}
+.admin-table th {
+  color: var(--color-text-muted);
+  font-weight: var(--font-weight-bold);
+  font-size: var(--font-size-caption);
+  text-transform: uppercase;
+  letter-spacing: var(--letter-spacing-overline);
+}
+.admin-table tbody tr:last-child td {
+  border-bottom: none;
+}
+.admin-table td.admin-cell-wrap {
+  white-space: normal;
+}
+
+.admin-status-badge {
+  display: inline-block;
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-bold);
+  padding: var(--space-4) var(--space-12);
+  border-radius: var(--radius-full);
+  background: var(--color-surface-sunken);
+  color: var(--color-text-secondary);
+  white-space: nowrap;
+}
+.admin-status-badge.is-active {
+  background: var(--color-success-subtle);
+  color: var(--color-success-text);
+}
+.admin-status-badge.is-inactive {
+  background: var(--color-danger-subtle);
+  color: var(--color-danger-text);
+}
+
+.admin-row-actions {
+  display: flex;
+  gap: var(--space-8);
+  white-space: nowrap;
+}
+
+/* Меньшая кнопка для действий в строке таблицы — .btn задаёт min-height:44px
+   (accessibility-минимум для основных CTA, css/base.css), в плотной таблице
+   с тремя кнопками на строку это слишком много; здесь тот же .btn, только
+   компактнее. */
+.btn-sm {
+  min-height: 32px;
+  padding: var(--space-4) var(--space-12);
+  font-size: var(--font-size-caption);
+}
+.btn-outline.is-danger {
+  color: var(--color-danger-text);
+  border-color: var(--color-danger);
+}
+.btn-outline.is-danger:hover {
+  background: var(--color-danger-subtle);
+  color: var(--color-danger-text);
+  border-color: var(--color-danger);
+}
+
+.admin-form-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-24);
+  margin-bottom: var(--space-32);
+  max-width: 560px;
+}
+.admin-form-title {
+  font-size: var(--font-size-body-lg);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+  margin-bottom: var(--space-16);
+}
+.admin-form-row {
+  display: flex;
+  gap: var(--space-16);
+}
+.admin-form-row .form-field {
+  flex: 1;
+  min-width: 0;
+}
+.admin-checkbox-line {
+  display: flex;
+  align-items: center;
+  gap: var(--space-8);
+  font-size: var(--font-size-body-sm);
+  color: var(--color-text-primary);
+  margin-bottom: var(--space-16);
+  cursor: pointer;
+}
+.admin-form-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-16);
+}
+
+/* ---- Чекбоксы «какие услуги выполняет мастер» ----
+   (задание: "добавь отметки, показывающие, какие услуги он выполняет").
+   Отключённые услуги остаются в списке (админ видит всё), но подписаны —
+   тот же принцип пометки, что и .admin-status-badge в таблицах выше. */
+.admin-checkbox-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: var(--space-8) var(--space-16);
+  margin-bottom: var(--space-16);
+}
+.admin-checkbox-grid label {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-8);
+  font-size: var(--font-size-body-sm);
+  color: var(--color-text-primary);
+  cursor: pointer;
+}
+.admin-checkbox-grid input {
+  margin-top: 3px;
+}
+.admin-checkbox-inactive-note {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-caption);
+}
+
 /* ---- Страница отказа (web/admin/403.html) ----
    Отдаётся сервером (web/server.js) с HTTP 403 вместо любой страницы
    /admin, /admin/services, /admin/masters, если у вошедшего нет роли admin
