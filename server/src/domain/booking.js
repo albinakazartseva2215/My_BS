@@ -42,6 +42,7 @@ import {
 import {
   findAppointmentById,
   findAppointmentByHoldToken,
+  listAppointmentServices,
   insertAppointmentRow,
   insertAppointmentService,
   confirmHoldAppointment,
@@ -291,6 +292,21 @@ export function rescheduleAppointment({ appointmentId, newStartUtc, newMasterId,
   const salon = getSalonProfile();
   const masterId = newMasterId ?? appointment.master_id;
   getActiveMasterOrThrow(masterId);
+
+  // Тот же инвариант, что и при создании записи — resolveServicesOrThrow
+  // выше, строка про masterCanPerformAllServices: мастер, которому в
+  // итоге принадлежит запись, обязан уметь выполнить ВСЕ её услуги. При
+  // переносе с явной сменой мастера (newMasterId) эта проверка раньше не
+  // выполнялась вовсе — подтверждённая ручной проверкой находка №1,
+  // docs/test-checklist.md. Проверяем всегда, не только при смене
+  // мастера, — тем же способом закрывается и соседний случай, когда
+  // набор услуг мастера изменили (PUT .../masters/:id/services) уже
+  // после того, как запись была создана на него.
+  const serviceIds = listAppointmentServices(appointment.id).map((row) => row.service_id);
+  if (!masterCanPerformAllServices(masterId, serviceIds)) {
+    throw badRequest('Выбранный мастер не выполняет одну или несколько из выбранных услуг');
+  }
+
   const endUtc = new Date(newStartUtc.getTime() + appointment.total_duration_minutes * 60_000);
 
   const conflictContext = {
@@ -340,6 +356,8 @@ export function rescheduleAppointment({ appointmentId, newStartUtc, newMasterId,
       changedByUserId,
       oldStartUtc: sqlToDate(oldStartSql),
       newStartUtc,
+      oldMasterId,
+      newMasterId: masterId,
       timezone: salon.timezone,
       now,
     });

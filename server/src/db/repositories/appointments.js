@@ -264,3 +264,20 @@ export function findAppointmentsOverlapping({ masterId, startSql, endSql, exclud
     )
     .all(masterId, excludeId, endSql, startSql);
 }
+
+// То же условие пересечения, что и выше, но без исключения "самой себя" по
+// id — здесь проверяемый диапазон не привязан ни к какой конкретной
+// записи, это диапазон новой блокировки времени или выходного дня
+// (routes/admin.routes.js, POST .../time-blocks и .../schedule-exceptions) —
+// нечего исключать. Раньше оба этих маршрута создавали блокировку/выходной,
+// не спросив, не попадает ли туда уже чья-то активная запись (найдено
+// ручной проверкой, docs/test-checklist.md, находка №3).
+export function listActiveAppointmentsInRange({ masterId, startSql, endSql }) {
+  return db
+    .prepare(
+      `SELECT * FROM appointments
+       WHERE master_id = ? AND status IN ('hold', 'confirmed')
+         AND start_datetime < ? AND end_datetime > ?`,
+    )
+    .all(masterId, endSql, startSql);
+}

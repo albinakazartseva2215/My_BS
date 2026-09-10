@@ -59,7 +59,11 @@ import {
   deleteMasterById,
 } from '../db/repositories/masters.js';
 import { findServicesByIds } from '../db/repositories/services.js';
-import { listAppointmentsForAdmin, listRescheduleSummaryForMany } from '../db/repositories/appointments.js';
+import {
+  listAppointmentsForAdmin,
+  listRescheduleSummaryForMany,
+  listActiveAppointmentsInRange,
+} from '../db/repositories/appointments.js';
 import { toAppointmentView } from '../domain/appointmentView.js';
 import { createAppointment, markAppointmentCompleted } from '../domain/booking.js';
 import { completePastAppointments } from '../domain/completionSweep.js';
@@ -72,7 +76,7 @@ import {
   grantRole,
   revokeRole,
 } from '../db/repositories/users.js';
-import { dateToSql } from '../time/salonClock.js';
+import { dateToSql, sqlToDate, localToUtc, addDaysToDateStr } from '../time/salonClock.js';
 
 const APPOINTMENT_STATUSES = ['hold', 'confirmed', 'completed', 'cancelled', 'expired'];
 // 'client' сюда не включена намеренно как выдаваемая/отзываемая роль —
@@ -594,6 +598,37 @@ export function registerRoutes(router) {
     }
     const reason = optionalString(body.reason, 'reason', { max: 300 });
 
+    // Не заменяем график молча, если на эту дату у мастера уже есть
+    // активная запись, которая перестанет в него помещаться — целиком
+    // (выходной) или частично (новые часы уже её не покрывают). Находка
+    // ручной проверки, docs/test-checklist.md, №3.
+    const salon = getSalonProfile();
+    const dayStartUtc = localToUtc(date, '00:00', salon.timezone);
+    const dayEndUtc = localToUtc(addDaysToDateStr(date, 1), '00:00', salon.timezone);
+    const dayAppointments = listActiveAppointmentsInRange({
+      masterId: id,
+      startSql: dateToSql(dayStartUtc),
+      endSql: dateToSql(dayEndUtc),
+    });
+    let conflicting = dayAppointments;
+    if (!isDayOff) {
+      const windowStartUtc = localToUtc(date, startTime, salon.timezone);
+      const windowEndUtc = localToUtc(date, endTime, salon.timezone);
+      conflicting = dayAppointments.filter((a) => {
+        const apptStart = sqlToDate(a.start_datetime);
+        const apptEnd = sqlToDate(a.end_datetime);
+        return apptStart.getTime() < windowStartUtc.getTime() || apptEnd.getTime() > windowEndUtc.getTime();
+      });
+    }
+    if (conflicting.length > 0) {
+      throw conflict(
+        isDayOff
+          ? 'На эту дату у мастера уже есть активная запись клиента — сначала перенесите или отмените её'
+          : 'На эту дату у мастера уже есть активная запись клиента, которая не поместится в новые часы работы — сначала перенесите или отмените её',
+        { appointmentIds: conflicting.map((a) => a.id) },
+      );
+    }
+
     const exception = upsertScheduleException({ masterId: id, date, isDayOff, startTime, endTime, reason, now: nowSql() });
     return { status: 201, body: toPublicScheduleException(exception) };
   });
@@ -632,6 +667,20 @@ export function registerRoutes(router) {
     const endUtc = requireUtcDateTime(body.endDatetime, 'endDatetime');
     if (endUtc.getTime() <= startUtc.getTime()) throw badRequest('endDatetime должно быть позже startDatetime');
     const reason = optionalString(body.reason, 'reason', { max: 300 });
+
+    // Тот же принцип, что и у выходного дня выше — не блокируем время
+    // молча поверх уже существующей активной записи клиента. Находка
+    // ручной проверки, docs/test-checklist.md, №3.
+    const conflicting = listActiveAppointmentsInRange({
+      masterId: id,
+      startSql: dateToSql(startUtc),
+      endSql: dateToSql(endUtc),
+    });
+    if (conflicting.length > 0) {
+      throw conflict('На это время у мастера уже есть активная запись клиента — сначала перенесите или отмените её', {
+        appointmentIds: conflicting.map((a) => a.id),
+      });
+    }
 
     const block = insertTimeBlock({
       masterId: id,

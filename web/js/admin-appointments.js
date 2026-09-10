@@ -323,8 +323,19 @@ function openRescheduleModal(id) {
 const createForm = document.getElementById('apptCreateForm');
 const createError = document.getElementById('apptCreateError');
 
-function servicesCheckboxesHtml() {
-  return publicServices
+// masterId — фильтрует publicServices до тех, что мастер реально
+// выполняет (allMasters[i].serviceIds — уже загружен вместе со списком
+// мастеров, GET /api/admin/masters отдаёт его сразу, см. web/js/api.js —
+// отдельный запрос не нужен). Раньше чекбоксы строились без этого
+// параметра, из всего каталога, независимо от выбранного мастера —
+// находка ручной проверки, docs/test-checklist.md, №4.
+function servicesCheckboxesHtml(masterId) {
+  const master = allMasters.find((m) => m.id === masterId);
+  const services = master ? publicServices.filter((s) => master.serviceIds.includes(s.id)) : publicServices;
+  if (services.length === 0) {
+    return '<p class="admin-form-hint">Этот мастер не выполняет ни одной активной услуги.</p>';
+  }
+  return services
     .map(
       (s) => `
       <label>
@@ -334,6 +345,14 @@ function servicesCheckboxesHtml() {
     )
     .join('');
 }
+
+// Перерисовывает чекбоксы под текущий выбор мастера — вызывается и при
+// инициализации страницы, и по смене мастера в этой же форме.
+function renderCreateServiceCheckboxes() {
+  const masterId = Number(document.getElementById('apptCreateMaster').value);
+  document.getElementById('apptCreateServices').innerHTML = servicesCheckboxesHtml(masterId);
+}
+document.getElementById('apptCreateMaster').addEventListener('change', renderCreateServiceCheckboxes);
 
 async function submitCreateAppointment(overlapOverride) {
   const fd = new FormData(createForm);
@@ -530,7 +549,7 @@ document.getElementById('apptNextDay').addEventListener('click', () => {
   masterFilter.innerHTML = '<option value="">Все мастера</option>' + masterOptionsHtml;
   document.getElementById('apptCreateMaster').innerHTML = masterOptionsHtml;
   document.getElementById('blockMaster').innerHTML = masterOptionsHtml;
-  document.getElementById('apptCreateServices').innerHTML = servicesCheckboxesHtml();
+  renderCreateServiceCheckboxes();
 
   await loadAppointments();
 })();
