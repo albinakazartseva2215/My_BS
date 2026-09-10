@@ -20,8 +20,15 @@
 // карта переходов не касается (в прототипе представления о вошедшем
 // клиенте не было вообще).
 
-import { fetchMe } from './api.js';
-import { BOOKING_START_URL, LOGIN_URL, REGISTER_URL, ACCOUNT_URL, ADMIN_APPOINTMENTS_URL } from './routes.js';
+import { fetchMe, fetchNotifications } from './api.js';
+import {
+  BOOKING_START_URL,
+  LOGIN_URL,
+  REGISTER_URL,
+  ACCOUNT_URL,
+  ACCOUNT_NOTIFICATIONS_URL,
+  ADMIN_APPOINTMENTS_URL,
+} from './routes.js';
 import { initials } from './format.js';
 import { wireMobileMenu } from './nav.js';
 
@@ -73,12 +80,31 @@ function isAdmin(user) {
   return Array.isArray(user.roles) && user.roles.includes('admin');
 }
 
-function loggedInIdentityHtml(user) {
+// Колокольчик уведомлений — счётчик берёт unreadCount из того же ответа
+// GET /api/notifications, которым пользуется и сам экран уведомлений
+// (js/account-notifications.js); отдельного запроса ради одного числа нет
+// ни здесь, ни на сервере (docs/db-schema.md, раздел 8). unreadCount — уже
+// готовое число с сервера (отдельный COUNT по непрочитанным), не
+// notifications.length на этой странице.
+function bellHtml(unreadCount) {
+  const badge = unreadCount > 0
+    ? `<span class="header-bell-badge">${unreadCount > 99 ? '99+' : unreadCount}</span>`
+    : '';
+  return `
+    <a href="${ACCOUNT_NOTIFICATIONS_URL}" class="header-bell-link" title="Уведомления" aria-label="Уведомления${unreadCount > 0 ? ` (непрочитанных: ${unreadCount})` : ''}">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 4.5 1.5 6 2 7H4c.5-1 2-2.5 2-7Z"/><path d="M10 20a2 2 0 0 0 4 0"/></svg>
+      ${badge}
+    </a>
+  `;
+}
+
+function loggedInIdentityHtml(user, unreadCount) {
   const adminLink = isAdmin(user)
     ? `<a href="${ADMIN_APPOINTMENTS_URL}" class="btn btn-ghost">Админ-панель</a>`
     : '';
   return `
     ${adminLink}
+    ${bellHtml(unreadCount)}
     <a href="${ACCOUNT_URL}" class="header-avatar-link" title="Личный кабинет — ${escapeHtml(user.name)}">
       <span class="header-avatar" aria-hidden="true">${escapeHtml(initials(user.name))}</span>
       <span class="header-avatar-name">${escapeHtml(user.name)}</span>
@@ -86,9 +112,10 @@ function loggedInIdentityHtml(user) {
   `;
 }
 
-function loggedInMobileHtml(user) {
+function loggedInMobileHtml(user, unreadCount) {
   const adminLink = isAdmin(user) ? `<a href="${ADMIN_APPOINTMENTS_URL}">Админ-панель</a>` : '';
-  return `${adminLink}<a href="${ACCOUNT_URL}">Личный кабинет · ${escapeHtml(user.name)}</a>`;
+  const notifLabel = unreadCount > 0 ? `Уведомления (${unreadCount > 99 ? '99+' : unreadCount})` : 'Уведомления';
+  return `${adminLink}<a href="${ACCOUNT_NOTIFICATIONS_URL}">${notifLabel}</a><a href="${ACCOUNT_URL}">Личный кабинет · ${escapeHtml(user.name)}</a>`;
 }
 
 // Пока не знаем, вошёл ли клиент, — заглушка (тот же приём, что и на
@@ -128,9 +155,19 @@ export function initHeader() {
   wireMobileMenu();
 
   fetchMe()
-    .then((user) => {
-      document.getElementById('headerIdentity').innerHTML = loggedInIdentityHtml(user);
-      document.getElementById('mobileHeaderIdentity').innerHTML = loggedInMobileHtml(user);
+    .then(async (user) => {
+      // unreadCount — лучшее усилие: если запрос не удался, шапка всё
+      // равно показывает личность клиента, просто без бейджа-числа на
+      // колокольчике (0 по умолчанию), а не ломается целиком из-за
+      // второстепенного счётчика.
+      let unreadCount = 0;
+      try {
+        ({ unreadCount } = await fetchNotifications());
+      } catch {
+        // см. комментарий выше
+      }
+      document.getElementById('headerIdentity').innerHTML = loggedInIdentityHtml(user, unreadCount);
+      document.getElementById('mobileHeaderIdentity').innerHTML = loggedInMobileHtml(user, unreadCount);
     })
     .catch(() => {
       // 401 (обычный случай для гостя) или сеть недоступна — в обоих

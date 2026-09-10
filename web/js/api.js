@@ -159,8 +159,13 @@ export async function fetchAppointment(id) {
   return apiFetch(`/appointments/${id}`);
 }
 
-export async function cancelAppointmentById(id) {
-  return apiFetch(`/appointments/${id}/cancel`, { method: 'POST' });
+// reason — необязательный (docs/db-schema.md, 3.11г: "кто и почему
+// отменил"). Клиентский экран отмены его не передаёт (undefined — тело
+// запроса просто без поля reason, сервер трактует это как "без причины");
+// админ-панель («Записи») передаёт текст из формы отмены.
+export async function cancelAppointmentById(id, reason) {
+  const body = reason !== undefined ? { reason } : undefined;
+  return apiFetch(`/appointments/${id}/cancel`, { method: 'POST', body });
 }
 
 // masterId сюда намеренно не передаём — сервер и так разрешает менять
@@ -258,4 +263,92 @@ export async function deleteAdminMaster(id) {
 // же, как уже сделано на сервере (PUT, не PATCH).
 export async function replaceAdminMasterServices(id, serviceIds) {
   return apiFetch(`/admin/masters/${id}/services`, { method: 'PUT', body: { serviceIds } });
+}
+
+// ---- Админ: записи, перенос с указанием мастера, перенос/блокировка
+// времени (server/src/routes/admin.routes.js, server/src/routes/
+// appointments.routes.js) — раздел «Записи» ----
+
+// Нужен только часовой пояс салона — переводить локальный ввод времени
+// (перенос, создание записи, «перерыв») в UTC перед отправкой на сервер
+// (web/js/dates.js:localDateTimeToUtcIso). Один запрос на загрузку
+// страницы, не на каждую форму.
+export async function fetchAdminSalonProfile() {
+  return apiFetch('/admin/salon-profile');
+}
+
+// from/to — YYYY-MM-DD, только чтобы не тащить с сервера вообще всю
+// историю записей; точный отбор "записи именно на этот локальный день
+// салона" — на странице, по уже готовому startLocal (см. комментарий в
+// web/js/admin-appointments.js: буквальное сравнение from/to как UTC-дат
+// здесь не подходит — сутки салона и UTC не совпадают, admin.routes.js
+// этого не делает).
+export async function fetchAdminAppointments({ from, to, masterId } = {}) {
+  const qs = new URLSearchParams();
+  if (from) qs.set('from', from);
+  if (to) qs.set('to', to);
+  if (masterId) qs.set('masterId', String(masterId));
+  const data = await apiFetch('/admin/appointments' + (qs.toString() ? `?${qs}` : ''));
+  return data.appointments;
+}
+
+// Ручное бронирование администратором, включая поверх занятого времени —
+// overlapOverride передаётся только вторым, подтверждённым вызовом (см.
+// wireCreateForm в admin-appointments.js): сначала всегда пробуем без
+// него, чтобы обычная проверка занятости сработала и её увидел сервер.
+export async function createAdminAppointment(fields) {
+  return apiFetch('/admin/appointments', { method: 'POST', body: fields });
+}
+
+export async function completeAdminAppointment(id) {
+  return apiFetch(`/admin/appointments/${id}/complete`, { method: 'POST' });
+}
+
+// Перенос с правом сменить мастера — только у администратора (сервер и
+// так проверяет это отдельно, routes/appointments.routes.js); отдельная
+// функция от rescheduleAppointmentById выше, а не общий параметр, чтобы
+// клиентские экраны (booking-3.js) не могли даже случайно передать
+// masterId — там для этого нет ни поля формы, ни вызова этой функции.
+export async function rescheduleAdminAppointmentById(id, { startDatetime, masterId }) {
+  const body = { startDatetime };
+  if (masterId !== undefined) body.masterId = masterId;
+  return apiFetch(`/appointments/${id}/reschedule`, { method: 'PATCH', body });
+}
+
+// Блокировка времени мастера — «перерыв» (docs/db-schema.md, 3.10,
+// time_blocks): произвольный диапазон внутри дня, не обязательно весь день.
+export async function createAdminTimeBlock(masterId, { startDatetime, endDatetime, reason }) {
+  return apiFetch(`/admin/masters/${masterId}/time-blocks`, {
+    method: 'POST',
+    body: { startDatetime, endDatetime, reason },
+  });
+}
+
+// «Выходной» и «отпуск» — оба через schedule_exceptions (docs/db-schema.md,
+// 3.9): отпуск на странице оформляется как несколько дневных исключений
+// подряд (по одному вызову на дату — см. web/js/admin-appointments.js),
+// а не один многодневный time_block, чтобы каждый день отпуска остался
+// независимо виден/снимаем в карточке графика мастера.
+export async function createAdminScheduleException(masterId, { date, isDayOff, startTime, endTime, reason }) {
+  const body = { date, isDayOff };
+  if (!isDayOff) {
+    body.startTime = startTime;
+    body.endTime = endTime;
+  }
+  if (reason) body.reason = reason;
+  return apiFetch(`/admin/masters/${masterId}/schedule-exceptions`, { method: 'POST', body });
+}
+
+// ---- Уведомления (server/src/routes/notifications.routes.js) ----
+//
+// Список и счётчик непрочитанных — один и тот же ответ (docs/db-schema.md,
+// раздел 8): страница уведомлений использует notifications[], шапка
+// (js/header.js) — только unreadCount из того же вызова, второго эндпоинта
+// ради одного числа нет и не должно быть.
+export async function fetchNotifications() {
+  return apiFetch('/notifications');
+}
+
+export async function markNotificationRead(id) {
+  return apiFetch(`/notifications/${id}/read`, { method: 'POST' });
 }

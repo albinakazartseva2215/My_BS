@@ -54,3 +54,39 @@ export function relativeDayLabel(dateStr) {
   if (dateStr === addDaysToStr(today, 1)) return 'Завтра';
   return formatDayMonth(dateStr);
 }
+
+// ---- Локальное время салона → UTC (админ-панель, раздел «Записи») ----
+//
+// Все экраны показывают время в часовом поясе салона, не как оно хранится
+// в БД (docs/frontend-rules.md; API уже отдаёт готовые startLocal/endLocal —
+// см. server/src/domain/appointmentView.js, здесь ничего пересчитывать не
+// нужно). Но формы ВВОДА времени (перенос записи, ручное создание записи,
+// блокировка «перерыв») — наоборот: администратор вводит местное время
+// салона, а серверные эндпоинты принимают только UTC (requireUtcDateTime).
+// Эта функция — обратное преобразование, без библиотек: тот же приём, что
+// используют полифиллы часовых поясов — Intl.DateTimeFormat умеет показать
+// произвольный момент в любой IANA-зоне, а по разнице между "что ввели" и
+// "как это же число смотрится в зоне" вычисляется смещение зоны на этот
+// момент. Одного прохода достаточно для реальных часовых поясов (смещение
+// не меняется внутри одного часа, кроме секунды перехода на/с летнего
+// времени — салон работает в Europe/Moscow, где его нет вообще с 2014 года,
+// docs/db-schema.md, раздел 2).
+export function localDateTimeToUtcIso(dateStr, timeStr, timezone) {
+  const [y, mo, d] = dateStr.split('-').map(Number);
+  const [h, mi] = timeStr.split(':').map(Number);
+  const naiveMs = Date.UTC(y, mo - 1, d, h, mi, 0);
+
+  const dtf = new Intl.DateTimeFormat('en-US', {
+    timeZone: timezone,
+    hourCycle: 'h23',
+    year: 'numeric', month: '2-digit', day: '2-digit',
+    hour: '2-digit', minute: '2-digit', second: '2-digit',
+  });
+  const parts = Object.fromEntries(dtf.formatToParts(new Date(naiveMs)).map((p) => [p.type, p.value]));
+  const asZonedMs = Date.UTC(
+    Number(parts.year), Number(parts.month) - 1, Number(parts.day),
+    Number(parts.hour), Number(parts.minute), Number(parts.second),
+  );
+  const offsetMs = asZonedMs - naiveMs;
+  return new Date(naiveMs - offsetMs).toISOString();
+}

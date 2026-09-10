@@ -9,6 +9,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/tokens.css">
 <link rel="stylesheet" href="/css/base.css">
+<link rel="stylesheet" href="/css/auth.css">
 <link rel="stylesheet" href="/css/admin.css">
 </head>
 <body>
@@ -20,10 +21,160 @@
 
 <main class="admin-main">
   <div class="admin-container">
-    <h1 class="admin-page-title">Записи</h1>
-    <div class="admin-empty-state">Раздел пока без данных — здесь появится список записей администратора.</div>
+    <div class="admin-page-head">
+      <h1 class="admin-page-title">Записи</h1>
+    </div>
+
+    <div id="pageError" class="api-error" hidden></div>
+    <div id="pageNotice" class="form-alert is-note" hidden></div>
+
+    <!-- ---- Переключение дня и фильтр по мастеру ---- -->
+    <div class="admin-appt-toolbar">
+      <div class="admin-date-switch">
+        <button type="button" class="btn btn-outline btn-sm" id="apptPrevDay" aria-label="Предыдущий день">←</button>
+        <input class="form-input admin-date-input" type="date" id="apptDateInput" aria-label="Выбранный день">
+        <button type="button" class="btn btn-outline btn-sm" id="apptNextDay" aria-label="Следующий день">→</button>
+        <button type="button" class="btn btn-ghost btn-sm" id="apptTodayBtn">Сегодня</button>
+      </div>
+      <label class="admin-filter-field">
+        <span class="form-label">Мастер</span>
+        <select class="form-input" id="apptMasterFilter">
+          <option value="">Все мастера</option>
+        </select>
+      </label>
+    </div>
+
+    <!-- ---- Список записей на выбранный день ---- -->
+    <div class="admin-table-wrap">
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>Время</th>
+            <th>Клиент</th>
+            <th>Мастер</th>
+            <th>Услуги</th>
+            <th>Сумма</th>
+            <th>Статус</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="apptTbody"><tr><td colspan="7">Загрузка…</td></tr></tbody>
+      </table>
+    </div>
+
+    <!-- ---- Создать запись (в т.ч. поверх занятого времени) ---- -->
+    <div class="admin-form-card">
+      <div class="admin-form-title">Создать запись</div>
+      <p class="admin-form-hint">Если время у мастера уже занято, сервер откажет с предупреждением — появится запрос подтверждения, чтобы всё равно записать клиента поверх занятого времени.</p>
+      <form id="apptCreateForm">
+        <div class="admin-form-row">
+          <div class="form-field">
+            <label class="form-label" for="apptCreateClientId">ID клиента</label>
+            <input class="form-input" type="number" id="apptCreateClientId" name="clientId" min="1" required>
+          </div>
+          <div class="form-field">
+            <label class="form-label" for="apptCreateMaster">Мастер</label>
+            <select class="form-input" id="apptCreateMaster" name="masterId" required></select>
+          </div>
+        </div>
+        <div class="form-field">
+          <span class="form-label">Услуги</span>
+          <div class="admin-checkbox-grid" id="apptCreateServices"></div>
+        </div>
+        <div class="admin-form-row">
+          <div class="form-field">
+            <label class="form-label" for="apptCreateDate">Дата</label>
+            <input class="form-input" type="date" id="apptCreateDate" name="date" required>
+          </div>
+          <div class="form-field">
+            <label class="form-label" for="apptCreateTime">Время</label>
+            <input class="form-input" type="time" id="apptCreateTime" name="time" required>
+          </div>
+        </div>
+        <div class="form-field">
+          <label class="form-label" for="apptCreateComment">Комментарий мастеру</label>
+          <textarea class="form-input" id="apptCreateComment" name="comment" rows="2" maxlength="200"></textarea>
+        </div>
+        <label class="admin-checkbox-line"><input type="checkbox" id="apptCreateRemind" checked> Напомнить клиенту о визите</label>
+        <div class="admin-form-actions">
+          <button type="submit" class="btn btn-primary" id="apptCreateSubmit">Создать запись</button>
+        </div>
+      </form>
+      <div id="apptCreateError" class="api-error" hidden></div>
+    </div>
+
+    <!-- ---- Заблокировать время мастера ---- -->
+    <div class="admin-form-card">
+      <div class="admin-form-title">Заблокировать время мастера</div>
+      <p class="admin-form-hint">Перерыв, выходной или отпуск — заблокированное время перестаёт показываться клиентам как свободное. Это не то же самое, что отключить мастера: он остаётся в списке, недоступны только указанные даты и часы.</p>
+      <form id="blockForm">
+        <div class="admin-form-row">
+          <div class="form-field">
+            <label class="form-label" for="blockMaster">Мастер</label>
+            <select class="form-input" id="blockMaster" name="masterId" required></select>
+          </div>
+          <div class="form-field">
+            <label class="form-label" for="blockType">Тип</label>
+            <select class="form-input" id="blockType" name="type">
+              <option value="break">Перерыв</option>
+              <option value="dayoff">Выходной</option>
+              <option value="vacation">Отпуск</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="admin-form-row" id="blockFieldsBreak">
+          <div class="form-field">
+            <label class="form-label" for="blockBreakDate">Дата</label>
+            <input class="form-input" type="date" id="blockBreakDate">
+          </div>
+          <div class="form-field">
+            <label class="form-label" for="blockBreakStart">С</label>
+            <input class="form-input" type="time" id="blockBreakStart" value="13:00">
+          </div>
+          <div class="form-field">
+            <label class="form-label" for="blockBreakEnd">По</label>
+            <input class="form-input" type="time" id="blockBreakEnd" value="14:00">
+          </div>
+        </div>
+
+        <div class="admin-form-row" id="blockFieldsDayoff" hidden>
+          <div class="form-field">
+            <label class="form-label" for="blockDayoffDate">Дата</label>
+            <input class="form-input" type="date" id="blockDayoffDate">
+          </div>
+        </div>
+
+        <div class="admin-form-row" id="blockFieldsVacation" hidden>
+          <div class="form-field">
+            <label class="form-label" for="blockVacationFrom">С даты</label>
+            <input class="form-input" type="date" id="blockVacationFrom">
+          </div>
+          <div class="form-field">
+            <label class="form-label" for="blockVacationTo">По дату (включительно)</label>
+            <input class="form-input" type="date" id="blockVacationTo">
+          </div>
+        </div>
+
+        <div class="form-field">
+          <label class="form-label" for="blockReason">Причина (необязательно)</label>
+          <input class="form-input" type="text" id="blockReason" maxlength="300" placeholder="например, обед, отпуск, больничный">
+        </div>
+
+        <div class="admin-form-actions">
+          <button type="submit" class="btn btn-outline">Заблокировать</button>
+        </div>
+      </form>
+      <div id="blockError" class="api-error" hidden></div>
+      <div id="blockNotice" class="form-alert is-success" hidden></div>
+    </div>
   </div>
 </main>
+
+<!-- Модалки (отмена / перенос / подтверждение наложения) — вставляет сам
+     JS, только пока открыты, тем же приёмом, что и на web/admin/services.html
+     (см. комментарий в web/js/admin-appointments.js). -->
+<div id="modalRoot"></div>
 
 <script type="module" src="/js/admin-appointments.js"></script>
 </body>

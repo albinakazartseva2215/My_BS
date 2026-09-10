@@ -110,10 +110,66 @@ export function rescheduleAppointment({ id, masterId, startSql, endSql, now }) {
   return findAppointmentById(id);
 }
 
-export function cancelAppointment({ id, now }) {
+// Журнал переноса (docs/db-schema.md, 3.13) — по одной строке на каждый
+// факт переноса, не перезаписываемое поле: запись можно переносить не
+// один раз, и второй перенос не должен стирать память о первом. Вызывать
+// вместе с rescheduleAppointment выше, в одной транзакции (см.
+// domain/booking.js:rescheduleAppointment) — "старое" здесь нужно читать
+// ДО UPDATE, эта функция сама ничего не читает из appointments.
+export function insertRescheduleLogEntry({
+  appointmentId,
+  oldStartSql,
+  oldMasterId,
+  newStartSql,
+  newMasterId,
+  changedByUserId,
+  now,
+}) {
   db.prepare(
-    "UPDATE appointments SET status = 'cancelled', cancelled_at = ?, updated_at = ? WHERE id = ?",
-  ).run(now, now, id);
+    `INSERT INTO appointment_reschedule_log
+       (appointment_id, old_start_datetime, old_master_id, new_start_datetime, new_master_id, changed_by_user_id, created_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?)`,
+  ).run(appointmentId, oldStartSql, oldMasterId, newStartSql, newMasterId, changedByUserId, now);
+}
+
+// Краткая сводка "сколько раз переносили / когда в последний раз" сразу
+// для нескольких записей одним запросом — тем же приёмом, что и
+// listAppointmentServicesForMany выше, чтобы список записей в админ-панели
+// не превращался в N+1 запросов на каждую строку таблицы.
+export function listRescheduleSummaryForMany(appointmentIds) {
+  if (appointmentIds.length === 0) return new Map();
+  const placeholders = appointmentIds.map(() => '?').join(',');
+  const rows = db
+    .prepare(
+      `SELECT appointment_id, COUNT(*) AS reschedule_count, MAX(created_at) AS last_created_at
+       FROM appointment_reschedule_log
+       WHERE appointment_id IN (${placeholders})
+       GROUP BY appointment_id`,
+    )
+    .all(...appointmentIds);
+  const map = new Map();
+  for (const row of rows) map.set(row.appointment_id, row);
+  return map;
+}
+
+// Полная история переноса одной записи, по порядку — используется, только
+// если администратору понадобятся подробности одного переноса (не список).
+export function listRescheduleLogForAppointment(appointmentId) {
+  return db
+    .prepare('SELECT * FROM appointment_reschedule_log WHERE appointment_id = ? ORDER BY created_at ASC')
+    .all(appointmentId);
+}
+
+// cancelledByUserId/reason — кто и почему отменил (docs/db-schema.md,
+// 3.11г); оба необязательны на уровне БД (CHECK там же), но
+// domain/booking.js всегда передаёт cancelledByUserId — вызывающая
+// сторона (routes/appointments.routes.js) уже прошла requireAuth.
+export function cancelAppointment({ id, now, cancelledByUserId = null, reason = null }) {
+  db.prepare(
+    `UPDATE appointments
+     SET status = 'cancelled', cancelled_at = ?, cancelled_by_user_id = ?, cancel_reason = ?, updated_at = ?
+     WHERE id = ?`,
+  ).run(now, cancelledByUserId, reason, now, id);
   return findAppointmentById(id);
 }
 
@@ -190,4 +246,21 @@ export function listAppointmentsForAdmin({ status, masterId, clientId, fromSql, 
   }
   const where = clauses.length ? `WHERE ${clauses.join(' AND ')}` : '';
   return db.prepare(`SELECT * FROM appointments ${where} ORDER BY start_datetime DESC`).all(...params);
+}
+
+// Активные (hold/confirmed) записи ТОГО ЖЕ мастера, чьё время пересекается
+// с переданным диапазоном — то же условие пересечения, что и у триггеров
+// БД (docs/db-schema.md, раздел 3.11а: other.start < NEW.end AND
+// other.end > NEW.start). Единственный вызывающий код —
+// domain/notifications.js:notifyDoubleBookedOwners, сразу после того как
+// createAppointment вставила новую запись с overlapOverride=true (иначе
+// вставку остановил бы тот же триггер, до этой функции дело бы не дошло).
+export function findAppointmentsOverlapping({ masterId, startSql, endSql, excludeId }) {
+  return db
+    .prepare(
+      `SELECT * FROM appointments
+       WHERE master_id = ? AND status IN ('hold', 'confirmed') AND id != ?
+         AND start_datetime < ? AND end_datetime > ?`,
+    )
+    .all(masterId, excludeId, endSql, startSql);
 }

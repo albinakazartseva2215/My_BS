@@ -125,7 +125,7 @@ export function registerRoutes(router) {
       throw badRequest('Смену мастера при переносе может выполнить только администратор');
     }
 
-    const appointment = rescheduleAppointment({ appointmentId: id, newStartUtc, newMasterId });
+    const appointment = rescheduleAppointment({ appointmentId: id, newStartUtc, newMasterId, changedByUserId: user.id });
     const salon = getSalonProfile();
     return { status: 200, body: toAppointmentView(appointment, { timezone: salon.timezone }) };
   });
@@ -137,7 +137,11 @@ export function registerRoutes(router) {
     if (!existing) throw notFound('Запись не найдена');
     assertCanModifyAppointment(user, existing);
 
-    const appointment = cancelAppointment({ appointmentId: id });
+    // reason — необязательный (docs/db-schema.md, 3.11г): клиент может
+    // просто отменить, ничего не объясняя; для админ-панели («Записи»)
+    // это поле формы отмены.
+    const reason = optionalString(ctx.body.reason, 'reason', { max: 300 });
+    const appointment = cancelAppointment({ appointmentId: id, cancelledByUserId: user.id, reason });
     const salon = getSalonProfile();
     return { status: 200, body: toAppointmentView(appointment, { timezone: salon.timezone }) };
   });

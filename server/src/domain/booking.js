@@ -28,12 +28,17 @@
 import crypto from 'node:crypto';
 import db from '../db/connection.js';
 import { badRequest, conflict, notFound } from '../http/errors.js';
-import { dateToSql, toIsoUtc, formatLocalIso, utcToLocalParts } from '../time/salonClock.js';
+import { dateToSql, sqlToDate, toIsoUtc, formatLocalIso, utcToLocalParts } from '../time/salonClock.js';
 import { findMasterById, masterCanPerformAllServices } from '../db/repositories/masters.js';
 import { findServicesByIds } from '../db/repositories/services.js';
 import { getSalonProfile } from '../db/repositories/salonProfile.js';
 import { assertSlotBookable, findNearbySlots } from './availability.js';
 import { releaseExpiredHolds } from './holdExpiry.js';
+import {
+  notifyIfAppointmentCancelledByOther,
+  notifyIfAppointmentRescheduledByOther,
+  notifyDoubleBookedOwners,
+} from './notifications.js';
 import {
   findAppointmentById,
   findAppointmentByHoldToken,
@@ -41,6 +46,7 @@ import {
   insertAppointmentService,
   confirmHoldAppointment,
   rescheduleAppointment as rescheduleAppointmentRow,
+  insertRescheduleLogEntry,
   cancelAppointment as cancelAppointmentRow,
   completeAppointment as completeAppointmentRow,
 } from '../db/repositories/appointments.js';
@@ -230,6 +236,20 @@ export function createAppointment({
       now: nowSql,
     });
     for (const service of services) insertAppointmentService(row.id, service);
+    // Уведомление — только когда это реально осознанное наложение
+    // администратора (docs/db-schema.md, раздел 3.11б: overlapOverride
+    // может стать true только из routes/admin.routes.js); обычная запись
+    // клиента сюда не попадает вообще, overlapOverride у неё всегда false.
+    if (overlapOverride) {
+      notifyDoubleBookedOwners({
+        newAppointmentId: row.id,
+        masterId,
+        startSql: row.start_datetime,
+        endSql: row.end_datetime,
+        timezone: salon.timezone,
+        now,
+      });
+    }
     return row;
   }, conflictContext);
 }
@@ -254,7 +274,14 @@ export function confirmHold({ holdToken, clientId, comment, remindEnabled, now =
   });
 }
 
-export function rescheduleAppointment({ appointmentId, newStartUtc, newMasterId, now = new Date() }) {
+// changedByUserId — кто выполнил перенос (docs/db-schema.md, 3.13); всегда
+// ctx.user.id со стороны маршрута (requireAuth уже прошёл), сюда не
+// передаётся ничем, кроме самого вызывающего кода — переносящий не может
+// подставить чужой id. Один и тот же вызов обслуживает и клиента (только
+// новое время у своего же мастера — смену мастера routes/*.js для
+// клиента отклоняет ещё до этой функции), и администратора (новое время
+// и/или новый мастер).
+export function rescheduleAppointment({ appointmentId, newStartUtc, newMasterId, changedByUserId = null, now = new Date() }) {
   releaseExpiredHolds(now);
   const appointment = findAppointmentById(appointmentId);
   if (!appointment) throw notFound('Запись не найдена');
@@ -282,26 +309,61 @@ export function rescheduleAppointment({ appointmentId, newStartUtc, newMasterId,
   });
   if (!check.ok) throw slotCheckToApiError(check.reason, conflictContext);
 
-  return runOverlapProtectedInsert(
-    () =>
-      rescheduleAppointmentRow({
-        id: appointment.id,
-        masterId,
-        startSql: dateToSql(newStartUtc),
-        endSql: dateToSql(endUtc),
-        now: dateToSql(now),
-      }),
-    conflictContext,
-  );
+  // "Старое" — из appointment, прочитанного ДО UPDATE выше (переменная
+  // из замыкания, не повторный запрос); журнал переноса — в той же
+  // транзакции, что и сам UPDATE, чтобы строка appointments и запись о
+  // переносе либо появились обе, либо ни одна (откат при конфликте).
+  const oldStartSql = appointment.start_datetime;
+  const oldMasterId = appointment.master_id;
+  const nowSql = dateToSql(now);
+
+  return runOverlapProtectedInsert(() => {
+    const updated = rescheduleAppointmentRow({
+      id: appointment.id,
+      masterId,
+      startSql: dateToSql(newStartUtc),
+      endSql: dateToSql(endUtc),
+      now: nowSql,
+    });
+    insertRescheduleLogEntry({
+      appointmentId: appointment.id,
+      oldStartSql,
+      oldMasterId,
+      newStartSql: dateToSql(newStartUtc),
+      newMasterId: masterId,
+      changedByUserId,
+      now: nowSql,
+    });
+    notifyIfAppointmentRescheduledByOther({
+      appointmentId: appointment.id,
+      ownerClientId: appointment.client_id,
+      changedByUserId,
+      oldStartUtc: sqlToDate(oldStartSql),
+      newStartUtc,
+      timezone: salon.timezone,
+      now,
+    });
+    return updated;
+  }, conflictContext);
 }
 
-export function cancelAppointment({ appointmentId, now = new Date() }) {
+// cancelledByUserId/reason — кто и почему отменил (docs/db-schema.md,
+// 3.11г); тем же принципом, что и changedByUserId выше — всегда
+// ctx.user.id вызывающего маршрута, не значение из тела чужого запроса.
+export function cancelAppointment({ appointmentId, cancelledByUserId = null, reason = null, now = new Date() }) {
   const appointment = findAppointmentById(appointmentId);
   if (!appointment) throw notFound('Запись не найдена');
   if (!['hold', 'confirmed'].includes(appointment.status)) {
     throw conflict('Эту запись уже нельзя отменить — она не активна');
   }
-  return cancelAppointmentRow({ id: appointment.id, now: dateToSql(now) });
+  const cancelled = cancelAppointmentRow({ id: appointment.id, now: dateToSql(now), cancelledByUserId, reason });
+  notifyIfAppointmentCancelledByOther({
+    appointment,
+    cancelledByUserId,
+    timezone: getSalonProfile().timezone,
+    now,
+  });
+  return cancelled;
 }
 
 // Ручная половина docs/db-schema.md, раздел 6 ("completed... проставляется

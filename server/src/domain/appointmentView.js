@@ -4,7 +4,7 @@
 
 import { toIsoUtc, formatLocalIso } from '../time/salonClock.js';
 import { findMasterById, toPublicMaster } from '../db/repositories/masters.js';
-import { findUserWithRolesById, toPublicUser } from '../db/repositories/users.js';
+import { findUserWithRolesById, findUserById, toPublicUser } from '../db/repositories/users.js';
 import { listAppointmentServices } from '../db/repositories/appointments.js';
 
 function sqlToDate(sqlText) {
@@ -14,7 +14,17 @@ function sqlToDate(sqlText) {
 // includeClient — только для админского просмотра: имя/телефон клиента
 // нужны салону, чтобы связаться по записи. Обычному клиенту эти поля
 // никогда не передаются (это его же данные и так возвращать незачем).
-export function toAppointmentView(appointment, { timezone, includeClient = false, includeHoldToken = false }) {
+//
+// rescheduleSummary — необязательная предзагруженная сводка ("сколько раз
+// переносили / когда в последний раз", docs/db-schema.md, 3.13). Сама эта
+// функция ничего не запрашивает у БД сверх того, что уже делала раньше —
+// иначе список записей в админ-панели («Записи») стал бы N+1 запросов на
+// каждую строку; пачкой (`listRescheduleSummaryForMany`) её загружает
+// вызывающий код (routes/admin.routes.js).
+export function toAppointmentView(
+  appointment,
+  { timezone, includeClient = false, includeHoldToken = false, rescheduleSummary = null },
+) {
   const master = findMasterById(appointment.master_id);
   const services = listAppointmentServices(appointment.id).map((s) => ({
     serviceId: s.service_id,
@@ -57,6 +67,25 @@ export function toAppointmentView(appointment, { timezone, includeClient = false
   if (includeClient) {
     const client = appointment.client_id ? findUserWithRolesById(appointment.client_id) : null;
     view.client = client ? toPublicUser(client) : null;
+  }
+
+  // Кто и почему отменил (docs/db-schema.md, 3.11г) — видно всем, кто и
+  // так может видеть саму запись (не более чувствительно, чем сама эта
+  // запись): клиенту — что именно салон, а не он сам, отменил его визит;
+  // админу — то же самое, но по любой чужой записи.
+  if (appointment.status === 'cancelled') {
+    view.cancelReason = appointment.cancel_reason;
+    const canceller = appointment.cancelled_by_user_id ? findUserById(appointment.cancelled_by_user_id) : null;
+    view.cancelledBy = canceller ? { id: canceller.id, name: canceller.name } : null;
+  }
+
+  // Сводка переноса (docs/db-schema.md, 3.13) — только если вызывающий код
+  // её явно передал (см. комментарий у параметра выше); клиентские
+  // маршруты (routes/appointments.routes.js) её не запрашивают вовсе —
+  // поле в ответе просто не появляется.
+  if (rescheduleSummary) {
+    view.rescheduledCount = rescheduleSummary.reschedule_count;
+    view.lastRescheduledAt = toIsoUtc(sqlToDate(rescheduleSummary.last_created_at));
   }
 
   return view;

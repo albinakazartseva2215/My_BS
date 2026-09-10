@@ -17,6 +17,7 @@ import { registerRoutes as registerHoldsRoutes } from './routes/holds.routes.js'
 import { registerRoutes as registerAppointmentsRoutes } from './routes/appointments.routes.js';
 import { registerRoutes as registerMasterRoutes } from './routes/master.routes.js';
 import { registerRoutes as registerAdminRoutes } from './routes/admin.routes.js';
+import { registerRoutes as registerNotificationsRoutes } from './routes/notifications.routes.js';
 
 const router = new Router();
 registerAuthRoutes(router);
@@ -26,6 +27,7 @@ registerHoldsRoutes(router);
 registerAppointmentsRoutes(router);
 registerMasterRoutes(router);
 registerAdminRoutes(router);
+registerNotificationsRoutes(router);
 
 export async function requestListener(req, res) {
   let url;

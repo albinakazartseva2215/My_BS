@@ -209,6 +209,15 @@
   display: flex;
   gap: var(--space-16);
 }
+/* Явный display здесь перебивает браузерное [hidden]{display:none} (та же
+   специфичность, но правило автора всегда выше правила user-agent) — без
+   этой строчки web/js/admin-appointments.js переключает поля блокировки
+   времени (перерыв/выходной/отпуск) атрибутом hidden, а строка всё равно
+   видна как flex-контейнер. Тот же приём уже есть в css/booking.css,
+   .hold-banner[hidden] — найдено там же, вживую, не чтением кода. */
+.admin-form-row[hidden] {
+  display: none;
+}
 .admin-form-row .form-field {
   flex: 1;
   min-width: 0;
@@ -306,4 +315,52 @@
   line-height: var(--line-height-body-sm);
   color: var(--color-text-secondary);
   margin-bottom: var(--space-24);
+}
+
+/* ---- Раздел «Записи» (web/admin/index.html) ----
+   Переключение дня, фильтр по мастеру, подсказки под заголовками форм и
+   мелкие пометки в ячейках таблицы (кто/почему отменил, сколько раз
+   переносили) — то, чего не было в разделах «Услуги»/«Мастера» выше. */
+
+.admin-appt-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--space-24);
+  margin-bottom: var(--space-24);
+}
+.admin-date-switch {
+  display: flex;
+  align-items: center;
+  gap: var(--space-8);
+}
+.admin-date-input {
+  width: auto;
+}
+.admin-filter-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+.admin-filter-field .form-label {
+  margin: 0;
+}
+.admin-filter-field .form-input {
+  min-width: 200px;
+}
+
+.admin-form-hint {
+  font-size: var(--font-size-body-sm);
+  color: var(--color-text-muted);
+  margin-bottom: var(--space-16);
+}
+
+/* Мелкая пояснительная строка под статусом в таблице — кто/почему отменил,
+   сколько раз переносили. Не отдельная колонка: относится к статусу
+   конкретной строки, а не ко всей записи наравне с остальными столбцами. */
+.admin-row-note {
+  font-size: var(--font-size-caption);
+  color: var(--color-text-muted);
+  margin-top: var(--space-4);
+  cursor: default;
 }

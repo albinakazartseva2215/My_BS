@@ -413,6 +413,43 @@ button {
   font-weight: var(--font-weight-bold);
 }
 
+/* ---- Колокольчик уведомлений (js/header.js:bellHtml) ----
+   Число на бейдже — unreadCount из GET /api/notifications (тот же ответ,
+   которым пользуется и сам экран уведомлений) — не зашитое в разметку
+   значение. */
+.header-bell-link {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-full);
+  color: var(--color-text-primary);
+  flex-shrink: 0;
+}
+.header-bell-link:hover {
+  background: var(--color-surface-sunken);
+  color: var(--color-text-primary);
+}
+.header-bell-badge {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  min-width: var(--line-height-caption);
+  height: var(--line-height-caption);
+  padding: 0 var(--space-4);
+  border-radius: var(--radius-full);
+  background: var(--color-danger);
+  color: var(--color-text-on-accent);
+  font-size: var(--font-size-caption);
+  line-height: var(--line-height-caption);
+  text-align: center;
+  font-weight: var(--font-weight-bold);
+  transform: scale(0.85);
+  transform-origin: top right;
+}
+
 /* #mobileHeaderIdentity в мобильном меню — просто точка вставки для
    header.js (span, а не готовые ссылки в разметке, содержимое известно
    только после ответа API). display:contents убирает сам span из

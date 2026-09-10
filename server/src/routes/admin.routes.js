@@ -59,7 +59,7 @@ import {
   deleteMasterById,
 } from '../db/repositories/masters.js';
 import { findServicesByIds } from '../db/repositories/services.js';
-import { listAppointmentsForAdmin } from '../db/repositories/appointments.js';
+import { listAppointmentsForAdmin, listRescheduleSummaryForMany } from '../db/repositories/appointments.js';
 import { toAppointmentView } from '../domain/appointmentView.js';
 import { createAppointment, markAppointmentCompleted } from '../domain/booking.js';
 import { completePastAppointments } from '../domain/completionSweep.js';
@@ -187,13 +187,24 @@ export function registerRoutes(router) {
     const to = query.to !== undefined ? requireDateString(query.to, 'to') : undefined;
 
     const salon = getSalonProfile();
-    const appointments = listAppointmentsForAdmin({
+    const rows = listAppointmentsForAdmin({
       status,
       masterId,
       clientId,
       fromSql: from ? `${from} 00:00:00` : undefined,
       toSql: to ? `${to} 00:00:00` : undefined,
-    }).map((a) => toAppointmentView(a, { timezone: salon.timezone, includeClient: true }));
+    });
+    // Сводка переносов пачкой на весь список — не по одному запросу на
+    // строку (docs/db-schema.md, 3.13; см. комментарий у параметра
+    // rescheduleSummary в domain/appointmentView.js).
+    const rescheduleSummaries = listRescheduleSummaryForMany(rows.map((r) => r.id));
+    const appointments = rows.map((a) =>
+      toAppointmentView(a, {
+        timezone: salon.timezone,
+        includeClient: true,
+        rescheduleSummary: rescheduleSummaries.get(a.id) ?? null,
+      }),
+    );
 
     return { status: 200, body: { appointments } };
   });
