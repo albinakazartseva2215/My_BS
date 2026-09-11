@@ -80,6 +80,12 @@ function detailsHtml() {
       <div class="visit-summary-note">г. Москва, ул. Тверская, 12</div>
       ${appointment.comment ? `<div class="visit-summary-note" style="margin-top:var(--space-16)"><strong>Комментарий мастеру:</strong> ${escapeHtml(appointment.comment)}</div>` : ''}
       <div class="visit-summary-note">${appointment.remindEnabled ? 'Напоминание о визите включено' : 'Напоминание о визите отключено'}</div>
+      ${
+        appointment.status === 'cancelled'
+          ? `<div class="visit-summary-note" style="margin-top:var(--space-16)"><strong>Отменил(а):</strong> ${escapeHtml(appointment.cancelledBy ? appointment.cancelledBy.name : 'неизвестно')}</div>
+             <div class="visit-summary-note"><strong>Причина отмены:</strong> ${escapeHtml(appointment.cancelReason || 'без указания причины')}</div>`
+          : ''
+      }
     </div>
 
     ${
