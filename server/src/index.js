@@ -1,15 +1,29 @@
-// Точка входа HTTP API. Требует уже применённых миграций (npm run migrate)
-// и, для ручной проверки, тестовых данных (npm run seed) — сам сервер
-// схему не создаёт и не сидирует.
+// Точка входа HTTP API. Непринятые миграции применяются самим процессом
+// (см. ниже), до начала приёма запросов — руками запускать `npm run
+// migrate` в контейнере некому. Тестовые данные (npm run seed) — по-прежнему
+// отдельный ручной шаг, сервер их не создаёт.
 //
 // Запуск: npm start (из папки server/)
 
 import http from 'node:http';
 import { requestListener } from './app.js';
 import { env } from './config/env.js';
+import { migrate } from './db/migrate.js';
 import { releaseExpiredHolds } from './domain/holdExpiry.js';
 import { completePastAppointments } from './domain/completionSweep.js';
 import { sweepExpiredBuckets } from './middleware/rateLimit.js';
+
+// Применяем непринятые миграции до того, как сервер начнёт отвечать.
+// migrate() сама пропускает уже применённые файлы (schema_migrations,
+// src/db/migrate.js) — повторный запуск на каждом старте безопасен.
+// Если миграция падает — процесс не поднимается вовсе, а не отвечает
+// на боевые запросы поверх несогласованной схемы.
+try {
+  migrate();
+} catch (err) {
+  console.error('[index] не удалось применить миграции — сервер не запущен:', err);
+  process.exit(1);
+}
 
 const server = http.createServer((req, res) => {
   requestListener(req, res).catch((err) => {
