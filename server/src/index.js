@@ -9,6 +9,7 @@ import http from 'node:http';
 import { requestListener } from './app.js';
 import { env } from './config/env.js';
 import { migrate } from './db/migrate.js';
+import { ensureAdminUser } from './db/ensureAdmin.js';
 import { releaseExpiredHolds } from './domain/holdExpiry.js';
 import { completePastAppointments } from './domain/completionSweep.js';
 import { sweepExpiredBuckets } from './middleware/rateLimit.js';
@@ -23,6 +24,17 @@ try {
 } catch (err) {
   console.error('[index] не удалось применить миграции — сервер не запущен:', err);
   process.exit(1);
+}
+
+// Только в production: в разработке администратора заводит npm run seed,
+// а seed.js сам отказывается запускаться в production (см. src/db/seed.js) —
+// без этого на чистом проде войти было бы вообще некем (см. ensureAdmin.js).
+if (env.isProduction) {
+  try {
+    ensureAdminUser();
+  } catch (err) {
+    console.error('[index] не удалось проверить/создать администратора:', err);
+  }
 }
 
 const server = http.createServer((req, res) => {
