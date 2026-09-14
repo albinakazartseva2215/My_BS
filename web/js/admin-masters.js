@@ -12,11 +12,13 @@
 import { initAdminShell } from './admin-shell.js';
 import {
   fetchAdminMasters,
+  fetchAdminMaster,
   fetchAdminServices,
   createAdminMaster,
   updateAdminMaster,
   deleteAdminMaster,
   replaceAdminMasterServices,
+  replaceAdminMasterSchedule,
   describeError,
   ApiRequestError,
 } from './api.js';
@@ -38,6 +40,17 @@ const servicesGrid = document.getElementById('masterServicesGrid');
 const servicesError = document.getElementById('masterServicesError');
 const servicesNotice = document.getElementById('masterServicesNotice');
 const saveServicesBtn = document.getElementById('saveMasterServicesBtn');
+
+const scheduleSection = document.getElementById('masterScheduleSection');
+const scheduleNameEl = document.getElementById('masterScheduleName');
+const scheduleGrid = document.getElementById('masterScheduleGrid');
+const scheduleError = document.getElementById('masterScheduleError');
+const scheduleNotice = document.getElementById('masterScheduleNotice');
+const saveScheduleBtn = document.getElementById('saveMasterScheduleBtn');
+
+// 1..7 = Пн..Вс — то же соответствие, что и в БД (master_weekly_schedule.weekday,
+// CHECK BETWEEN 1 AND 7) и в server/src/time/salonClock.js.
+const WEEKDAY_LABELS = ['Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота', 'Воскресенье'];
 
 let masters = [];
 let allServices = []; // включая отключённые — та же логика "админ видит всё"
@@ -114,7 +127,7 @@ async function loadMasters() {
   }
 }
 
-function startEdit(id) {
+async function startEdit(id) {
   const master = masters.find((m) => m.id === id);
   if (!master) return;
   editingId = id;
@@ -128,6 +141,22 @@ function startEdit(id) {
   showMessage(formError, null);
   openServicesSection(master);
   form.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+  // Недельный график — не в списке мастеров (fetchAdminMasters), только в
+  // карточке одного мастера, отдельным запросом (см. комментарий у
+  // fetchAdminMaster в web/js/api.js). Секцию показываем сразу (с
+  // заглушкой вместо строк), чтобы ошибку загрузки тоже было куда вывести.
+  scheduleSection.hidden = false;
+  scheduleNameEl.textContent = master.name;
+  showMessage(scheduleError, null);
+  showMessage(scheduleNotice, null);
+  scheduleGrid.innerHTML = '<p class="admin-checkbox-inactive-note">Загрузка графика…</p>';
+  try {
+    const detail = await fetchAdminMaster(id);
+    if (editingId === id) renderScheduleGrid(detail.weeklySchedule);
+  } catch (err) {
+    if (editingId === id) showApiError(scheduleError, err);
+  }
 }
 
 function resetForm() {
@@ -139,6 +168,7 @@ function resetForm() {
   cancelBtn.hidden = true;
   showMessage(formError, null);
   closeServicesSection();
+  closeScheduleSection();
 }
 
 cancelBtn.addEventListener('click', resetForm);
@@ -228,6 +258,79 @@ saveServicesBtn.addEventListener('click', async () => {
     await loadMasters();
   } catch (err) {
     showApiError(servicesError, err);
+  }
+});
+
+// ---- График работы мастера (master_weekly_schedule) ----
+// Без него у мастера нет ни одной строки в этой таблице, а
+// server/src/domain/availability.js трактует отсутствие строки на
+// конкретный weekday как выходной — то есть свободных слотов не будет
+// вообще ни на одну дату, пока график не сохранён хотя бы раз (см.
+// комментарий у fetchAdminMaster в web/js/api.js).
+
+function renderScheduleGrid(weeklySchedule) {
+  const byWeekday = new Map(weeklySchedule.map((entry) => [entry.weekday, entry]));
+  scheduleGrid.innerHTML = WEEKDAY_LABELS.map((label, i) => {
+    const weekday = i + 1;
+    const entry = byWeekday.get(weekday);
+    const isWorking = entry !== undefined;
+    return `
+      <div class="admin-schedule-row" data-weekday="${weekday}">
+        <label class="admin-schedule-day">
+          <input type="checkbox" class="schedule-day-toggle" ${isWorking ? 'checked' : ''}>
+          <span>${label}</span>
+        </label>
+        <div class="admin-schedule-times">
+          <input type="time" class="form-input schedule-start" value="${entry ? entry.startTime : '10:00'}" ${isWorking ? '' : 'disabled'}>
+          <span>—</span>
+          <input type="time" class="form-input schedule-end" value="${entry ? entry.endTime : '20:00'}" ${isWorking ? '' : 'disabled'}>
+        </div>
+      </div>`;
+  }).join('');
+
+  scheduleGrid.querySelectorAll('.schedule-day-toggle').forEach((checkbox) => {
+    checkbox.addEventListener('change', () => {
+      const row = checkbox.closest('.admin-schedule-row');
+      row.querySelectorAll('input[type=time]').forEach((input) => {
+        input.disabled = !checkbox.checked;
+      });
+    });
+  });
+}
+
+function closeScheduleSection() {
+  scheduleSection.hidden = true;
+  scheduleGrid.innerHTML = '';
+}
+
+saveScheduleBtn.addEventListener('click', async () => {
+  if (editingId === null) return;
+  showMessage(scheduleError, null);
+  showMessage(scheduleNotice, null);
+
+  const schedule = [];
+  let hasInvalidRange = false;
+  scheduleGrid.querySelectorAll('.admin-schedule-row').forEach((row) => {
+    if (!row.querySelector('.schedule-day-toggle').checked) return;
+    const weekday = Number(row.dataset.weekday);
+    const startTime = row.querySelector('.schedule-start').value;
+    const endTime = row.querySelector('.schedule-end').value;
+    if (!startTime || !endTime || endTime <= startTime) {
+      hasInvalidRange = true;
+      return;
+    }
+    schedule.push({ weekday, startTime, endTime });
+  });
+  if (hasInvalidRange) {
+    showMessage(scheduleError, 'Время окончания должно быть позже времени начала — проверьте отмеченные дни.');
+    return;
+  }
+
+  try {
+    await replaceAdminMasterSchedule(editingId, schedule);
+    showMessage(scheduleNotice, 'График сохранён.');
+  } catch (err) {
+    showApiError(scheduleError, err);
   }
 });
 

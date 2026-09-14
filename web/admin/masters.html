@@ -82,6 +82,22 @@
         <button type="button" class="btn btn-primary" id="saveMasterServicesBtn">Сохранить услуги мастера</button>
       </div>
     </section>
+
+    <!-- Без графика работы у мастера нет ни одной строки в
+         master_weekly_schedule — расчёт свободного времени
+         (server/src/domain/availability.js) трактует отсутствующий день как
+         выходной, то есть слотов нет вообще ни на одну дату, пока график не
+         задан хотя бы раз. Показывается только для уже существующего
+         мастера — тем же принципом, что и услуги выше. -->
+    <section class="admin-form-card" id="masterScheduleSection" hidden>
+      <h2 class="admin-form-title">График работы: <span id="masterScheduleName"></span></h2>
+      <div id="masterScheduleError" class="form-alert is-error" hidden></div>
+      <div id="masterScheduleNotice" class="form-alert is-note" hidden></div>
+      <div id="masterScheduleGrid"></div>
+      <div class="admin-form-actions">
+        <button type="button" class="btn btn-primary" id="saveMasterScheduleBtn">Сохранить график</button>
+      </div>
+    </section>
   </div>
 </main>
 

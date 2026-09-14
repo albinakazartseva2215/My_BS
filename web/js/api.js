@@ -245,13 +245,22 @@ export async function deleteAdminService(id) {
 
 // Мастера — тем же принципом, что и услуги: все, включая отключённых.
 // Ответ уже включает serviceIds на каждого мастера (admin.routes.js,
-// GET /api/admin/masters) — отдельного запроса карточки мастера
-// (GET /api/admin/masters/:id) для чекбоксов "какие услуги выполняет" не
-// нужно, тот эндпоинт отдаёт ещё и график/исключения — вне охвата этой
-// страницы (docs/ui-map.md, раздел 14, "Карточка мастера" — будущий заход).
+// GET /api/admin/masters) — для чекбоксов "какие услуги выполняет"
+// отдельный запрос карточки мастера не нужен. Недельный график в этот
+// ответ не входит (см. fetchAdminMaster ниже).
 export async function fetchAdminMasters() {
   const data = await apiFetch('/admin/masters');
   return data.masters;
+}
+
+// Карточка одного мастера — единственное, чего нет в fetchAdminMasters():
+// недельный график (weeklySchedule) и исключения (scheduleExceptions).
+// Нужна только чтобы открыть редактор графика работы (без него мастер —
+// без единой строки в master_weekly_schedule — выглядит выходным каждый
+// день: domain/availability.js трактует отсутствие строки на weekday как
+// day_off, свободных слотов при этом нет вообще ни на одну дату).
+export async function fetchAdminMaster(id) {
+  return apiFetch(`/admin/masters/${id}`);
 }
 
 export async function createAdminMaster(fields) {
@@ -270,6 +279,15 @@ export async function deleteAdminMaster(id) {
 // же, как уже сделано на сервере (PUT, не PATCH).
 export async function replaceAdminMasterServices(id, serviceIds) {
   return apiFetch(`/admin/masters/${id}/services`, { method: 'PUT', body: { serviceIds } });
+}
+
+// Полная замена недельного графика мастера — тем же принципом (PUT, не
+// PATCH), что и услуги выше. schedule — массив { weekday (1..7), startTime,
+// endTime } только по рабочим дням; выходной день — просто отсутствие
+// записи на этот weekday, отдельного isDayOff здесь нет (сервер именно
+// так и хранит, server/src/routes/admin.routes.js).
+export async function replaceAdminMasterSchedule(id, schedule) {
+  return apiFetch(`/admin/masters/${id}/schedule`, { method: 'PUT', body: { schedule } });
 }
 
 // ---- Админ: записи, перенос с указанием мастера, перенос/блокировка
