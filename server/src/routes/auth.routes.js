@@ -18,7 +18,7 @@ import {
 import { findUserWithRolesByEmail, insertUser, toPublicUser } from '../db/repositories/users.js';
 import { hashPassword, verifyPassword } from '../security/passwords.js';
 import { createSession, revokeSession } from '../domain/session.js';
-import { serializeSessionCookie, serializeSessionCookieClear } from '../http/cookies.js';
+import { serializeSessionCookie, serializeSessionCookieClear, isRequestSecure } from '../http/cookies.js';
 import { extractSessionToken, requireAuth } from '../middleware/auth.js';
 import { enforceRateLimit } from '../middleware/rateLimit.js';
 import { attachClientToHold } from '../domain/holdAttach.js';
@@ -28,7 +28,11 @@ import { env } from '../config/env.js';
 
 function setSessionCookie(ctx, userId, now) {
   const { token, expiresAt } = createSession(userId, now);
-  ctx.res.setHeader('Set-Cookie', serializeSessionCookie(token, expiresAt, { secure: env.isProduction }));
+  // secure — по реальному протоколу ЭТОГО запроса (isRequestSecure), а не
+  // по NODE_ENV: на проде без HTTPS (сайт пока открыт по IP, без домена)
+  // Secure-cookie от NODE_ENV=production браузер молча не сохранил бы —
+  // подробности в http/cookies.js, isRequestSecure.
+  ctx.res.setHeader('Set-Cookie', serializeSessionCookie(token, expiresAt, { secure: isRequestSecure(ctx.req) }));
 }
 
 export function registerRoutes(router) {
@@ -95,7 +99,7 @@ export function registerRoutes(router) {
     // больше не пройдёт resolveUserByToken.
     const token = extractSessionToken(ctx.req);
     if (token) revokeSession(token);
-    ctx.res.setHeader('Set-Cookie', serializeSessionCookieClear({ secure: env.isProduction }));
+    ctx.res.setHeader('Set-Cookie', serializeSessionCookieClear({ secure: isRequestSecure(ctx.req) }));
     return { status: 204, body: null };
   });
 
