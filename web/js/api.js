@@ -213,12 +213,19 @@ export async function fetchAdminServices() {
   return data.services;
 }
 
-// Категории нужны только чтобы заполнить список выбора в форме услуги —
-// управления самими категориями на этой странице нет (отдельный будущий
-// экран, docs/ui-map.md, раздел 11 «Категории услуг»).
+// Категории нужны, чтобы заполнить список выбора в форме услуги. Полного
+// экрана управления категориями (переименование/сортировка) пока нет
+// (отдельный будущий экран, docs/ui-map.md, раздел 11 «Категории услуг»),
+// но создание — есть, см. createAdminCategory ниже: без него на чистой
+// базе (без npm run seed, как на проде) список пуст и услугу вообще не
+// из чего создать (categoryId обязателен).
 export async function fetchAdminCategories() {
   const data = await apiFetch('/admin/service-categories');
   return data.categories;
+}
+
+export async function createAdminCategory(fields) {
+  return apiFetch('/admin/service-categories', { method: 'POST', body: fields });
 }
 
 export async function createAdminService(fields) {

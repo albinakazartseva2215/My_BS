@@ -50,6 +50,24 @@
         <div class="form-field">
           <label class="form-label" for="svcCategory">Категория</label>
           <select class="form-input" id="svcCategory" name="categoryId" required></select>
+          <button type="button" class="btn btn-outline btn-sm" id="newCategoryToggleBtn">+ Новая категория</button>
+        </div>
+        <!-- Категорий (service_categories) на чистой базе (без npm run seed,
+             как на проде — см. server/DEPLOY.md) изначально нет ни одной:
+             выбирать в select выше нечего, а без категории услугу не
+             создать (categoryId обязателен, server/src/routes/admin.routes.js).
+             Категории заводит POST /api/admin/service-categories — он уже
+             был на сервере (см. комментарий там же), просто здесь не было
+             к нему формы. -->
+        <div class="admin-form-row" id="newCategoryRow" hidden>
+          <div class="form-field">
+            <label class="form-label" for="newCategoryName">Название категории</label>
+            <input class="form-input" id="newCategoryName" maxlength="100" placeholder="Например, «Маникюр»">
+          </div>
+          <div class="form-field admin-form-actions">
+            <button type="button" class="btn btn-outline" id="newCategorySaveBtn">Создать</button>
+            <button type="button" class="btn btn-ghost" id="newCategoryCancelBtn">Отмена</button>
+          </div>
         </div>
         <div class="form-field">
           <label class="form-label" for="svcName">Название</label>

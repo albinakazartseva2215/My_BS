@@ -15,6 +15,7 @@ import { initAdminShell } from './admin-shell.js';
 import {
   fetchAdminServices,
   fetchAdminCategories,
+  createAdminCategory,
   createAdminService,
   updateAdminService,
   deleteAdminService,
@@ -33,6 +34,12 @@ const formTitle = document.getElementById('serviceFormTitle');
 const formError = document.getElementById('formError');
 const submitBtn = document.getElementById('serviceSubmitBtn');
 const cancelBtn = document.getElementById('serviceCancelBtn');
+const categorySelect = document.getElementById('svcCategory');
+const newCategoryToggleBtn = document.getElementById('newCategoryToggleBtn');
+const newCategoryRow = document.getElementById('newCategoryRow');
+const newCategoryName = document.getElementById('newCategoryName');
+const newCategorySaveBtn = document.getElementById('newCategorySaveBtn');
+const newCategoryCancelBtn = document.getElementById('newCategoryCancelBtn');
 
 let categories = [];
 let services = [];
@@ -58,10 +65,13 @@ function showApiError(el, err) {
   showMessage(el, describeError(err));
 }
 
-async function loadCategories() {
+// selectId — какую категорию сделать выбранной после перезагрузки списка
+// (например, только что созданную) — без этого выбор всегда сбрасывался
+// бы на первую в списке.
+async function loadCategories(selectId) {
   categories = await fetchAdminCategories();
-  const select = document.getElementById('svcCategory');
-  select.innerHTML = categories.map((c) => `<option value="${c.id}">${escapeHtml(c.name)}</option>`).join('');
+  categorySelect.innerHTML = categories.map((c) => `<option value="${c.id}">${escapeHtml(c.name)}</option>`).join('');
+  if (selectId !== undefined) categorySelect.value = String(selectId);
 }
 
 function renderTable() {
@@ -137,6 +147,44 @@ function resetForm() {
 }
 
 cancelBtn.addEventListener('click', resetForm);
+
+// ---- Новая категория (POST /api/admin/service-categories) ----
+// Без этого на чистой базе (без npm run seed) список категорий пуст, и
+// услугу создать нечем — categoryId обязателен (см. комментарий в
+// web/admin/services.html у #newCategoryRow).
+function showNewCategoryRow() {
+  newCategoryRow.hidden = false;
+  newCategoryName.value = '';
+  newCategoryName.focus();
+}
+
+function hideNewCategoryRow() {
+  newCategoryRow.hidden = true;
+  showMessage(formError, null);
+}
+
+newCategoryToggleBtn.addEventListener('click', () => {
+  if (newCategoryRow.hidden) showNewCategoryRow();
+  else hideNewCategoryRow();
+});
+newCategoryCancelBtn.addEventListener('click', hideNewCategoryRow);
+
+newCategorySaveBtn.addEventListener('click', async () => {
+  const name = newCategoryName.value.trim();
+  if (!name) {
+    showMessage(formError, 'Введите название категории');
+    newCategoryName.focus();
+    return;
+  }
+  try {
+    const category = await createAdminCategory({ name });
+    await loadCategories(category.id); // сразу выбираем только что созданную
+    hideNewCategoryRow();
+  } catch (err) {
+    if (err instanceof ApiRequestError) showApiError(formError, err);
+    else throw err;
+  }
+});
 
 form.addEventListener('submit', async (event) => {
   event.preventDefault();
