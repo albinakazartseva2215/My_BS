@@ -10,6 +10,7 @@ import { requestListener } from './app.js';
 import { env } from './config/env.js';
 import { migrate } from './db/migrate.js';
 import { ensureAdminUser } from './db/ensureAdmin.js';
+import { ensureSalonProfile } from './db/ensureSalonProfile.js';
 import { releaseExpiredHolds } from './domain/holdExpiry.js';
 import { completePastAppointments } from './domain/completionSweep.js';
 import { sweepExpiredBuckets } from './middleware/rateLimit.js';
@@ -26,14 +27,22 @@ try {
   process.exit(1);
 }
 
-// Только в production: в разработке администратора заводит npm run seed,
-// а seed.js сам отказывается запускаться в production (см. src/db/seed.js) —
-// без этого на чистом проде войти было бы вообще некем (см. ensureAdmin.js).
+// Только в production: в разработке и администратора, и профиль салона
+// заводит npm run seed, а seed.js сам отказывается запускаться в
+// production (см. src/db/seed.js) — без этого на чистом проде войти
+// было бы некем (ensureAdmin.js), а почти любой раздел, которому нужен
+// профиль салона (расчёт свободного времени, «Записи» в админке),
+// падал бы 500 (ensureSalonProfile.js).
 if (env.isProduction) {
   try {
     ensureAdminUser();
   } catch (err) {
     console.error('[index] не удалось проверить/создать администратора:', err);
+  }
+  try {
+    ensureSalonProfile();
+  } catch (err) {
+    console.error('[index] не удалось проверить/создать профиль салона:', err);
   }
 }
 
