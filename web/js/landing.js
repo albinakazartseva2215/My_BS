@@ -113,6 +113,26 @@ async function loadServices() {
 // у трёх карточек в прототипе, назначаются по порядку карточек.
 const DECORATIVE_NEXT_SLOTS = ['Ближайшее время: сегодня, 15:30', 'Ближайшее время: завтра, 10:00', 'Ближайшее время: сегодня, 18:00'];
 
+// Рейтинг — необязательное поле (ratingAvg/reviewsCount заполняет только
+// server/src/db/seed.js для демо-мастеров; мастер, заведённый по-настоящему
+// через админ-панель, начинает с ratingAvg=null, reviewsCount=0 — отзывов
+// ещё никто не оставлял, отзывов в проекте вообще нет как функции, см.
+// комментарий у секции отзывов ниже). typeof-проверка та же, что уже
+// используется для среднего рейтинга по всем мастерам чуть ниже
+// (updateTrustStrip) — только там она есть, а тут её не было: карточка
+// мастера без рейтинга (ratingAvg === null) звала .toFixed() на null и
+// падала с необработанной ошибкой прямо на лендинге.
+function renderMasterRatingHtml(master) {
+  if (typeof master.ratingAvg !== 'number') {
+    return `<span class="master-rating-count">Пока нет оценок</span>`;
+  }
+  return `
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none" aria-hidden="true"><polygon points="12,3 14.7,9 21,9.5 16.2,13.7 17.6,20 12,16.6 6.4,20 7.8,13.7 3,9.5 9.3,9"/></svg>
+    <span class="master-rating-value">${master.ratingAvg.toFixed(1)}</span>
+    <span class="master-rating-count">(${master.reviewsCount})</span>
+  `;
+}
+
 function renderMasterCard(master, index) {
   const card = document.createElement('div');
   card.className = 'master-card';
@@ -123,11 +143,7 @@ function renderMasterCard(master, index) {
     ${photo}
     <div class="master-name">${escapeHtml(master.name)}</div>
     <div class="master-specialization">${escapeHtml(master.specialization || '')}</div>
-    <div class="master-rating">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none" aria-hidden="true"><polygon points="12,3 14.7,9 21,9.5 16.2,13.7 17.6,20 12,16.6 6.4,20 7.8,13.7 3,9.5 9.3,9"/></svg>
-      <span class="master-rating-value">${master.ratingAvg.toFixed(1)}</span>
-      <span class="master-rating-count">(${master.reviewsCount})</span>
-    </div>
+    <div class="master-rating">${renderMasterRatingHtml(master)}</div>
     <div class="master-next-slot">${DECORATIVE_NEXT_SLOTS[index % DECORATIVE_NEXT_SLOTS.length]}</div>
     <a href="${BOOKING_START_URL}" class="btn btn-primary btn-block">Записаться</a>
   `;
