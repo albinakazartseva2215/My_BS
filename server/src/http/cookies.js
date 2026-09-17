@@ -46,6 +46,41 @@ export function serializeSessionCookieClear({ secure } = {}) {
   return parts.join('; ');
 }
 
+// Отдельная короткоживущая cookie для CSRF-state похода на Яндекс и обратно
+// (routes/auth.routes.js, /api/auth/yandex/start и /yandex/callback) — НЕ
+// то же самое, что сессионная cookie выше, и её не трогает. SameSite=Lax
+// (не Strict) — она должна доехать и при верхнеуровневом переходе, которым
+// Яндекс возвращает браузер на /yandex/callback, это межсайтовый GET, Lax
+// такие пропускает.
+const YANDEX_OAUTH_STATE_COOKIE_NAME = 'yandex_oauth_state';
+const YANDEX_OAUTH_STATE_TTL_MS = 10 * 60 * 1000; // 10 минут — только на дорогу до Яндекса и обратно
+
+export function serializeYandexOauthStateCookie(state, { secure } = {}) {
+  const parts = [
+    `${YANDEX_OAUTH_STATE_COOKIE_NAME}=${encodeURIComponent(state)}`,
+    'Path=/',
+    'HttpOnly',
+    'SameSite=Lax',
+    `Expires=${new Date(Date.now() + YANDEX_OAUTH_STATE_TTL_MS).toUTCString()}`,
+  ];
+  if (secure) parts.push('Secure');
+  return parts.join('; ');
+}
+
+export function serializeYandexOauthStateCookieClear({ secure } = {}) {
+  const parts = [
+    `${YANDEX_OAUTH_STATE_COOKIE_NAME}=`,
+    'Path=/',
+    'HttpOnly',
+    'SameSite=Lax',
+    'Expires=Thu, 01 Jan 1970 00:00:00 GMT',
+  ];
+  if (secure) parts.push('Secure');
+  return parts.join('; ');
+}
+
+export { YANDEX_OAUTH_STATE_COOKIE_NAME };
+
 // Нужен ли атрибут Secure у Set-Cookie сессии — ответ на вопрос "эта
 // конкретная связь с браузером реально HTTPS?", а не "включён ли вообще
 // NODE_ENV=production". Раньше эти два вопроса путали (secure: isProduction) —

@@ -6,7 +6,7 @@
 import { URL } from 'node:url';
 import { Router } from './http/router.js';
 import { readJsonBody } from './http/body.js';
-import { sendJson, sendError } from './http/respond.js';
+import { sendJson, sendError, sendRedirect } from './http/respond.js';
 import { ApiError } from './http/errors.js';
 import { resolveCurrentUser } from './middleware/auth.js';
 
@@ -56,7 +56,14 @@ export async function requestListener(req, res) {
     const ctx = { req, res, params: match.params, query, body, user };
 
     const result = await match.handler(ctx);
-    sendJson(res, result.status, result.body);
+    // Обычный путь — JSON; result.redirect — только у маршрутов похода на
+    // Яндекс и обратно (routes/auth.routes.js), где ответ — переход
+    // браузера на другую страницу, а не тело для AJAX-вызова.
+    if (result.redirect) {
+      sendRedirect(res, result.redirect);
+    } else {
+      sendJson(res, result.status, result.body);
+    }
   } catch (err) {
     if (err instanceof ApiError) {
       sendError(res, err.status, err.code, err.message, err.details);

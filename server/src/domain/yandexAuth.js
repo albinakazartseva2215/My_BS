@@ -5,13 +5,15 @@
 //
 // Токен Яндекса сюда никогда не попадает и не сохраняется: getYandexProfile
 // отдаёт только { email, name, providerId } — уже готовые данные профиля,
-// не сам access_token. Дальше в дело идёт только наш собственный токен
-// сессии (createSession, domain/session.js) — ровно тот же, что выдаёт
-// обычный e-mail/пароль-вход, теми же правилами (ограниченный срок
-// действия, httpOnly-cookie).
+// не сам access_token (сам access_token живёт только внутри
+// fetchRealYandexProfile, ровно на два запроса к Яндексу, и никуда за
+// пределы этой функции не выходит). Дальше в дело идёт только наш
+// собственный токен сессии (createSession, domain/session.js) — ровно тот
+// же, что выдаёт обычный e-mail/пароль-вход, теми же правилами
+// (ограниченный срок действия, httpOnly-cookie).
 
 import { env } from '../config/env.js';
-import { notImplemented } from '../http/errors.js';
+import { badGateway } from '../http/errors.js';
 import { dateToSql } from '../time/salonClock.js';
 import {
   findUserWithRolesByEmail,
@@ -21,42 +23,78 @@ import {
 } from '../db/repositories/users.js';
 
 const PROVIDER_YANDEX = 'yandex';
+const YANDEX_TOKEN_URL = 'https://oauth.yandex.ru/token';
+const YANDEX_INFO_URL = 'https://login.yandex.ru/info';
 
-// ЗАГЛУШКА — временная, см. .env.example и server/README.md. Включена
-// только явной переменной окружения (по умолчанию выключена и жёстко
-// запрещена в production, config/env.js), подставляет фиксированные
-// email/имя из настроек вместо настоящего ответа Яндекса.
-function getStubYandexProfile() {
+// Настоящий поход в Яндекс — код авторизации (пришёл на redirect_uri,
+// routes/auth.routes.js, GET /api/auth/yandex/callback) меняется на
+// access_token, тем же токеном сразу запрашивается профиль. Права
+// приложения — ровно login:email и login:info (см. GET /api/auth/yandex/start),
+// поэтому дальше читаются только email/имя/фамилия, больше ничего.
+// access_token живёт только в переменной внутри этой функции — наружу не
+// возвращается и нигде не сохраняется, использован он здесь ровно один раз
+// (запрос профиля) и на этом его жизнь заканчивается.
+async function fetchRealYandexProfile(authorizationCode) {
+  const tokenResponse = await fetch(YANDEX_TOKEN_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: new URLSearchParams({
+      grant_type: 'authorization_code',
+      code: authorizationCode,
+      client_id: env.yandex.clientId,
+      client_secret: env.yandex.clientSecret,
+      redirect_uri: env.yandex.redirectUri,
+    }),
+  });
+  if (!tokenResponse.ok) {
+    throw badGateway(
+      `Яндекс отказал в обмене кода авторизации на токен (HTTP ${tokenResponse.status}): ${await tokenResponse.text()}`,
+    );
+  }
+  const tokenPayload = await tokenResponse.json();
+  const accessToken = tokenPayload.access_token;
+  if (!accessToken) {
+    throw badGateway('Ответ Яндекса на обмен кода авторизации не содержит access_token.');
+  }
+
+  const infoResponse = await fetch(`${YANDEX_INFO_URL}?format=json`, {
+    headers: { Authorization: `OAuth ${accessToken}` },
+  });
+  if (!infoResponse.ok) {
+    throw badGateway(`Яндекс отказал в запросе профиля пользователя (HTTP ${infoResponse.status}): ${await infoResponse.text()}`);
+  }
+  const profile = await infoResponse.json();
+  // access_token дальше в этой функции больше не используется и никуда не
+  // передаётся — единственный запрос, для которого он был нужен, уже сделан.
+
+  const email = profile.default_email;
+  if (!email) {
+    throw badGateway(
+      'Яндекс не вернул e-mail пользователя — проверьте, что у приложения включено право login:email.',
+    );
+  }
+  // Имя и фамилия, как и просили (не display_name/real_name — те могут
+  // быть псевдонимом, который человек сам указал в Яндекс ID); пустая
+  // строка вместо отсутствующего поля не отличается от отсутствующего
+  // имени — .filter(Boolean) убирает пропуски, а не подставляет "undefined".
+  const name = [profile.first_name, profile.last_name].filter(Boolean).join(' ').trim();
+  if (!name) {
+    throw badGateway(
+      'Яндекс не вернул имя и фамилию пользователя — проверьте, что у приложения включено право login:info.',
+    );
+  }
+
   return {
-    email: env.yandexLoginStub.email,
-    name: env.yandexLoginStub.name,
-    // Настоящий provider_id — это поле "id" из ответа Яндекса
-    // (login.yandex.ru/info), устойчивый идентификатор аккаунта, а не
-    // email. У заглушки берём стабильную условную строку той же роли, а не
-    // просто email — чтобы findOrCreateYandexUser не отличал заглушку от
-    // настоящего профиля по форме данных.
-    providerId: `stub:${env.yandexLoginStub.email}`,
+    email,
+    name,
+    // id — устойчивый внутренний идентификатор аккаунта в Яндексе, не email
+    // (docs/db-schema.md, «Спорные решения», п.19) — храним как строку, тем
+    // же типом, что и колонка provider_id (TEXT).
+    providerId: String(profile.id),
   };
 }
 
-// Место для настоящего подключения. После регистрации приложения на
-// oauth.yandex.ru (нужен постоянный адрес — redirect_uri, которого пока
-// нет, см. .env.example) сюда добавляется обмен кода авторизации на
-// access_token (POST https://oauth.yandex.ru/token) и запрос профиля
-// (GET https://login.yandex.ru/info) — заменяется только тело этой
-// функции, остальная логика входа (findOrCreateYandexUser, роут в
-// routes/auth.routes.js) не меняется. Параметр не используется уже сейчас —
-// понадобится там же, для обмена кода на токен.
-async function fetchRealYandexProfile(authorizationCode) {
-  throw notImplemented(
-    'Вход через Яндекс ещё не подключён к настоящему Яндексу — приложение на oauth.yandex.ru не зарегистрировано ' +
-      '(у сервиса пока нет постоянного адреса для redirect_uri). Для проверки нашей части входа включите ' +
-      'YANDEX_LOGIN_STUB_ENABLED (см. .env.example) — только в разработке, не на боевом сервере.',
-  );
-}
-
 export async function getYandexProfile(authorizationCode) {
-  if (env.yandexLoginStub.enabled) return getStubYandexProfile();
   return fetchRealYandexProfile(authorizationCode);
 }
 

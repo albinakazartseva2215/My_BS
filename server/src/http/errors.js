@@ -18,8 +18,11 @@ export const forbidden = (message = 'Недостаточно прав') => new 
 export const notFound = (message = 'Не найдено') => new ApiError(404, 'not_found', message);
 export const conflict = (message, details) => new ApiError(409, 'conflict', message, details);
 export const tooManyRequests = (message, details) => new ApiError(429, 'too_many_requests', message, details);
-// Функция существует в коде, но сознательно не реализована — например,
-// настоящий обмен кода авторизации Яндекса на профиль до регистрации
-// приложения на oauth.yandex.ru (domain/yandexAuth.js). Не 500 ("что-то
-// сломалось") — это ожидаемое, объяснимое состояние.
+// Функция существует в коде, но сознательно не реализована. Не 500
+// ("что-то сломалось") — это ожидаемое, объяснимое состояние.
 export const notImplemented = (message) => new ApiError(501, 'not_implemented', message);
+// Мы сами выступили "шлюзом" к внешнему сервису (Яндексу — обмен кода на
+// токен, запрос профиля, domain/yandexAuth.js) и получили от него ответ,
+// которого не ждали: не HTTP 200, не тот JSON. Отдельный код статуса, а не
+// 500 — проблема не в нашем сервере, а в ответе того, к кому мы обратились.
+export const badGateway = (message, details) => new ApiError(502, 'bad_gateway', message, details);

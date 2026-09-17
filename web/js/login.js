@@ -1,8 +1,8 @@
 // Логика экрана входа. Все обращения к серверу — только через js/api.js
 // (docs/frontend-rules.md, правило 3).
 
-import { login, loginWithYandex, ApiRequestError } from './api.js';
-import { ACCOUNT_URL, ADMIN_APPOINTMENTS_URL } from './routes.js';
+import { login, ApiRequestError } from './api.js';
+import { ACCOUNT_URL, ADMIN_APPOINTMENTS_URL, YANDEX_LOGIN_START_URL } from './routes.js';
 import { initHeader } from './header.js';
 import {
   validateEmail,
@@ -22,26 +22,31 @@ const yandexBtn = document.getElementById('yandexLoginBtn');
 initHeader();
 wirePasswordToggle(document.getElementById('loginPasswordToggle'), document.getElementById('loginPassword'));
 
-// Та же логика редиректа по ролям, что и у обычного входа ниже (сервер
-// решает роль, не эта страница) — куда вести после входа через Яндекс,
-// определяется тем же полем ответа.
-yandexBtn.addEventListener('click', async () => {
-  hideAlert(alertEl);
-  setSubmitting(yandexBtn, true, 'Войти через Яндекс');
-  try {
-    const { user } = await loginWithYandex();
-    window.location.href = user.roles.includes('admin') ? ADMIN_APPOINTMENTS_URL : ACCOUNT_URL;
-  } catch (err) {
-    if (err instanceof ApiRequestError) {
-      alertEl.textContent = err.message;
-      alertEl.hidden = false;
-    } else {
-      throw err;
-    }
-  } finally {
-    setSubmitting(yandexBtn, false, 'Войти через Яндекс');
-  }
+// "Войти через Яндекс" — обычный переход, не запрос через api.js: только
+// так браузер реально покажет пользователю страницу согласия Яндекса
+// (server/src/routes/auth.routes.js, GET /api/auth/yandex/start сам
+// редиректит дальше на oauth.yandex.ru).
+yandexBtn.addEventListener('click', () => {
+  window.location.href = YANDEX_LOGIN_START_URL;
 });
+
+// Сюда возвращает GET /api/auth/yandex/callback, если вход через Яндекс не
+// завершился — человек нажал «Отмена» на экране согласия Яндекса
+// (yandexError=denied) либо сам обмен кода на токен/профиль не удался
+// (yandexError=failed, server/src/domain/yandexAuth.js). Без этого
+// пользователь просто оказывался бы на пустом экране без объяснения — тот
+// самый эффект, который и просили убрать.
+const returnedFromYandex = new URLSearchParams(window.location.search).get('yandexError');
+if (returnedFromYandex) {
+  alertEl.textContent =
+    returnedFromYandex === 'denied'
+      ? 'Вход через Яндекс не завершён — вы отменили подтверждение. Попробуйте ещё раз или войдите по паролю.'
+      : 'Не удалось войти через Яндекс. Попробуйте ещё раз или войдите по паролю.';
+  alertEl.hidden = false;
+  // Снимаем параметр из адресной строки — иначе обновление страницы
+  // показывало бы то же сообщение повторно, хотя ничего не произошло.
+  window.history.replaceState({}, '', window.location.pathname);
+}
 
 form.addEventListener('submit', async (event) => {
   event.preventDefault();

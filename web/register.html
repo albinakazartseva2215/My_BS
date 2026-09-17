@@ -8,6 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="tokens.css">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
 <link rel="stylesheet" href="css/base.css">
 <link rel="stylesheet" href="css/landing.css">
 <link rel="stylesheet" href="css/auth.css">
@@ -65,10 +66,17 @@
 
       <div class="auth-divider"><span>или</span></div>
 
-      <!-- Заглушка на бэкенде (server/src/domain/yandexAuth.js,
-           YANDEX_LOGIN_STUB_ENABLED) — приложение в Яндексе ещё не
-           зарегистрировано, см. server/README.md. -->
-      <button type="button" class="btn btn-outline btn-block" id="yandexLoginBtn">Войти через Яндекс</button>
+      <!-- Настоящий OAuth Яндекса, не fetch: клик переводит браузер на
+           GET /api/auth/yandex/start (js/routes.js:YANDEX_LOGIN_START_URL),
+           дальше — согласие на стороне Яндекса и возврат на
+           /api/auth/yandex/callback (server/src/domain/yandexAuth.js).
+           Оформление — по требованиям Яндекса к кнопке входа, не по
+           .btn/tokens.css проекта (см. css/auth.css, .yandex-id-btn) —
+           текст и иконка здесь фиксированы Яндексом, менять их нельзя. -->
+      <button type="button" class="yandex-id-btn" id="yandexLoginBtn">
+        <span class="yandex-id-btn-icon" aria-hidden="true"></span>
+        <span class="yandex-id-btn-text">Войти с Яндекс ID</span>
+      </button>
     </div>
 
     <div class="auth-switch">Уже есть аккаунт? <a href="login.html">Войти</a></div>

@@ -51,6 +51,14 @@ export const LOGIN_URL = 'login.html';
 export const REGISTER_URL = 'register.html';
 export const PASSWORD_RESET_URL = 'password-reset.html';
 
+// Кнопка «Войти через Яндекс» (login.html, register.html) — это НЕ вызов
+// через js/api.js: сюда браузер должен реально перейти (window.location),
+// а не сходить fetch()-ом — только переходом пользователь попадёт на
+// страницу согласия Яндекса. Сам маршрут — GET /api/auth/yandex/start
+// (server/src/routes/auth.routes.js), с ведущим "/", как и адреса раздела
+// /admin ниже — это путь на бэкенде, а не файл рядом со страницей.
+export const YANDEX_LOGIN_START_URL = '/api/auth/yandex/start';
+
 // Личного кабинета в прототипе нет вообще ни как отдельного экрана, ни как
 // файла с этим именем — «Нерешённые случаи», №2 (docs/ui-map.md). Заведён
 // как цель редиректа после входа/регистрации по прямому указанию в

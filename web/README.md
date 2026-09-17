@@ -55,11 +55,21 @@ npm start
 - `login.html`/`js/login.js`, `register.html`/`js/register.js`,
   `password-reset.html`/`js/password-reset.js` — вход, регистрация,
   восстановление пароля. На `login.html`/`register.html`, рядом с обычной
-  формой, — кнопка «Войти через Яндекс» (`POST /api/auth/yandex/login`,
-  `js/api.js:loginWithYandex`) — вход/регистрация в один клик через
-  заглушку на бэкенде (`server/src/domain/yandexAuth.js`; приложение в
-  настоящем Яндексе ещё не зарегистрировано — нет постоянного адреса для
-  `redirect_uri`, см. `server/README.md`). `password-reset.js` отдельно
+  формой, — кнопка «Войти с Яндекс ID»: обычный переход браузера на
+  `GET /api/auth/yandex/start` (`js/routes.js:YANDEX_LOGIN_START_URL`,
+  не вызов через `js/api.js` — это не AJAX, а полноценная навигация на
+  страницу согласия Яндекса), дальше `GET /api/auth/yandex/callback`
+  возвращает уже с сессией или с `?yandexError=denied|failed`, которое
+  показывает `js/login.js` (`server/src/domain/yandexAuth.js`,
+  `server/src/routes/auth.routes.js`). Оформление кнопки (`css/auth.css`,
+  `.yandex-id-btn`) — по требованиям Яндекса к кнопке входа
+  (https://yandex.ru/dev/id/doc/ru/codes/buttons-design), сознательно не
+  на токенах `tokens.css`: цвет, обводка, текст, иконка и отступ между
+  ними — буквально то, что Яндекс запрещает менять; из настраиваемого
+  выбраны тип «Дополнительная версия» (обводка, не сплошная заливка — на
+  экране уже есть один сплошной CTA, кнопка «Войти»/«Создать и
+  продолжить»), тема light (под светлую подложку карточки) и скругление в
+  пилюлю (форма — как у остальных кнопок сайта). `password-reset.js` отдельно
   обрабатывает ответ для аккаунта без пароля (`oauthOnly`) — показывает
   текст про вход через Яндекс и не открывает шаг 2 (вводить код всё равно
   было бы незачем).

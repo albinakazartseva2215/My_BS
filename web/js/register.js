@@ -1,8 +1,8 @@
 // Логика экрана регистрации. Все обращения к серверу — только через
 // js/api.js (docs/frontend-rules.md, правило 3).
 
-import { register, loginWithYandex, ApiRequestError } from './api.js';
-import { ACCOUNT_URL, ADMIN_APPOINTMENTS_URL } from './routes.js';
+import { register, ApiRequestError } from './api.js';
+import { ACCOUNT_URL, YANDEX_LOGIN_START_URL } from './routes.js';
 import { initHeader } from './header.js';
 import {
   validateRequired,
@@ -27,30 +27,17 @@ const yandexBtn = document.getElementById('yandexLoginBtn');
 initHeader();
 wirePasswordToggle(document.getElementById('registerPasswordToggle'), passwordInput);
 
-// "Войти через Яндекс" на экране регистрации — тот же вызов, что и на
-// login.html: сервер сам решает, создать новый аккаунт или войти в уже
-// существующий с этим e-mail (server/src/domain/yandexAuth.js), поэтому
-// кнопка одинаковая на обоих экранах, а не отдельный "регистрационный"
-// вызов. Редирект по роли (не всегда ACCOUNT_URL, как у формы регистрации
-// выше) — потому что через эту кнопку можно попасть и в уже существующий
-// аккаунт с ролью admin (привязка по email), не только создать нового
-// client, как гарантирует обычная регистрация.
-yandexBtn.addEventListener('click', async () => {
-  hideAlert(alertEl);
-  setSubmitting(yandexBtn, true, 'Войти через Яндекс');
-  try {
-    const { user } = await loginWithYandex();
-    window.location.href = user.roles.includes('admin') ? ADMIN_APPOINTMENTS_URL : ACCOUNT_URL;
-  } catch (err) {
-    if (err instanceof ApiRequestError) {
-      alertEl.textContent = err.message;
-      alertEl.hidden = false;
-    } else {
-      throw err;
-    }
-  } finally {
-    setSubmitting(yandexBtn, false, 'Войти через Яндекс');
-  }
+// "Войти через Яндекс" на экране регистрации — тот же переход, что и на
+// login.html (js/login.js): не запрос через api.js, а обычная навигация
+// браузера, только так пользователь попадёт на страницу согласия Яндекса.
+// Сервер сам решает, создать новый аккаунт или войти в уже существующий с
+// этим e-mail (server/src/domain/yandexAuth.js) — этот экран в это не
+// вмешивается, кнопка одинаковая на login.html и здесь. Неудачу (отмена,
+// ошибка обмена кода) GET /api/auth/yandex/callback всегда возвращает на
+// login.html с сообщением (см. js/login.js) — не сюда, поэтому отдельной
+// обработки ошибки здесь нет.
+yandexBtn.addEventListener('click', () => {
+  window.location.href = YANDEX_LOGIN_START_URL;
 });
 
 // ---- Индикатор сложности пароля ----

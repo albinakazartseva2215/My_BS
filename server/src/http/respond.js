@@ -14,3 +14,14 @@ export function sendJson(res, status, payload) {
 export function sendError(res, status, code, message, details) {
   sendJson(res, status, { error: { code, message, ...(details !== undefined ? { details } : {}) } });
 }
+
+// Редирект браузера (302) — нужен там, где ответ на запрос не JSON, а
+// переход на другую страницу (routes/auth.routes.js, поход на Яндекс и
+// обратно: пользователь должен реально попасть на страницу Яндекса и
+// вернуться, это не AJAX-вызов, который умеет показать JSON). Отдельная
+// функция, а не sendJson с другим Content-Type — тело редиректа не нужно
+// вовсе, а status здесь всегда 3xx, что и так видно по названию.
+export function sendRedirect(res, location) {
+  res.writeHead(302, { Location: location });
+  res.end();
+}

@@ -38,9 +38,9 @@ const ROUTE_LIMITS = {
   // но маршрут аутентификации без лимита — не то, что должно быть по
   // умолчанию; лимит как у login.
   passwordResetConfirm: { max: 10, windowMs: 15 * 60 * 1000 },
-  // Тот же маршрут аутентификации, что и login — тем же лимитом, чтобы
-  // не остаться единственным способом входа без ограничения частоты
-  // (domain/yandexAuth.js, routes/auth.routes.js).
+  // Вход через Яндекс (routes/auth.routes.js, GET /api/auth/yandex/start и
+  // /yandex/callback) — тот же лимит, что и у login, чтобы не остаться
+  // способом входа без ограничения частоты.
   yandexLogin: { max: 10, windowMs: 15 * 60 * 1000 },
 };
 
