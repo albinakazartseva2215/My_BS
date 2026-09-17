@@ -18,3 +18,8 @@ export const forbidden = (message = 'Недостаточно прав') => new 
 export const notFound = (message = 'Не найдено') => new ApiError(404, 'not_found', message);
 export const conflict = (message, details) => new ApiError(409, 'conflict', message, details);
 export const tooManyRequests = (message, details) => new ApiError(429, 'too_many_requests', message, details);
+// Функция существует в коде, но сознательно не реализована — например,
+// настоящий обмен кода авторизации Яндекса на профиль до регистрации
+// приложения на oauth.yandex.ru (domain/yandexAuth.js). Не 500 ("что-то
+// сломалось") — это ожидаемое, объяснимое состояние.
+export const notImplemented = (message) => new ApiError(501, 'not_implemented', message);

@@ -42,11 +42,16 @@ function invalidTokenError() {
 }
 
 // Возвращает { issued: false } — если аккаунта с таким e-mail нет (маршрут
-// сам решает, как по-разному не ответить на этот случай, см. auth.routes.js) —
-// либо { issued: true, token, expiresAt }.
+// сам решает, как по-разному не ответить на этот случай, см. auth.routes.js);
+// { issued: false, oauthOnly: true, provider } — если аккаунт есть, но
+// пароля у него нет вообще (вход только через внешний сервис — миграция
+// 009_yandex_oauth.sql, docs/db-schema.md, «Спорные решения», п.19: сбрасывать
+// нечего, отправлять токен некуда, восстановление пароля для такого
+// аккаунта не имеет смысла) — либо { issued: true, token, expiresAt }.
 export function requestPasswordReset(email, now = new Date()) {
   const user = findUserByEmail(email);
   if (!user) return { issued: false };
+  if (!user.password_hash) return { issued: false, oauthOnly: true, provider: user.provider };
 
   invalidateActiveTokensForUser(user.id);
 

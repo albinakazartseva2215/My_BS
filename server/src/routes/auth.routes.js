@@ -23,6 +23,7 @@ import { extractSessionToken, requireAuth } from '../middleware/auth.js';
 import { enforceRateLimit } from '../middleware/rateLimit.js';
 import { attachClientToHold } from '../domain/holdAttach.js';
 import { requestPasswordReset, confirmPasswordReset } from '../domain/passwordReset.js';
+import { getYandexProfile, findOrCreateYandexUser } from '../domain/yandexAuth.js';
 import { dateToSql, toIsoUtc } from '../time/salonClock.js';
 import { env } from '../config/env.js';
 
@@ -92,6 +93,27 @@ export function registerRoutes(router) {
     return { status: 200, body: { user: toPublicUser(user), holdAttached } };
   });
 
+  // Вход через Яндекс в один клик — кнопка на web/login.html и
+  // web/register.html. Тело запроса пустое: email/имя пользователя сюда не
+  // передаёт браузер (это была бы дыра — любой мог бы прислать чужой
+  // email и получить его сессию), их называет только сам Яндекс — сейчас,
+  // пока приложение там не зарегистрировано, вместо него отвечает
+  // заглушка (getYandexProfile, domain/yandexAuth.js, включается
+  // YANDEX_LOGIN_STUB_ENABLED). holdToken (как у /login и /register выше)
+  // этот маршрут сознательно не принимает — кнопка стоит на отдельных
+  // экранах входа/регистрации, а не в визарде записи (booking-4.html);
+  // понадобится там — добавить отдельно, не расширяя эту заглушку молча.
+  router.post('/api/auth/yandex/login', async (ctx) => {
+    enforceRateLimit(ctx, 'yandexLogin');
+    const profile = await getYandexProfile();
+
+    const now = new Date();
+    const user = findOrCreateYandexUser(profile, now);
+    setSessionCookie(ctx, user.id, now);
+
+    return { status: 200, body: { user: toPublicUser(user) } };
+  });
+
   router.post('/api/auth/logout', async (ctx) => {
     // Реальный отзыв — сессия помечается revoked_at в БД (не только
     // снятие cookie, как было раньше без таблицы sessions, см.
@@ -137,6 +159,23 @@ export function registerRoutes(router) {
     enforceRateLimit(ctx, 'passwordResetRequest');
     const email = requireEmail(ctx.body.email);
     const result = requestPasswordReset(email);
+
+    // Аккаунт без пароля (вход только через Яндекс) — единственный случай,
+    // где этот маршрут ГОВОРИТ прямо, что аккаунт с таким email есть, а не
+    // отвечает той же обезличенной формулировкой, что и "email не
+    // зарегистрирован" ниже. Осознанный компромисс по прямому требованию —
+    // разбор в docs/db-schema.md, «Спорные решения», п.19.
+    if (result.oauthOnly) {
+      return {
+        status: 200,
+        body: {
+          message: 'Вход в этот аккаунт выполняется через Яндекс — пароля у него нет, сбрасывать нечего. ' +
+            'Используйте кнопку «Войти через Яндекс» на экране входа.',
+          oauthOnly: true,
+          provider: result.provider,
+        },
+      };
+    }
 
     const body = {
       message: 'Если такой e-mail зарегистрирован, ссылка для восстановления пароля выдана.',

@@ -1,8 +1,8 @@
 // Логика экрана регистрации. Все обращения к серверу — только через
 // js/api.js (docs/frontend-rules.md, правило 3).
 
-import { register, ApiRequestError } from './api.js';
-import { ACCOUNT_URL } from './routes.js';
+import { register, loginWithYandex, ApiRequestError } from './api.js';
+import { ACCOUNT_URL, ADMIN_APPOINTMENTS_URL } from './routes.js';
 import { initHeader } from './header.js';
 import {
   validateRequired,
@@ -22,9 +22,36 @@ const submitBtn = document.getElementById('registerSubmit');
 const passwordInput = document.getElementById('registerPassword');
 const strengthBars = document.querySelectorAll('#passwordStrength .password-strength-bar');
 const strengthLabel = document.getElementById('passwordStrengthLabel');
+const yandexBtn = document.getElementById('yandexLoginBtn');
 
 initHeader();
 wirePasswordToggle(document.getElementById('registerPasswordToggle'), passwordInput);
+
+// "Войти через Яндекс" на экране регистрации — тот же вызов, что и на
+// login.html: сервер сам решает, создать новый аккаунт или войти в уже
+// существующий с этим e-mail (server/src/domain/yandexAuth.js), поэтому
+// кнопка одинаковая на обоих экранах, а не отдельный "регистрационный"
+// вызов. Редирект по роли (не всегда ACCOUNT_URL, как у формы регистрации
+// выше) — потому что через эту кнопку можно попасть и в уже существующий
+// аккаунт с ролью admin (привязка по email), не только создать нового
+// client, как гарантирует обычная регистрация.
+yandexBtn.addEventListener('click', async () => {
+  hideAlert(alertEl);
+  setSubmitting(yandexBtn, true, 'Войти через Яндекс');
+  try {
+    const { user } = await loginWithYandex();
+    window.location.href = user.roles.includes('admin') ? ADMIN_APPOINTMENTS_URL : ACCOUNT_URL;
+  } catch (err) {
+    if (err instanceof ApiRequestError) {
+      alertEl.textContent = err.message;
+      alertEl.hidden = false;
+    } else {
+      throw err;
+    }
+  } finally {
+    setSubmitting(yandexBtn, false, 'Войти через Яндекс');
+  }
+});
 
 // ---- Индикатор сложности пароля ----
 // Чисто подсказка для клиента — единственное правило пароля, которое

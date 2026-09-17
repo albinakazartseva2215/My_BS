@@ -89,4 +89,30 @@ export const env = {
   // салона через настройки продукта.
   sessionTtlDays: Number(process.env.SESSION_TTL_DAYS || 30),
   passwordResetTtlMinutes: Number(process.env.PASSWORD_RESET_TTL_MINUTES || 30),
+  // Заглушка входа через Яндекс (domain/yandexAuth.js) — ВРЕМЕННОЕ решение
+  // на время, пока у сервиса нет постоянного адреса для redirect_uri и
+  // приложение на oauth.yandex.ru не зарегистрировано (см. .env.example,
+  // server/README.md). Выключена по умолчанию; включённая, она подставляет
+  // ОДИН и тот же тестовый email/имя вместо реального Яндекса — это не
+  // авторизация, а имитация ответа Яндекса для проверки нашей части кода.
+  yandexLoginStub: {
+    enabled: process.env.YANDEX_LOGIN_STUB_ENABLED === 'true',
+    email: process.env.YANDEX_LOGIN_STUB_EMAIL || 'yandex-stub@ton-salon.test',
+    name: process.env.YANDEX_LOGIN_STUB_NAME || 'Тестовый пользователь Яндекс',
+  },
 };
+
+// Жёсткий запрет, а не только предупреждение в документации: с включённой
+// заглушкой в production любой, кто вызовет POST /api/auth/yandex/login,
+// вошёл бы под одним и тем же тестовым аккаунтом без единой проверки
+// личности — это не гипотетическая дыра, а полный обход входа. Тот же
+// приём fail-fast, что и у проверки версии Node (db/connection.js): падать
+// сразу при старте с понятным сообщением, а не отвечать на боевые запросы
+// поверх включённой заглушки.
+if (env.isProduction && env.yandexLoginStub.enabled) {
+  throw new Error(
+    'YANDEX_LOGIN_STUB_ENABLED=true запрещён при NODE_ENV=production — это заглушка для проверки входа через ' +
+      'Яндекс без самого Яндекса (см. .env.example), с ней вход открыт под одним тестовым аккаунтом для кого ' +
+      'угодно. Уберите переменную или поставьте false.',
+  );
+}

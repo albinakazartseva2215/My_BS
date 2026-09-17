@@ -49,14 +49,42 @@ export function migrate() {
 
     const sql = fs.readFileSync(path.join(MIGRATIONS_DIR, file), 'utf8');
 
+    // PRAGMA foreign_keys — no-op внутри уже открытой транзакции (документированное
+    // поведение SQLite), поэтому переключается СНАРУЖИ BEGIN/COMMIT, а не внутри.
+    // Нужно не для обычных ALTER TABLE (ADD COLUMN и т.п. их не задевают), а для
+    // миграций, которые перестраивают таблицу целиком (CREATE новой → перенос
+    // данных → DROP старой → RENAME — единственный способ снять NOT NULL, которого
+    // в SQLite нет как ALTER COLUMN, см. 009_yandex_oauth.sql): с включёнными
+    // foreign_keys DROP TABLE родителя, на которого есть ссылки из других таблиц,
+    // сам по себе падает "FOREIGN KEY constraint failed" — проверено вживую на
+    // 009_yandex_oauth.sql (users, на которую ссылаются sessions/user_roles/
+    // masters/...). Выключаем на время КАЖДОЙ миграции (не только этой), а не
+    // выборочно по имени файла — safety net (PRAGMA foreign_key_check ниже) один
+    // и тот же для всех.
+    db.exec('PRAGMA foreign_keys = OFF');
     db.exec('BEGIN');
     try {
       db.exec(sql);
+
+      // foreign_key_check не бросает исключение сам — просто список нарушений
+      // (пусто, если всё цело). Раз уж целостность на время миграции не
+      // проверялась движком (foreign_keys=OFF выше), проверяем сами перед COMMIT —
+      // тот же принцип "проверять результат сквозного запроса", что уже применяется
+      // к остальной части проекта (docs/db-schema.md, «Спорные решения», п.13).
+      const violations = db.prepare('PRAGMA foreign_key_check').all();
+      if (violations.length > 0) {
+        throw new Error(
+          `миграция оставила ${violations.length} нарушени(е/й) внешних ключей: ${JSON.stringify(violations)}`,
+        );
+      }
+
       markApplied.run(file);
       db.exec('COMMIT');
     } catch (error) {
       db.exec('ROLLBACK');
       throw new Error(`миграция ${file} не применилась: ${error.message}`, { cause: error });
+    } finally {
+      db.exec('PRAGMA foreign_keys = ON');
     }
 
     console.log(`применена миграция: ${file}`);

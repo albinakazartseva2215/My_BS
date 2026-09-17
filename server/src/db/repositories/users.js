@@ -53,13 +53,28 @@ export function revokeRole(userId, role) {
 // (обычно ['client'] при обычной регистрации; список, а не одна роль, —
 // на случай, если когда-нибудь понадобится завести пользователя сразу с
 // несколькими ролями в одном месте, не через отдельные grantRole).
-export function insertUser({ name, email, phone, passwordHash, roles, termsAcceptedAt, now }) {
+//
+// passwordHash/provider/providerId — необязательные (миграция
+// 009_yandex_oauth.sql, docs/db-schema.md, 3.2): обычная регистрация
+// передаёт только passwordHash, вход через Яндекс (domain/yandexAuth.js) —
+// только provider/providerId, пароля у такого аккаунта нет.
+export function insertUser({
+  name,
+  email,
+  phone,
+  passwordHash = null,
+  provider = null,
+  providerId = null,
+  roles,
+  termsAcceptedAt,
+  now,
+}) {
   const info = db
     .prepare(
-      `INSERT INTO users (name, email, phone, password_hash, terms_accepted_at, created_at, updated_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO users (name, email, phone, password_hash, provider, provider_id, terms_accepted_at, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     )
-    .run(name, email, phone, passwordHash, termsAcceptedAt, now, now);
+    .run(name, email, phone, passwordHash, provider, providerId, termsAcceptedAt, now, now);
   const userId = Number(info.lastInsertRowid);
   const insertRole = db.prepare('INSERT INTO user_roles (user_id, role) VALUES (?, ?)');
   for (const role of roles) insertRole.run(userId, role);
@@ -69,6 +84,23 @@ export function insertUser({ name, email, phone, passwordHash, roles, termsAccep
 // Восстановление пароля (domain/passwordReset.js) — единственный вызывающий код.
 export function updateUserPasswordHash(userId, passwordHash, now) {
   db.prepare('UPDATE users SET password_hash = ?, updated_at = ? WHERE id = ?').run(passwordHash, now, userId);
+}
+
+// Привязка уже существующего (найденного по email) аккаунта к внешнему
+// входу — domain/yandexAuth.js, findOrCreateYandexUser. Перезаписывает
+// provider/provider_id безусловно и идемпотентно: повторный вход тем же
+// Яндекс-аккаунтом просто подтверждает ту же связь ещё раз, а не считается
+// ошибкой (UNIQUE(provider, provider_id), docs/db-schema.md, раздел 4,
+// защищает от того, что два РАЗНЫХ наших аккаунта получат один и тот же
+// provider_id — если такое всё же случится, вызов упадёт исключением
+// UNIQUE-ограничения; это страховочный случай, отдельно не обрабатываем).
+export function linkProviderToUser(userId, provider, providerId, now) {
+  db.prepare('UPDATE users SET provider = ?, provider_id = ?, updated_at = ? WHERE id = ?').run(
+    provider,
+    providerId,
+    now,
+    userId,
+  );
 }
 
 // Никогда не отдаётся password_hash или terms_accepted_at (внутренние поля) —

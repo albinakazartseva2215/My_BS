@@ -1,7 +1,7 @@
 // Логика экрана входа. Все обращения к серверу — только через js/api.js
 // (docs/frontend-rules.md, правило 3).
 
-import { login, ApiRequestError } from './api.js';
+import { login, loginWithYandex, ApiRequestError } from './api.js';
 import { ACCOUNT_URL, ADMIN_APPOINTMENTS_URL } from './routes.js';
 import { initHeader } from './header.js';
 import {
@@ -17,9 +17,31 @@ import {
 const form = document.getElementById('loginForm');
 const alertEl = document.getElementById('formAlert');
 const submitBtn = document.getElementById('loginSubmit');
+const yandexBtn = document.getElementById('yandexLoginBtn');
 
 initHeader();
 wirePasswordToggle(document.getElementById('loginPasswordToggle'), document.getElementById('loginPassword'));
+
+// Та же логика редиректа по ролям, что и у обычного входа ниже (сервер
+// решает роль, не эта страница) — куда вести после входа через Яндекс,
+// определяется тем же полем ответа.
+yandexBtn.addEventListener('click', async () => {
+  hideAlert(alertEl);
+  setSubmitting(yandexBtn, true, 'Войти через Яндекс');
+  try {
+    const { user } = await loginWithYandex();
+    window.location.href = user.roles.includes('admin') ? ADMIN_APPOINTMENTS_URL : ACCOUNT_URL;
+  } catch (err) {
+    if (err instanceof ApiRequestError) {
+      alertEl.textContent = err.message;
+      alertEl.hidden = false;
+    } else {
+      throw err;
+    }
+  } finally {
+    setSubmitting(yandexBtn, false, 'Войти через Яндекс');
+  }
+});
 
 form.addEventListener('submit', async (event) => {
   event.preventDefault();

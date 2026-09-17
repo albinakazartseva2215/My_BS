@@ -161,6 +161,24 @@
   border: 1px solid var(--color-info);
 }
 
+/* ---- Разделитель перед кнопкой "Войти через Яндекс" — только линия и
+   подпись из уже существующих токенов, без новых цветов/размеров ---- */
+.auth-divider {
+  display: flex;
+  align-items: center;
+  gap: var(--space-12);
+  margin: var(--space-16) 0;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-caption);
+}
+.auth-divider::before,
+.auth-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--color-border);
+}
+
 .auth-step + .auth-step {
   margin-top: var(--space-16);
 }

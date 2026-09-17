@@ -130,6 +130,16 @@ export async function register({ name, email, phone, password, termsAccepted, ho
   return apiFetch('/auth/register', { method: 'POST', body });
 }
 
+// Вход через Яндекс в один клик (server/src/routes/auth.routes.js,
+// POST /api/auth/yandex/login) — без тела запроса: email/имя называет
+// сервер сам (пока — заглушка, YANDEX_LOGIN_STUB_ENABLED на бэкенде), а
+// не браузер, иначе это был бы способ войти под чужим e-mail. holdToken
+// эта функция не принимает — кнопка стоит на login.html/register.html,
+// не в визарде записи.
+export async function loginWithYandex() {
+  return apiFetch('/auth/yandex/login', { method: 'POST' });
+}
+
 export async function logout() {
   return apiFetch('/auth/logout', { method: 'POST' });
 }

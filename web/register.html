@@ -62,6 +62,13 @@
 
         <button type="submit" class="btn btn-primary btn-block" id="registerSubmit">Создать и продолжить</button>
       </form>
+
+      <div class="auth-divider"><span>или</span></div>
+
+      <!-- Заглушка на бэкенде (server/src/domain/yandexAuth.js,
+           YANDEX_LOGIN_STUB_ENABLED) — приложение в Яндексе ещё не
+           зарегистрировано, см. server/README.md. -->
+      <button type="button" class="btn btn-outline btn-block" id="yandexLoginBtn">Войти через Яндекс</button>
     </div>
 
     <div class="auth-switch">Уже есть аккаунт? <a href="login.html">Войти</a></div>

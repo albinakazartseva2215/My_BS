@@ -60,6 +60,14 @@ requestForm.addEventListener('submit', async (event) => {
     requestSuccessAlert.textContent = result.message;
     requestSuccessAlert.hidden = false;
 
+    // Аккаунт без пароля (вход только через Яндекс, server/src/domain/
+    // yandexAuth.js) — сбрасывать нечего, шаг 2 (код + новый пароль) для
+    // него не имеет смысла, поэтому форму не открываем. Единственный
+    // случай, где этот экран прямо разветвляется по ответу сервера — во
+    // всех остальных сообщение просто показывается текстом (см. комментарий
+    // выше про то, что ответ намеренно одинаковый).
+    if (result.oauthOnly) return;
+
     // resetToken в ответе — только в деве (server/src/routes/auth.routes.js,
     // env.isProduction): в проде без email-канала его в ответе не будет
     // вовсе, и это ожидаемо — доставить код будет нечем, пока такого
