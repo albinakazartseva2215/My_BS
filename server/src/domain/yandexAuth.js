@@ -132,3 +132,22 @@ export function findOrCreateYandexUser({ email, name, providerId }, now = new Da
     now: nowSql,
   });
 }
+
+// Пользователь уже вошёл (ctx.user, есть активная сессия) в момент возврата
+// с Яндекса — привязываем Яндекс к ТЕКУЩЕМУ аккаунту, вместо поиска/создания
+// по email из профиля Яндекса (findOrCreateYandexUser выше). Без этого
+// разбора: если email в Яндекс ID отличается от email регистрации на сайте,
+// findOrCreateYandexUser не находил совпадения и заводил ВТОРОЙ, отдельный
+// аккаунт — а setSessionCookie в routes/auth.routes.js после этого тихо
+// подменял сессию на него, посреди уже открытого визита под другим
+// аккаунтом. Живой случай — docs/development-log.md, «Вход через Яндекс
+// подменял сессию на другой аккаунт».
+//
+// email/name из профиля Яндекса здесь намеренно не используются — эта
+// функция только подтверждает связь с внешним входом, не переписывает имя
+// или почту уже существующего аккаунта тем, что прислал Яндекс.
+export function linkYandexToCurrentUser(currentUser, { providerId }, now = new Date()) {
+  const nowSql = dateToSql(now);
+  linkProviderToUser(currentUser.id, PROVIDER_YANDEX, providerId, nowSql);
+  return findUserWithRolesById(currentUser.id);
+}

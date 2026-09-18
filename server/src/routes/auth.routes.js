@@ -32,7 +32,7 @@ import { extractSessionToken, requireAuth } from '../middleware/auth.js';
 import { enforceRateLimit } from '../middleware/rateLimit.js';
 import { attachClientToHold } from '../domain/holdAttach.js';
 import { requestPasswordReset, confirmPasswordReset } from '../domain/passwordReset.js';
-import { getYandexProfile, findOrCreateYandexUser } from '../domain/yandexAuth.js';
+import { getYandexProfile, findOrCreateYandexUser, linkYandexToCurrentUser } from '../domain/yandexAuth.js';
 import { dateToSql, toIsoUtc } from '../time/salonClock.js';
 import { env } from '../config/env.js';
 
@@ -182,7 +182,15 @@ export function registerRoutes(router) {
     try {
       const profile = await getYandexProfile(code);
       const now = new Date();
-      const user = findOrCreateYandexUser(profile, now);
+      // Уже вошли (ctx.user — resolveCurrentUser в app.js, читает сессионную
+      // cookie на каждый запрос) — привязываем Яндекс к ТЕКУЩЕМУ аккаунту, а
+      // не ищем/заводим по email из профиля Яндекса. Иначе, если почта в
+      // Яндекс ID отличается от почты регистрации на сайте, этот шаг тихо
+      // заводил второй аккаунт и подменял сессию посреди уже открытого
+      // визита — живой случай, docs/development-log.md.
+      const user = ctx.user
+        ? linkYandexToCurrentUser(ctx.user, profile, now)
+        : findOrCreateYandexUser(profile, now);
       setSessionCookie(ctx, user.id, now);
       return { redirect: user.roles.includes('admin') ? ADMIN_URL : ACCOUNT_URL };
     } catch (err) {
